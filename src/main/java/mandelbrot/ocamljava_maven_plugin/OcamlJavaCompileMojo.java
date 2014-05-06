@@ -66,6 +66,7 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 			final ImmutableList<String> ocamlSourceFiles = gatherOcamlSourceFiles(ocamlSourceDirectory);
 			final String[] sourceArgs = generateCommandLineArguments(ocamlSourceFiles).toArray(new String[]{});
 
+			getLog().info("source args: " + ImmutableList.copyOf(sourceArgs));
 			ocamljavaMain.main(sourceArgs);
 		
 			final ImmutableList<String> ocamlTestFiles = gatherOcamlSourceFiles(ocamlTestDirectory);
