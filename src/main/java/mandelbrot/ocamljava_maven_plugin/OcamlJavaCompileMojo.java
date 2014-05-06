@@ -5,6 +5,7 @@ import java.util.Set;
 
 import ocaml.compilers.ocamljavaMain;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -12,7 +13,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * Goal which counts the total lines of code
+ * Goal which compiles ocaml source and test files.
  * 
  * @goal compile
  * 
@@ -69,11 +70,17 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 			getLog().info("source args: " + ImmutableList.copyOf(sourceArgs));
 			ocamljavaMain.main(sourceArgs);
 		
+			for (final String string : ocamlSourceFiles) {
+				FileUtils.moveFileToDirectory(new File(string), outputDirectory, true);
+			}
+			
 			final ImmutableList<String> ocamlTestFiles = gatherOcamlSourceFiles(ocamlTestDirectory);
 			final String[] testArgs = generateCommandLineArguments(ocamlTestFiles).toArray(new String[]{});
 
+			getLog().info("test args: " + ImmutableList.copyOf(testArgs));
 			ocamljavaMain.main(testArgs);
 
+			
 		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
 		}
