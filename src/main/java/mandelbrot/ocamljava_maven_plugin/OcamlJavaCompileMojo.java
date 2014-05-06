@@ -31,29 +31,20 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 	/**
 	 * Project's source directory as specified in the POM.
 	 * 
-	 * @parameter expression="${project.build.sourceDirectory}"
+	 * @parameter expression="${project.build.ocamlSourceDirectory}"
 	 * @readonly
-	 * @required
 	 */
-	private final File sourceDirectory = new File("");
+	private final File ocamlSourceDirectory = new File("src/main/ocaml");
 
 	/**
-	 * Project's source directory for test code as specified in the POM.
+	 * Project's source directory as specified in the POM.
 	 * 
-	 * @parameter expression="${project.build.testSourceDirectory}"
-	 * @readonly
-	 * @required
-	 */
-	private final File testSourceDirectory = new File("");
-
-	/**
-	 * Project's ocaml source directory as specified in the POM.
-	 * 
-	 * @parameter expression="${project.build.ocamlSource}"
+	 * @parameter expression="${project.build.ocamlTestDirectory}"
 	 * @readonly
 	 */
-	private final String ocamlSource = "ocaml";
-
+	private final File ocamlTestDirectory = new File("src/test/ocaml");
+	
+	@Override
 	public void execute() throws MojoExecutionException {
 
 		if (!ensureTargetDirectoryExists()) {
@@ -61,15 +52,14 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 			return;
 		}
 
-		if (!sourceDirectory.exists()) {
+		if (!ocamlSourceDirectory.exists()) {
 			getLog().error(
-					"Source directory \"" + sourceDirectory
+					"Source directory \"" + ocamlSourceDirectory
 							+ "\" is not valid.");
 			return;
 		}
 
-		final File ocamlSourceDirectory = new File(sourceDirectory.getAbsolutePath() + File.separatorChar + ocamlSource);
-		final File ocamlTestDirectory = new File(testSourceDirectory.getAbsolutePath() + File.separatorChar + ocamlSource);
+		getLog().info("ocaml source directory: " + ocamlSourceDirectory.getAbsolutePath());
 	
 		try {
 	
@@ -102,16 +92,22 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 
 	public ImmutableList<String> gatherOcamlSourceFiles(final File root) {
 		final ImmutableList.Builder<String> files = ImmutableList.builder();
-		if (root.isFile()) {
+		if (root.isFile() && isOcamlSourceFile(root)) {
 			files.add(root.getPath());
 			return files.build();
 		}
+	
+		if (!root.isDirectory() || root.listFiles() == null)
+			return files.build();
+		
 		for (final File file : root.listFiles()) {
 			if (file.isDirectory()) {
+				getLog().info("scanning directory: " + file);
+				
 				files.addAll(gatherOcamlSourceFiles(file));
 			} else {
 				if (isOcamlSourceFile(file)) {
-					getLog().debug("adding ocaml source file: " + file);
+					getLog().info("adding ocaml source file: " + file);
 					files.add(file.getPath());
 				}
 			}
@@ -134,7 +130,7 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 		if (-1 == dotPos) {
 			return null;
 		} else {
-			return filePath.substring(dotPos);
+			return filePath.substring(dotPos+1);
 		}
 	}
 
