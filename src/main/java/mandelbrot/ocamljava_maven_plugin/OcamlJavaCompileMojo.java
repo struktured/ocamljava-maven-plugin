@@ -1,6 +1,8 @@
 package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
 import java.util.Set;
 
 import ocaml.compilers.ocamljavaMain;
@@ -9,6 +11,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
@@ -20,6 +24,12 @@ import com.google.common.collect.ImmutableSet;
  * @phase compile
  */
 public class OcamlJavaCompileMojo extends AbstractMojo {
+
+	private static final String DOT = ".";
+
+	private static final String COMPILED_IMPL_EXTENSION = "cmj";
+	private static final String COMPILED_INTERFACE_ENXTENSION = "cmi";
+	private static final String OBJECT_BINARY_EXTENSION = "jo";
 
 	/**
 	 * Location of the file.
@@ -69,21 +79,62 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 
 			getLog().info("source args: " + ImmutableList.copyOf(sourceArgs));
 			ocamljavaMain.main(sourceArgs);
-		
-			for (final String string : ocamlSourceFiles) {
-				FileUtils.moveFileToDirectory(new File(string), outputDirectory, true);
-			}
-			
+
+			moveAllCompiledFiles(ocamlSourceFiles);
+
 			final ImmutableList<String> ocamlTestFiles = gatherOcamlSourceFiles(ocamlTestDirectory);
 			final String[] testArgs = generateCommandLineArguments(ocamlTestFiles).toArray(new String[]{});
 
 			getLog().info("test args: " + ImmutableList.copyOf(testArgs));
 			ocamljavaMain.main(testArgs);
 
+			moveAllCompiledFiles(ocamlTestFiles);
+
 			
 		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
 		}
+	}
+
+	private void moveAllCompiledFiles(
+			final ImmutableList<String> ocamlSourceFiles) {
+		moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles, COMPILED_IMPL_EXTENSION);
+		moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles, COMPILED_INTERFACE_ENXTENSION);
+		moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles, OBJECT_BINARY_EXTENSION);
+	}
+
+	private Set<String> moveCompiledSourceFilesToTargetDirectory(final ImmutableList<String> ocamlSourceFiles, final String compiledExtension) {
+		final Collection<String> transformed = Collections2.transform(
+				ocamlSourceFiles, new Function<String, String>() {
+
+					@Override
+					public String apply(final String string) {
+						final File srcFile = new File(string);
+				
+						final String compiledSourceName = changeExtension(srcFile, compiledExtension);
+						final File compiledSrcFile = new File(srcFile.getParent() + File.separator + compiledSourceName);
+						try {
+							if (compiledSrcFile.exists()) {
+								getLog().info("moving src " + compiledSrcFile + " to output directory: " + outputDirectory);
+								FileUtils.moveFileToDirectory(compiledSrcFile,
+										outputDirectory, true);
+							}
+							else
+								getLog().warn("skipping transfer of file " + compiledSrcFile + " which doesn't exist.");
+						} catch (final IOException e) {
+							throw new RuntimeException(
+									"error moving compiled sources",
+									e);
+						}
+						return outputDirectory.getAbsolutePath()
+								+ File.separator + compiledSourceName;
+					}
+				});
+		return ImmutableSet.copyOf(transformed);
+	}
+
+	private String changeExtension(final File srcFile, final String extension) {
+		return srcFile.getName().split("\\" + DOT)[0] + DOT + extension;
 	}
 
 	private ImmutableList<String> generateCommandLineArguments(
@@ -134,7 +185,7 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 	}
 
 	public static String getExtension(final String filePath) {
-		final int dotPos = filePath.lastIndexOf(".");
+		final int dotPos = filePath.lastIndexOf(DOT);
 		if (-1 == dotPos) {
 			return null;
 		} else {
