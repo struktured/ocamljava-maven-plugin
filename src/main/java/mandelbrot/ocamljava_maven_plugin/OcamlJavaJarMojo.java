@@ -10,6 +10,7 @@ import ocaml.compilers.ocamljavaMain;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -19,11 +20,11 @@ import com.google.common.collect.ImmutableSet;
 /**
  * Goal which compiles ocaml source and test files.
  * 
- * @goal compile
+ * @goal jar
  * 
- * @phase compile
+ * @phase 
  */
-public class OcamlJavaCompileMojo extends AbstractMojo {
+public class OcamlJavaJarMojo extends AbstractMojo {
 
 	private static final String IMPL_SOURCE_EXTENSION = "ml";
 	private static final String INTERFACE_SOURCE_EXTENSION = "mli";
@@ -36,6 +37,13 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 
 	private static final Set<String> OCAML_SOURCE_FILE_EXTENSIONS = ImmutableSet
 			.of(IMPL_SOURCE_EXTENSION, INTERFACE_SOURCE_EXTENSION);
+	
+	/**
+	 * @parameter default-value="${project}"
+	 * @required
+	 * @readonly
+	 */
+	private MavenProject project;		
 	
 	/**
 	 * Location of the file.
@@ -77,7 +85,8 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 		}
 
 		getLog().info("ocaml source directory: " + ocamlSourceDirectory.getAbsolutePath());
-	
+
+		project.
 		try {
 	
 			final ImmutableList<String> ocamlSourceFiles = gatherOcamlSourceFiles(ocamlSourceDirectory);
