@@ -15,6 +15,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.*;
 
 /**
  * Goal which compiles ocaml source and test files.
@@ -25,17 +26,6 @@ import com.google.common.collect.ImmutableSet;
  */
 public class OcamlJavaCompileMojo extends AbstractMojo {
 
-	private static final String IMPL_SOURCE_EXTENSION = "ml";
-	private static final String INTERFACE_SOURCE_EXTENSION = "mli";
-
-	private static final String DOT = ".";
-
-	private static final String COMPILED_IMPL_EXTENSION = "cmj";
-	private static final String COMPILED_INTERFACE_ENXTENSION = "cmi";
-	private static final String OBJECT_BINARY_EXTENSION = "jo";
-
-	private static final Set<String> OCAML_SOURCE_FILE_EXTENSIONS = ImmutableSet
-			.of(IMPL_SOURCE_EXTENSION, INTERFACE_SOURCE_EXTENSION);
 	
 	/**
 	 * Location of the file.
@@ -180,12 +170,11 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 		return files.build();
 	}
 
-
 	private boolean isOcamlSourceFile(final File file) {
 		final String extension = getExtension(file.getAbsolutePath());
 		if (extension == null)
 			return false;
-		return OCAML_SOURCE_FILE_EXTENSIONS.contains(extension);
+		return OCAML_SOURCE_FILE_EXTENSIONS.contains(extension.toLowerCase());
 	}
 
 	public static String getExtension(final String filePath) {
