@@ -1,6 +1,7 @@
 package mandelbrot.ocamljava_maven_plugin;
 
-import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.*;
+import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.COMPILED_IMPL_EXTENSION;
+import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.DOT;
 
 import java.io.File;
 
@@ -38,6 +39,13 @@ public class OcamlJavaJarMojo extends AbstractMojo {
 	 */
 	private final File outputDirectory = new File("");
 
+	/**
+	 * The jar to add ocaml compiled sources to.
+	 * @parameter default-value="${project.artifactId}-${project.version}.jar"
+	 * @required
+	 * @readonly
+	 */
+	private String targetJar;
 	
 	@Override
 	public void execute() throws MojoExecutionException {
@@ -69,7 +77,7 @@ public class OcamlJavaJarMojo extends AbstractMojo {
 	
 	private ImmutableList<String> generateCommandLineArguments(
 			final ImmutableList<String> ocamlSourceFiles) {
-		return ImmutableList.<String>builder().add("-o").addAll(ocamlSourceFiles).build();
+		return ImmutableList.<String>builder().add("-o").add(getTargetJarFullPath()).addAll(ocamlSourceFiles).build();
 	}
 	
 	private boolean ensureTargetDirectoryExists() {
@@ -108,7 +116,6 @@ public class OcamlJavaJarMojo extends AbstractMojo {
 	private boolean isOcamlCompiledSourceFile(final File file) {
 		final String extension = getExtension(file.getAbsolutePath());
 		return COMPILED_IMPL_EXTENSION.equalsIgnoreCase(extension);
-		
 	}
 
 	public static String getExtension(final String filePath) {
@@ -120,7 +127,7 @@ public class OcamlJavaJarMojo extends AbstractMojo {
 		}
 	}
 
-	public String getTargetJar() {
-		return project.getProperties().getProperty("jar.finalName");
+	public String getTargetJarFullPath() {
+		return outputDirectory.getAbsolutePath() + File.separator  + targetJar;
 	}
 }
