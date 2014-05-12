@@ -1,5 +1,11 @@
 package mandelbrot.ocamljava_maven_plugin;
 
+import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.COMPILED_IMPL_EXTENSION;
+import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.COMPILED_INTERFACE_ENXTENSION;
+import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.DOT;
+import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.OBJECT_BINARY_EXTENSION;
+import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.OCAML_SOURCE_FILE_EXTENSIONS;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -15,7 +21,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.*;
 
 /**
  * Goal which compiles ocaml source and test files.
@@ -91,29 +96,32 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 		}
 	}
 
-	// TODO maintain package path structure when copying to target!
 	private void moveAllCompiledFiles(
-			final ImmutableList<String> ocamlSourceFiles) {
+			final Collection<String> ocamlSourceFiles) {
 		moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles, COMPILED_IMPL_EXTENSION);
 		moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles, COMPILED_INTERFACE_ENXTENSION);
 		moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles, OBJECT_BINARY_EXTENSION);
 	}
 
-	private Set<String> moveCompiledSourceFilesToTargetDirectory(final ImmutableList<String> ocamlSourceFiles, final String compiledExtension) {
+	private Set<String> moveCompiledSourceFilesToTargetDirectory(final Collection<String> ocamlSourceFiles, final String compiledExtension) {
 		final Collection<String> transformed = Collections2.transform(
 				ocamlSourceFiles, new Function<String, String>() {
 
 					@Override
-					public String apply(final String string) {
-						final File srcFile = new File(string);
+					public String apply(final String path) {
+						final File srcFile = new File(path);
 				
 						final String compiledSourceName = changeExtension(srcFile, compiledExtension);
 						final File compiledSrcFile = new File(srcFile.getParent() + File.separator + compiledSourceName);
+						final File qualifiedOutputDirectory = new File(outputDirectory.getPath() + File.separator +
+								compiledSrcFile.getParent().replace(ocamlSourceDirectory.getPath(), ""));
+						
 						try {
 							if (compiledSrcFile.exists()) {
-								getLog().info("moving src " + compiledSrcFile + " to output directory: " + outputDirectory);
-								FileUtils.moveFileToDirectory(compiledSrcFile,
-										outputDirectory, true);
+								getLog().info("moving src " + compiledSrcFile + " to output directory: " + qualifiedOutputDirectory);
+								FileUtils.copyFileToDirectory(compiledSrcFile,
+										qualifiedOutputDirectory, true);
+								FileUtils.deleteQuietly(compiledSrcFile);
 							}
 							else
 								getLog().warn("skipping transfer of file " + compiledSrcFile + " which doesn't exist.");
