@@ -1,10 +1,7 @@
 package mandelbrot.ocamljava_maven_plugin;
 
-import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.COMPILED_IMPL_EXTENSION;
-import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.COMPILED_INTERFACE_ENXTENSION;
-import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.DOT;
-import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.OBJECT_BINARY_EXTENSION;
-import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.OCAML_SOURCE_FILE_EXTENSIONS;
+import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.DOT;
+import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.OCAML_SOURCE_FILE_EXTENSIONS;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +11,6 @@ import java.util.Set;
 import ocaml.compilers.ocamljavaMain;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import com.google.common.base.Function;
@@ -29,32 +25,8 @@ import com.google.common.collect.ImmutableSet;
  * 
  * @phase compile
  */
-public class OcamlJavaCompileMojo extends AbstractMojo {
+public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 
-	
-	/**
-	 * Location of the file.
-	 * 
-	 * @parameter expression="${project.build.directory}"
-	 * @required
-	 */
-	private final File outputDirectory = new File("");
-
-	/**
-	 * Project's source directory as specified in the POM.
-	 * 
-	 * @parameter expression="${project.build.ocamlSourceDirectory}"
-	 * @readonly
-	 */
-	private final File ocamlSourceDirectory = new File("src/main/ocaml");
-
-	/**
-	 * Project's source directory as specified in the POM.
-	 * 
-	 * @parameter expression="${project.build.ocamlTestDirectory}"
-	 * @readonly
-	 */
-	private final File ocamlTestDirectory = new File("src/test/ocaml");
 	
 	@Override
 	public void execute() throws MojoExecutionException {
@@ -76,34 +48,38 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 		try {
 	
 			final ImmutableList<String> ocamlSourceFiles = gatherOcamlSourceFiles(ocamlSourceDirectory);
-			final String[] sourceArgs = generateCommandLineArguments(ocamlSourceFiles).toArray(new String[]{});
-
-			getLog().info("source args: " + ImmutableList.copyOf(sourceArgs));
-			ocamljavaMain.main(sourceArgs);
-
-			moveAllCompiledFiles(ocamlSourceFiles);
-
+			
+			if (!ocamlSourceFiles.isEmpty())
+			{
+				final String[] sourceArgs = generateCommandLineArguments(ocamlSourceFiles).toArray(new String[]{});
+				getLog().info("source args: " + ImmutableList.copyOf(sourceArgs));
+				ocamljavaMain.main(sourceArgs);
+				moveAllCompiledFiles(ocamlSourceFiles, ocamlCompiledSourcesTarget, ocamlSourceDirectory.getPath());
+			}
+			
 			final ImmutableList<String> ocamlTestFiles = gatherOcamlSourceFiles(ocamlTestDirectory);
-			final String[] testArgs = generateCommandLineArguments(ocamlTestFiles).toArray(new String[]{});
-
-			getLog().info("test args: " + ImmutableList.copyOf(testArgs));
-			ocamljavaMain.main(testArgs);
-
-			moveAllCompiledFiles(ocamlTestFiles);
-
-		} catch (final Exception e) {
+			
+			if (!ocamlTestFiles.isEmpty()) {
+				final String[] testArgs = generateCommandLineArguments(ocamlTestFiles).toArray(new String[]{});
+				getLog().info("test args: " + ImmutableList.copyOf(testArgs));
+				ocamljavaMain.main(testArgs);
+				moveAllCompiledFiles(ocamlTestFiles, ocamlCompiledTestsTarget, ocamlTestDirectory.getPath());
+			}
+			
+			} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
 		}
 	}
 
-	private void moveAllCompiledFiles(
-			final Collection<String> ocamlSourceFiles) {
-		moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles, COMPILED_IMPL_EXTENSION);
-		moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles, COMPILED_INTERFACE_ENXTENSION);
-		moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles, OBJECT_BINARY_EXTENSION);
+	private void moveAllCompiledFiles(final Collection<String> ocamlSourceFiles, final String outputDirectoryQualifier, final String toFilter) {
+		
+		for (final String extension: OcamlJavaConstants.OCAML_COMPILED_SOURCE_FILE_EXTENSIONS)
+			moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles, extension, outputDirectoryQualifier, toFilter);
+				
 	}
 
-	private Set<String> moveCompiledSourceFilesToTargetDirectory(final Collection<String> ocamlSourceFiles, final String compiledExtension) {
+	private Set<String> moveCompiledSourceFilesToTargetDirectory(final Collection<String> ocamlSourceFiles, final String compiledExtension,
+			final String outputDirectoryQualifier, final String toFilter) {
 		final Collection<String> transformed = Collections2.transform(
 				ocamlSourceFiles, new Function<String, String>() {
 
@@ -113,8 +89,12 @@ public class OcamlJavaCompileMojo extends AbstractMojo {
 				
 						final String compiledSourceName = changeExtension(srcFile, compiledExtension);
 						final File compiledSrcFile = new File(srcFile.getParent() + File.separator + compiledSourceName);
-						final File qualifiedOutputDirectory = new File(outputDirectory.getPath() + File.separator +
-								compiledSrcFile.getParent().replace(ocamlSourceDirectory.getPath(), ""));
+						final File qualifiedOutputDirectory = new File(
+								outputDirectory.getPath() + 
+								File.separator +
+								outputDirectoryQualifier + 
+								File.separator + 
+								compiledSrcFile.getParent().replace(toFilter, ""));
 						
 						try {
 							if (compiledSrcFile.exists()) {

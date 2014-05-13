@@ -4,7 +4,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
-public class OcamlConstants {
+public class OcamlJavaConstants {
 
 	public static final String IMPL_SOURCE_EXTENSION = "ml";
 	public static final String INTERFACE_SOURCE_EXTENSION = "mli";
@@ -17,5 +17,8 @@ public class OcamlConstants {
 
 	public static final Set<String> OCAML_SOURCE_FILE_EXTENSIONS = ImmutableSet
 			.of(IMPL_SOURCE_EXTENSION, INTERFACE_SOURCE_EXTENSION);
+	
+	public static final Set<String> OCAML_COMPILED_SOURCE_FILE_EXTENSIONS = ImmutableSet
+			.of(COMPILED_IMPL_EXTENSION, COMPILED_INTERFACE_ENXTENSION, OBJECT_BINARY_EXTENSION);
 	
 }

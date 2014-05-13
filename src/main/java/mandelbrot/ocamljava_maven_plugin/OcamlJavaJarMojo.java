@@ -1,15 +1,13 @@
 package mandelbrot.ocamljava_maven_plugin;
 
-import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.COMPILED_IMPL_EXTENSION;
-import static mandelbrot.ocamljava_maven_plugin.OcamlConstants.DOT;
+import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.COMPILED_IMPL_EXTENSION;
+import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.DOT;
 
 import java.io.File;
 
 import ocaml.compilers.ocamljavaMain;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
 
 import com.google.common.collect.ImmutableList;
 
@@ -20,33 +18,9 @@ import com.google.common.collect.ImmutableList;
  * 
  * @phase package
  */
-public class OcamlJavaJarMojo extends AbstractMojo {
+public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 
 
-	
-	/**
-	 * @parameter default-value="${project}"
-	 * @required
-	 * @readonly
-	 */
-	private MavenProject project;		
-	
-	/**
-	 * Location of the file.
-	 * 
-	 * @parameter expression="${project.build.directory}"
-	 * @required
-	 */
-	private final File outputDirectory = new File("");
-
-	/**
-	 * The jar to add ocaml compiled sources to.
-	 * @parameter default-value="${project.artifactId}-${project.version}.jar"
-	 * @required
-	 * @readonly
-	 */
-	private String targetJar;
-	
 	@Override
 	public void execute() throws MojoExecutionException {
 
@@ -57,17 +31,25 @@ public class OcamlJavaJarMojo extends AbstractMojo {
 		
 		try {
 	
-			final ImmutableList<String> ocamlCompiledSourceFiles = gatherOcamlCompiledSources(outputDirectory);
-			final String[] args = generateCommandLineArguments(ocamlCompiledSourceFiles).toArray(new String[]{});
+			final ImmutableList<String> ocamlCompiledSourceFiles = gatherOcamlCompiledSources(new File(
+					outputDirectory.getPath() + 
+					File.separator +
+					ocamlCompiledSourcesTarget));
+			
+			final String[] args = generateCommandLineArguments(targetJar, ocamlCompiledSourceFiles).toArray(new String[]{});
 
 			getLog().info("args: " + ImmutableList.copyOf(args));
 			ocamljavaMain.main(args);
-//
-//			final ImmutableList<String> ocamlTestFiles = gatherOcamlCompiledSources(outputDirectory);
-//			final String[] testArgs = generateCommandLineArguments(ocamlTestFiles).toArray(new String[]{});
-//
-//			getLog().info("test args: " + ImmutableList.copyOf(testArgs));
-//			ocamljavaMain.main(testArgs);
+			
+			final ImmutableList<String> ocamlTestFiles = gatherOcamlCompiledSources(new File(
+					outputDirectory.getPath() + 
+					File.separator + 
+					ocamlCompiledTestsTarget));
+		
+			final String[] testArgs = generateCommandLineArguments(targetTestJar, ocamlTestFiles).toArray(new String[]{});
+
+			getLog().info("test args: " + ImmutableList.copyOf(testArgs));
+			ocamljavaMain.main(testArgs);
 
 		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
@@ -75,9 +57,9 @@ public class OcamlJavaJarMojo extends AbstractMojo {
 	}
 
 	
-	private ImmutableList<String> generateCommandLineArguments(
+	private ImmutableList<String> generateCommandLineArguments(final String targetJar,
 			final ImmutableList<String> ocamlSourceFiles) {
-		return ImmutableList.<String>builder().add("-o").add(getTargetJarFullPath()).addAll(ocamlSourceFiles).build();
+		return ImmutableList.<String>builder().add("-o").add(getTargetJarFullPath(targetJar)).addAll(ocamlSourceFiles).build();
 	}
 	
 	private boolean ensureTargetDirectoryExists() {
@@ -127,7 +109,7 @@ public class OcamlJavaJarMojo extends AbstractMojo {
 		}
 	}
 
-	public String getTargetJarFullPath() {
+	public String getTargetJarFullPath(String targetJar) {
 		return outputDirectory.getAbsolutePath() + File.separator  + targetJar;
 	}
 }
