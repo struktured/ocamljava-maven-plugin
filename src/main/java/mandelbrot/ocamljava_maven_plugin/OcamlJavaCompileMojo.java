@@ -8,14 +8,11 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 
-import ocaml.compilers.ocamljavaConstants;
 import ocaml.compilers.ocamljavaMain;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.sonatype.inject.Description;
-
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
@@ -29,7 +26,8 @@ import com.google.common.collect.ImmutableSet;
  * 
  * @phase compile
  * @executionStrategy once-per-session
- * @requiresDependencyResolution
+ * @requiresDependencyResolution runtime
+ * @threadSafe *
  */
 public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 
@@ -134,7 +132,10 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 		try {
 			return ImmutableList.<String>builder()
 					.add(OcamlJavaConstants.CLASSPATH_OPTION)
-					.add(Joiner.on(";").join(isTest ? project.getTestClasspathElements() : project.getCompileClasspathElements()))
+					.add(Joiner.on(";").join(ImmutableSet.builder()
+							.addAll(project.getSystemClasspathElements())
+							.addAll(isTest ? project.getTestClasspathElements() : project.getCompileClasspathElements())
+							.build()))
 					.add(OcamlJavaConstants.COMPILE_SOURCES_OPTION)
 					.addAll(ocamlSourceFiles)
 					.build();
