@@ -8,12 +8,16 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 
+import ocaml.compilers.ocamljavaConstants;
 import ocaml.compilers.ocamljavaMain;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.sonatype.inject.Description;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -24,10 +28,14 @@ import com.google.common.collect.ImmutableSet;
  * @goal compile
  * 
  * @phase compile
+ * @executionStrategy once-per-session
+ * @requiresDependencyResolution
  */
 public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 
 	
+	
+
 	@Override
 	public void execute() throws MojoExecutionException {
 
@@ -51,7 +59,7 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 			
 			if (!ocamlSourceFiles.isEmpty())
 			{
-				final String[] sourceArgs = generateCommandLineArguments(ocamlSourceFiles).toArray(new String[]{});
+				final String[] sourceArgs = generateCommandLineArguments(ocamlSourceFiles, false).toArray(new String[]{});
 				getLog().info("source args: " + ImmutableList.copyOf(sourceArgs));
 				ocamljavaMain.main(sourceArgs);
 				moveAllCompiledFiles(ocamlSourceFiles, ocamlCompiledSourcesTarget, ocamlSourceDirectory.getPath());
@@ -60,13 +68,13 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 			final ImmutableList<String> ocamlTestFiles = gatherOcamlSourceFiles(ocamlTestDirectory);
 			
 			if (!ocamlTestFiles.isEmpty()) {
-				final String[] testArgs = generateCommandLineArguments(ocamlTestFiles).toArray(new String[]{});
+				final String[] testArgs = generateCommandLineArguments(ocamlTestFiles, true).toArray(new String[]{});
 				getLog().info("test args: " + ImmutableList.copyOf(testArgs));
 				ocamljavaMain.main(testArgs);
 				moveAllCompiledFiles(ocamlTestFiles, ocamlCompiledTestsTarget, ocamlTestDirectory.getPath());
 			}
 			
-			} catch (final Exception e) {
+		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
 		}
 	}
@@ -122,8 +130,17 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 	}
 
 	private ImmutableList<String> generateCommandLineArguments(
-			final ImmutableList<String> ocamlSourceFiles) {
-		return ImmutableList.<String>builder().add("-c").addAll(ocamlSourceFiles).build();
+			final ImmutableList<String> ocamlSourceFiles, final boolean isTest) throws MojoExecutionException {
+		try {
+			return ImmutableList.<String>builder()
+					.add(OcamlJavaConstants.CLASSPATH_OPTION)
+					.add(Joiner.on(";").join(isTest ? project.getTestClasspathElements() : project.getCompileClasspathElements()))
+					.add(OcamlJavaConstants.COMPILE_SOURCES_OPTION)
+					.addAll(ocamlSourceFiles)
+					.build();
+		} catch (final DependencyResolutionRequiredException e) {
+			throw new MojoExecutionException("dependency resolution required", e);
+		}
 	}
 	
 	private boolean ensureTargetDirectoryExists() {

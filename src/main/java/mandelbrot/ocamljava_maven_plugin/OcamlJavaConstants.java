@@ -21,4 +21,7 @@ public class OcamlJavaConstants {
 	public static final Set<String> OCAML_COMPILED_SOURCE_FILE_EXTENSIONS = ImmutableSet
 			.of(COMPILED_IMPL_EXTENSION, COMPILED_INTERFACE_ENXTENSION, OBJECT_BINARY_EXTENSION);
 	
+	public static final String COMPILE_SOURCES_OPTION = "-c";
+	public static final String ADD_TO_JAR_SOURCES_OPTION = "-o";
+	public static final String CLASSPATH_OPTION = "-classpath";
 }
