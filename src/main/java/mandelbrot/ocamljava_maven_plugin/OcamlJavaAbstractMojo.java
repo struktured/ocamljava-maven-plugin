@@ -3,6 +3,7 @@ package mandelbrot.ocamljava_maven_plugin;
 import java.io.File;
 
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
@@ -12,6 +13,14 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @readonly
 	 */
 	protected MavenProject project;		
+
+	/**
+	 * The plugin descriptor
+	 * 
+	 * @required
+	 * @parameter default-value="${descriptor}"
+	 */
+	protected PluginDescriptor descriptor;	
 	
 	/**
 	 * Location of the file.

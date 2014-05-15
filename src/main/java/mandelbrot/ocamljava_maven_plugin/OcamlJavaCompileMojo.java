@@ -24,11 +24,12 @@ import com.google.common.collect.ImmutableSet;
  * Goal which compiles ocaml source and test files.
  * 
  * @goal compile
- * 
  * @phase compile
+ * @requiresProject
  * @executionStrategy once-per-session
  * @requiresDependencyResolution runtime
  * @threadSafe *
+ * @since 1.0
  */
 public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 

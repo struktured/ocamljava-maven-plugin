@@ -14,9 +14,11 @@ import com.google.common.collect.ImmutableList;
 /**
  * Goal which compiles ocaml source and test files.
  * 
+ * @requiresProject 
  * @goal jar
- * 
  * @phase package
+ * @threadSafe *
+ * @since 1.0
  */
 public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 
