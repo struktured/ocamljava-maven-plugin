@@ -8,11 +8,12 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 
+import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import ocaml.compilers.ocamljavaMain;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
+
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
@@ -129,19 +130,14 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 
 	private ImmutableList<String> generateCommandLineArguments(
 			final ImmutableList<String> ocamlSourceFiles, final boolean isTest) throws MojoExecutionException {
-		try {
-			return ImmutableList.<String>builder()
-					.add(OcamlJavaConstants.CLASSPATH_OPTION)
-					.add(Joiner.on(";").join(ImmutableSet.builder()
-							.addAll(project.getSystemClasspathElements())
-							.addAll(isTest ? project.getTestClasspathElements() : project.getCompileClasspathElements())
-							.build()))
-					.add(OcamlJavaConstants.COMPILE_SOURCES_OPTION)
-					.addAll(ocamlSourceFiles)
-					.build();
-		} catch (final DependencyResolutionRequiredException e) {
-			throw new MojoExecutionException("dependency resolution required", e);
-		}
+		return ImmutableList.<String>builder()
+				.add(OcamlJavaConstants.CLASSPATH_OPTION)
+				.add(Joiner.on(";").join(ImmutableSet.builder()
+						.addAll(new ClassPathGatherer(this).getClassPath(project, isTest))
+						.build()))
+				.add(OcamlJavaConstants.COMPILE_SOURCES_OPTION)
+				.addAll(ocamlSourceFiles)
+				.build();
 	}
 	
 	private boolean ensureTargetDirectoryExists() {
