@@ -20,12 +20,16 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
+
 /**
- * Goal which compiles ocaml source and test files.
- * @author Carmelo Piccione
+ * <p>This is a goal which compiles OCaml sources during the maven compilation phase.
+ * It is the same as executing something like</p>
+ * <p><code>ocamljava -classpath classpath/lib.jar -c foo.ml bar.ml ...</code></p>
+ * from the command line but instead uses maven properties to infer the source locations and class path.
+ * All parameters can be overriden. See the configuration section of the documentation for more information.</p>
+ * @requiresProject 
  * @goal compile
  * @phase compile
- * @requiresProject
  * @executionStrategy once-per-session
  * @requiresDependencyResolution runtime
  * @threadSafe *

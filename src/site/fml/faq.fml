@@ -8,25 +8,42 @@
   <part id="general">
     <title>General</title>
 
-    <faq id="whats-foo">
+    <faq id="whats-ocamljava">
       <question>
-        What is Foo?
+        What is OCaml Java?
       </question>
       <answer>
-        <p>some markup goes here</p>
-
-        <source>some source code</source>
-
-        <p>some markup goes here</p>
+        <p>OCaml Java is special ocaml compiler which generates compiled sources for a generic Java Virtual Machine. The latest release is a preview but it already working quite well. The project's primary website is hosted <a href="http://ocamljava.x9c.fr/">here</a></p>
       </answer>
     </faq>
 
-    <faq id="whats-bar">
+    <faq id="install-ocmaljava">
       <question>
-        What is Bar?
+        How do I install ocamljava itself?
       </question>
       <answer>
-        <p>some markup goes here</p>
+        <p>For now this is awkward. Get the latest ocmaljava preview release from <a href="http://ocamljava.x9c.fr/preview/#download">here</a>. Extract the package in a workspace
+	directory. In the lib folder of that directory there are the essential jars which make up the ocamljava project. Run the following python script (included on github as
+	install_maven_dependencies.py) to auto install all these jars into your local m2 cache</p>.
+<source>
+from os import listdir, getcwd, system
+from os.path import isfile, join
+from subprocess import call
+import sys
+VERSION = '2.0-early-access11'
+
+MYPATH = getcwd() 
+
+onlyfiles = [f for f in listdir(MYPATH) if isfile(join(MYPATH,f)) and (str(f)).split('.')[1] == "jar"]
+
+for f in onlyfiles :
+        command_args = " ".join(["mvn", "install:install-file", "-Dfile=" + str(f), 
+                "-DgroupId=fr.x9c", "-DartifactId=" + str(f).split('.')[0],
+                "-Dversion=" + VERSION, "-Dpackaging=jar"])
+        system(command_args)
+</source>
+
+
       </answer>
     </faq>
   </part>

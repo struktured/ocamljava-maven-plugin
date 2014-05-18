@@ -1,13 +1,11 @@
 ------
- Introduction
- ------
- Author
- ------
- YYYY-MM-DD
- ------
+Introduction
+------
+2014-05-18
+------
 
 
-Plugin Name
+OcamlJava Maven Plugin
 
   Plugin introduction, description, and other relevant information.
 
@@ -15,7 +13,7 @@ Plugin Name
 
   General information about the goals.
 
-  * {{{<goal>.html}prefix:goal}} short description for this plugin goal.
+  * {{{<goal>.html}ocamljava:compile}} compiles ocaml sources, typically from the <source>src/main/ocaml</source> folder.
 
 * Usage
 
