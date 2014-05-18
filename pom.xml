@@ -6,7 +6,10 @@
 	<packaging>maven-plugin</packaging>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Ocaml Java Maven Plugin</name>
-	<url>http://maven.apache.org</url>
+	<url>https://github.com/struktured/ocamljava-maven-plugin</url>
+	<prerequisites>
+		<maven>3.0</maven>
+	</prerequisites>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -37,6 +40,11 @@
 		<dependency>
 			<groupId>fr.x9c</groupId>
 			<artifactId>ocamljava</artifactId>
+			<version>2.0-early-access11</version>
+		</dependency>
+		<dependency>
+			<groupId>fr.x9c</groupId>
+			<artifactId>ocamlwrap</artifactId>
 			<version>2.0-early-access11</version>
 		</dependency>
 		<dependency>
@@ -73,4 +81,30 @@
 			</plugin>
 		</plugins>
 	</build>
+	<description>This plugin provides maven integration for ocaml java. See http://ocamljava.x9c.fr for details on that specific project. The important thing to know is it's a pure java solution to integrating ocaml code with the JVM, and this project provides the necessary maven integration.</description>
+	<scm>
+		<connection>scm:git:https://github.com/struktured/ocamljava-maven-plugin.git</connection>
+		<developerConnection>scm:git:git@github.com:struktured/ocamljava-maven-plugin.git</developerConnection>
+		<url>https://github.com/struktured/ocamljava-maven-plugin</url>
+	</scm>
+	<organization>
+		<name>Carmelo Piccione</name>
+		<url>https://github.com/struktured/</url>
+	</organization>
+	<developers>
+		<developer>
+			<email>carmelo.piccione+ocamljava@gmail.com</email>
+			<name>Carmelo Piccione</name>
+			<url>https://github.com/struktured/</url>
+		</developer>
+	</developers>
+	<inceptionYear>2014</inceptionYear>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	
 </project>

@@ -1,8 +1,6 @@
 package mandelbrot.ocamljava_maven_plugin.util;
 
-import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;

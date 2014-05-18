@@ -13,6 +13,9 @@ import ocaml.compilers.ocamljavaMain;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.ocamljava.runtime.wrappers.OCamlWrappers;
+import org.ocamljava.wrapper.Ocamlwrap;
+import org.sonatype.inject.Parameters;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -22,7 +25,7 @@ import com.google.common.collect.ImmutableSet;
 
 /**
  * Goal which compiles ocaml source and test files.
- * 
+ * @author Carmelo Piccione
  * @goal compile
  * @phase compile
  * @requiresProject
@@ -34,7 +37,13 @@ import com.google.common.collect.ImmutableSet;
 public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 
 	
-	
+	/** If enabled, will generate wrapper classes for each ocaml compiled sources within the projects.
+	 * Regular expressions to include and exclude certain modules is currently not supported.
+	 * @parameter default-value="true"
+	 * @required
+	 * @readonly
+	 */
+	private boolean ocamlWrapEnabled;
 
 	@Override
 	public void execute() throws MojoExecutionException {
