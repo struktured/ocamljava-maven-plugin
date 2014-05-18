@@ -13,9 +13,6 @@ import ocaml.compilers.ocamljavaMain;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.ocamljava.runtime.wrappers.OCamlWrappers;
-import org.ocamljava.wrapper.Ocamlwrap;
-import org.sonatype.inject.Parameters;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;

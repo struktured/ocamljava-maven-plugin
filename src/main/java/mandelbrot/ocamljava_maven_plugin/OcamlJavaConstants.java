@@ -4,6 +4,11 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
+/***
+ * Various constants specific to the ocamljava compiler library.
+ * @author Carmelo Piccione
+ *
+ */
 public class OcamlJavaConstants {
 
 	public static final String IMPL_SOURCE_EXTENSION = "ml";

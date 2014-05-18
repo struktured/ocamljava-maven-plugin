@@ -6,6 +6,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
 
+
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	/**
 	 * @parameter default-value="${project}"
