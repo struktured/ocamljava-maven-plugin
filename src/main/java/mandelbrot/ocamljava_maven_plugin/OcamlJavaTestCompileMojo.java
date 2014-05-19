@@ -22,20 +22,20 @@ import com.google.common.collect.ImmutableSet;
 
 
 /**
- * <p>This is a goal which compiles OCaml sources during the maven compilation phase.
+ * <p>This is a goal which compiles OCaml test sources during the maven test compilation phase.
  * It is the same as executing something like</p>
- * <p><code>ocamljava -classpath classpath/lib.jar -c foo.ml bar.ml ...</code></p>
+ * <p><code>ocamljava -classpath classpath/lib.jar -c foo-test.ml bar-test.ml ...</code></p>
  * from the command line but instead uses maven properties to infer the source locations and class path.
  * All parameters can be overriden. See the configuration section of the documentation for more information.</p>
  * @requiresProject 
- * @goal compile
- * @phase compile
+ * @goal testCompile
+ * @phase test-compile
  * @executionStrategy once-per-session
  * @requiresDependencyResolution runtime
  * @threadSafe *
  * @since 1.0
  */
-public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
+public class OcamlJavaTestCompileMojo extends OcamlJavaAbstractTestMojo {
 
 
 	@Override
@@ -57,14 +57,14 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 	
 		try {
 	
-			final ImmutableList<String> ocamlSourceFiles = gatherOcamlSourceFiles(ocamlSourceDirectory);
 			
-			if (!ocamlSourceFiles.isEmpty())
-			{
-				final String[] sourceArgs = generateCommandLineArguments(ocamlSourceFiles).toArray(new String[]{});
-				getLog().info("source args: " + ImmutableList.copyOf(sourceArgs));
-				ocamljavaMain.main(sourceArgs);
-				moveAllCompiledFiles(ocamlSourceFiles, ocamlCompiledSourcesTarget, ocamlSourceDirectory.getPath());
+			final ImmutableList<String> ocamlTestFiles = gatherOcamlSourceFiles(ocamlTestDirectory);
+			
+			if (!ocamlTestFiles.isEmpty()) {
+				final String[] testArgs = generateCommandLineArguments(ocamlTestFiles).toArray(new String[]{});
+				getLog().info("test args: " + ImmutableList.copyOf(testArgs));
+				ocamljavaMain.main(testArgs);
+				moveAllCompiledFiles(ocamlTestFiles, ocamlCompiledTestsTarget, ocamlTestDirectory.getPath());
 			}
 			
 		} catch (final Exception e) {
@@ -127,7 +127,7 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 		return ImmutableList.<String>builder()
 				.add(OcamlJavaConstants.CLASSPATH_OPTION)
 				.add(Joiner.on(";").join(ImmutableSet.builder()
-						.addAll(new ClassPathGatherer(this).getClassPath(project, false))
+						.addAll(new ClassPathGatherer(this).getClassPath(project, true))
 						.build()))
 				.add(OcamlJavaConstants.COMPILE_SOURCES_OPTION)
 				.addAll(ocamlSourceFiles)

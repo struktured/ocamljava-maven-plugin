@@ -18,12 +18,12 @@ import com.google.common.collect.ImmutableList;
  * from the command line but instead uses maven properties to infer the compiled source location and target jar name.
  * Both can be overriden. See the configuration section of the documentation for more information.</p>
  * @requiresProject 
- * @goal jar
+ * @goal test-jar
  * @phase package
  * @threadSafe *
  * @since 1.0
  */
-public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
+public class OcamlJavaTestJarMojo extends OcamlJavaAbstractTestMojo {
 
 
 	@Override
@@ -35,16 +35,17 @@ public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 		}
 		
 		try {
-	
-			final ImmutableList<String> ocamlCompiledSourceFiles = gatherOcamlCompiledSources(new File(
-					outputDirectory.getPath() + 
-					File.separator +
-					ocamlCompiledSourcesTarget));
 			
-			final String[] args = generateCommandLineArguments(targetJar, ocamlCompiledSourceFiles).toArray(new String[]{});
+			final ImmutableList<String> ocamlTestFiles = gatherOcamlCompiledSources(new File(
+					outputDirectory.getPath() + 
+					File.separator + 
+					ocamlCompiledTestsTarget));
+		
+			final String[] testArgs = generateCommandLineArguments(targetTestJar, ocamlTestFiles).toArray(new String[]{});
 
-			getLog().info("args: " + ImmutableList.copyOf(args));
-			ocamljavaMain.main(args);
+			getLog().info("test args: " + ImmutableList.copyOf(testArgs));
+			ocamljavaMain.main(testArgs);
+
 		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
 		}
