@@ -16,7 +16,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	protected MavenProject project;		
 
 	/**
-	 * The plugin descriptor
+	 * The plugin descriptor.
 	 * 
 	 * @required
 	 * @parameter default-value="${descriptor}"
@@ -24,9 +24,9 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	protected PluginDescriptor descriptor;	
 	
 	/**
-	 * Location of the file.
+	 * Project's output directory, usually <code>target</code>.
 	 * 
-	 * @parameter expression="${project.build.directory}"
+	 * @parameter property="project.build.directory"
 	 * @required
 	 */
 	protected final File outputDirectory = new File("");
@@ -51,9 +51,9 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 
 
 	/**
-	 * Project's source directory .
+	 * Project's source directory.
 	 * 
-	 * @parameter expression="${project.build.ocamlSourceDirectory}"
+	 * @parameter default-value="/src/main/ocaml"
 	 * @readonly
 	 */
 	protected final File ocamlSourceDirectory = new File("src/main/ocaml");

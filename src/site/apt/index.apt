@@ -1,9 +1,6 @@
 ------
 Introduction
 ------
-2014-05-18
-------
-
 
 OcamlJava Maven Plugin
 
@@ -13,7 +10,7 @@ OcamlJava Maven Plugin
 
   General information about the goals.
 
-  * {{{<goal>.html}ocamljava:compile}} compiles ocaml sources, typically from the <source>src/main/ocaml</source> folder.
+  * {{{<goal>.html}ocamljava:compile}} compiles ocaml sources, typically from the src/main/ocaml folder.
 
 * Usage
 

@@ -27,7 +27,7 @@ public abstract class OcamlJavaAbstractTestMojo extends OcamlJavaAbstractMojo {
 	/**
 	 * Project's source directory as specified in the POM.
 	 * 
-	 * @parameter expression="${project.build.ocamlTestDirectory}"
+	 * @parameter default-value="src/test/ocaml" 
 	 * @readonly
 	 */
 	protected final File ocamlTestDirectory = new File("src/test/ocaml");
