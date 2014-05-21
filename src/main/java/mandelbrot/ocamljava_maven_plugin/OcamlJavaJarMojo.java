@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableList;
  * It is the same as executing something like</p>
  * <p><code>ocamljava -o some-target.jar foo.cmj bar.cmj ...</code></p>
  * from the command line but instead uses maven properties to infer the compiled source location and target jar name.
- * Both can be overriden. See the configuration section of the documentation for more information.</p>
+ * Both can be overridden. See the configuration section of the documentation for more information.</p>
  * @requiresProject 
  * @goal jar
  * @phase package
@@ -53,7 +53,8 @@ public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 	
 	private ImmutableList<String> generateCommandLineArguments(final String targetJar,
 			final ImmutableList<String> ocamlSourceFiles) {
-		return ImmutableList.<String>builder().add("-o").add(getTargetJarFullPath(targetJar)).addAll(ocamlSourceFiles).build();
+		return ImmutableList.<String>builder().add(OcamlJavaConstants.ADD_TO_JAR_SOURCES_OPTION).
+				add(getTargetJarFullPath(targetJar)).addAll(ocamlSourceFiles).build();
 	}
 	
 	private boolean ensureTargetDirectoryExists() {
@@ -103,7 +104,7 @@ public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 		}
 	}
 
-	public String getTargetJarFullPath(String targetJar) {
-		return outputDirectory.getAbsolutePath() + File.separator  + targetJar;
+	public String getTargetJarFullPath(final String targetJar) {
+		return outputDirectory.getAbsolutePath() + File.separator + targetJar;
 	}
 }

@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.ocamljava.runtime.wrappers.OCamlWrappers;
-import org.ocamljava.wrapper.Ocamlwrap;
 
 
 /**
@@ -104,6 +102,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		List<String> modules = null;
+		
 		org.ocamljava.wrapper.ocamljavaMain.main(generateCommandLineArguments(modules));
 	}
 
