@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableList;
 public class OcamlJavaTestJarMojo extends OcamlJavaAbstractTestMojo {
 
 
+
 	@Override
 	public void execute() throws MojoExecutionException {
 

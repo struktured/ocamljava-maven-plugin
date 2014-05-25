@@ -1,9 +1,14 @@
 package mandelbrot.ocamljava_maven_plugin;
 
-import java.util.List;
+import java.io.File;
+import java.util.Collection;
+
+import mandelbrot.ocamljava_maven_plugin.util.FilesByExtensionGatherer;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+
+import com.google.common.base.Optional;
 
 
 /**
@@ -11,7 +16,7 @@ import org.apache.maven.plugin.MojoFailureException;
  * It is the same as executing something like</p>
  * <p><code>ocamlwrap lib.cmi</code></p>
  * from the command line but instead uses maven properties to infer the compiled module interface locations.
- * All parameters can be overriden. See the configuration section of the documentation for more information.</p>
+ * All parameters can be overridden. See the configuration section of the documentation for more information.</p>
  * @requiresProject 
  * @goal wrap
  * @phase generate-sources
@@ -41,8 +46,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	 * @parameter 
 	 */
 	protected String[] libraryArgs = new String[] {};
-	
-			
+
 	public static enum LibraryInitMode {
 		STATIC,
 		EXPLICIT;
@@ -101,14 +105,23 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		List<String> modules = null;
 		
-		org.ocamljava.wrapper.ocamljavaMain.main(generateCommandLineArguments(modules));
+		final Collection<String> compiledIntefaces = new FilesByExtensionGatherer(
+				this, OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION).gather(
+				new File(ocamlCompiledSourcesTarget)).values();
+		
+		final Optional<String[]> commandLineArguments = generateCommandLineArguments(compiledIntefaces);
+		
+		if (commandLineArguments.isPresent())
+			org.ocamljava.wrapper.ocamljavaMain.main(commandLineArguments.get());
+		else
+			getLog().info("no compiled module interfaces to wrap in " + ocamlCompiledSourcesTarget);
 	}
 
-	private String[] generateCommandLineArguments(List<String> modules) {
-		// TODO Auto-generated method stub
-		return null;
+	private Optional<String[]> generateCommandLineArguments(final Collection<String> files) {
+		if (files == null || files.isEmpty())
+			return Optional.absent();
+		return Optional.of(files.toArray(new String[] {}));
 	}
 
 }

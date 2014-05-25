@@ -37,7 +37,6 @@ import com.google.common.collect.ImmutableSet;
  */
 public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 
-
 	@Override
 	public void execute() throws MojoExecutionException {
 

@@ -1,15 +1,17 @@
 package mandelbrot.ocamljava_maven_plugin;
 
-import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.COMPILED_IMPL_EXTENSION;
-import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.DOT;
-
 import java.io.File;
+import java.util.Collection;
 
+import mandelbrot.ocamljava_maven_plugin.util.FilesByExtensionGatherer;
+import mandelbrot.ocamljava_maven_plugin.util.JarAppender;
 import ocaml.compilers.ocamljavaMain;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 
 /**
  * <p>This is a goal which attaches OCaml compiled sources to a target jar during the packaging phase.
@@ -26,6 +28,20 @@ import com.google.common.collect.ImmutableList;
 public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 
 
+	/**
+	 * The target jar to add ocaml compiled sources to.
+	 * @parameter default-value="${project.artifactId}-${project.version}.jar"
+	 * @required
+	 * @readonly
+	 */
+	protected String targetJar;
+	
+	/***
+	 * Determines whether to attach the compiled module interfaces to the final packaged jar.
+	 * @parameter default-value="true"
+	 */
+	protected boolean attachCompiledModuleInterfaces;
+	
 	@Override
 	public void execute() throws MojoExecutionException {
 
@@ -35,16 +51,27 @@ public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 		}
 		
 		try {
-	
-			final ImmutableList<String> ocamlCompiledSourceFiles = gatherOcamlCompiledSources(new File(
-					outputDirectory.getPath() + 
-					File.separator +
-					ocamlCompiledSourcesTarget));
-			
-			final String[] args = generateCommandLineArguments(targetJar, ocamlCompiledSourceFiles).toArray(new String[]{});
+
+			final Multimap<String, String> ocamlCompiledSourceFiles = new FilesByExtensionGatherer(
+					this, ImmutableSet.of(
+							OcamlJavaConstants.COMPILED_IMPL_EXTENSION,
+							OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION))
+					.gather(new File(outputDirectory.getPath() + File.separator
+							+ ocamlCompiledSourcesTarget));
+		
+			final String[] args = generateCommandLineArguments(targetJar, ocamlCompiledSourceFiles.get(
+					OcamlJavaConstants.COMPILED_IMPL_EXTENSION)).toArray(new String[]{});
 
 			getLog().info("args: " + ImmutableList.copyOf(args));
 			ocamljavaMain.main(args);
+			
+			if (attachCompiledModuleInterfaces) {
+				
+				final Collection<String> compiledModuleInterfaces =
+					ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION);
+				new JarAppender(this).addFiles(getTargetJarFullPath(targetJar), compiledModuleInterfaces);
+			}
+			
 		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
 		}
@@ -52,7 +79,7 @@ public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 
 	
 	private ImmutableList<String> generateCommandLineArguments(final String targetJar,
-			final ImmutableList<String> ocamlSourceFiles) {
+			final Collection<String> ocamlSourceFiles) {
 		return ImmutableList.<String>builder().add(OcamlJavaConstants.ADD_TO_JAR_SOURCES_OPTION).
 				add(getTargetJarFullPath(targetJar)).addAll(ocamlSourceFiles).build();
 	}
@@ -62,46 +89,6 @@ public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 			return true;
 		}
 		return outputDirectory.mkdirs();
-	}
-
-	public ImmutableList<String> gatherOcamlCompiledSources(final File root) {
-		final ImmutableList.Builder<String> files = ImmutableList.builder();
-		if (root.isFile() && isOcamlCompiledSourceFile(root)) {
-			files.add(root.getPath());
-			return files.build();
-		}
-	
-		if (!root.isDirectory() || root.listFiles() == null)
-			return files.build();
-		
-		for (final File file : root.listFiles()) {
-			if (file.isDirectory()) {
-				getLog().info("scanning directory: " + file);
-				
-				files.addAll(gatherOcamlCompiledSources(file));
-			} else {
-				if (isOcamlCompiledSourceFile(file)) {
-					getLog().info("adding ocaml source file: " + file);
-					files.add(file.getPath());
-				}
-			}
-		}
-		return files.build();
-	}
-
-
-	private boolean isOcamlCompiledSourceFile(final File file) {
-		final String extension = getExtension(file.getAbsolutePath());
-		return COMPILED_IMPL_EXTENSION.equalsIgnoreCase(extension);
-	}
-
-	public static String getExtension(final String filePath) {
-		final int dotPos = filePath.lastIndexOf(DOT);
-		if (-1 == dotPos) {
-			return null;
-		} else {
-			return filePath.substring(dotPos+1);
-		}
 	}
 
 	public String getTargetJarFullPath(final String targetJar) {
