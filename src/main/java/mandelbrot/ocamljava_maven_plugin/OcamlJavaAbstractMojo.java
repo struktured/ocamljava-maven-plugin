@@ -9,6 +9,7 @@ import org.apache.maven.project.MavenProject;
 
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	
+
 	/**
 	 * @parameter default-value="${project}"
 	 * @required
@@ -51,5 +52,23 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 */
 	protected final File ocamlSourceDirectory = new File("src/main/ocaml");
 
+	/**
+	 * The target jar to add ocaml compiled sources to.
+	 * @parameter default-value="${project.artifactId}-${project.version}.jar"
+	 * @required
+	 * @readonly
+	 */
+	protected String targetJar;
 	
+	public String getTargetJarFullPath() {
+		return outputDirectory.getAbsolutePath() + File.separator + targetJar;
+	}
+	
+
+	public String getOcamlCompiledSourcesTargetFullPath() {
+		return outputDirectory.getPath() + File.separator
+				+ ocamlCompiledSourcesTarget;
+	}
+
+
 }

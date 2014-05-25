@@ -1,7 +1,9 @@
 package mandelbrot.ocamljava_maven_plugin.util;
 
+import java.util.Arrays;
 import java.util.jar.JarEntry;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 public class EntryInfo {
@@ -44,4 +46,34 @@ public class EntryInfo {
 	public static Builder builder() {
 		return new Builder();
 	}
+	
+	public String toString() {
+		return Objects.toStringHelper(this).toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(bytes, jarEntry);
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final EntryInfo other = (EntryInfo) obj;
+		if (!Arrays.equals(bytes, other.bytes))
+			return false;
+		if (jarEntry == null) {
+			if (other.jarEntry != null)
+				return false;
+		} else if (!jarEntry.equals(other.jarEntry))
+			return false;
+		return true;
+	}
+	
+	
 }

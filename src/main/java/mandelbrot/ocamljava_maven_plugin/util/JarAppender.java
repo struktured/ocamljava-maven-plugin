@@ -1,6 +1,5 @@
 package mandelbrot.ocamljava_maven_plugin.util;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -10,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
@@ -20,7 +18,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 
 public class JarAppender {
 
@@ -47,28 +44,15 @@ public class JarAppender {
 
 		try {
 			final byte buffer[] = new byte[BUFFER_SIZE];
-
-			final FileInputStream in = new FileInputStream(archiveFile);
-			final BufferedInputStream bufferedInputStream = new BufferedInputStream(in);
-			final JarInputStream jarInputStream = new JarInputStream(bufferedInputStream);
-
-
-			final ImmutableList.Builder<EntryInfo> builder = ImmutableList.builder();
 			
-			JarEntry nextEntry = null;
-			
-			while ((nextEntry = jarInputStream.getNextJarEntry()) != null) {
-				builder.add(getEntryInfo(nextEntry, jarInputStream, buffer));
-			}
-			
-			final List<EntryInfo> entryInfos = builder.build();
+			final JarEntryReader jarEntryReader = new JarEntryReader(abstractMojo);
+			final Collection<EntryInfo> entryInfos = jarEntryReader.readEntries(archiveFile, buffer);
 			
 			// Open archive file
 			final FileOutputStream stream = new FileOutputStream(archiveFile);
-			final JarOutputStream out = jarInputStream.getManifest() == null ? new JarOutputStream(stream) :
-						new JarOutputStream(stream, jarInputStream.getManifest());
+			final JarOutputStream out = jarEntryReader.getManifest().isPresent() ? 
+				new JarOutputStream(stream, jarEntryReader.getManifest().get()) : new JarOutputStream(stream);
 
-			jarInputStream.close();
 				
 			for (final EntryInfo entryInfo : entryInfos) {
 				out.putNextEntry(entryInfo.getJarEntry());	

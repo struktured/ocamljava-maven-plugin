@@ -28,14 +28,6 @@ import com.google.common.collect.Multimap;
 public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 
 
-	/**
-	 * The target jar to add ocaml compiled sources to.
-	 * @parameter default-value="${project.artifactId}-${project.version}.jar"
-	 * @required
-	 * @readonly
-	 */
-	protected String targetJar;
-	
 	/***
 	 * Determines whether to attach the compiled module interfaces to the final packaged jar.
 	 * @parameter default-value="true"
@@ -56,8 +48,7 @@ public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 					this, ImmutableSet.of(
 							OcamlJavaConstants.COMPILED_IMPL_EXTENSION,
 							OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION))
-					.gather(new File(outputDirectory.getPath() + File.separator
-							+ ocamlCompiledSourcesTarget));
+					.gather(new File(getOcamlCompiledSourcesTargetFullPath()));
 		
 			final String[] args = generateCommandLineArguments(targetJar, ocamlCompiledSourceFiles.get(
 					OcamlJavaConstants.COMPILED_IMPL_EXTENSION)).toArray(new String[]{});
@@ -69,7 +60,7 @@ public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 				
 				final Collection<String> compiledModuleInterfaces =
 					ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION);
-				new JarAppender(this).addFiles(getTargetJarFullPath(targetJar), compiledModuleInterfaces);
+				new JarAppender(this).addFiles(getTargetJarFullPath(), compiledModuleInterfaces);
 			}
 			
 		} catch (final Exception e) {
@@ -81,7 +72,7 @@ public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 	private ImmutableList<String> generateCommandLineArguments(final String targetJar,
 			final Collection<String> ocamlSourceFiles) {
 		return ImmutableList.<String>builder().add(OcamlJavaConstants.ADD_TO_JAR_SOURCES_OPTION).
-				add(getTargetJarFullPath(targetJar)).addAll(ocamlSourceFiles).build();
+				add(getTargetJarFullPath()).addAll(ocamlSourceFiles).build();
 	}
 	
 	private boolean ensureTargetDirectoryExists() {
@@ -91,7 +82,4 @@ public class OcamlJavaJarMojo extends OcamlJavaAbstractMojo {
 		return outputDirectory.mkdirs();
 	}
 
-	public String getTargetJarFullPath(final String targetJar) {
-		return outputDirectory.getAbsolutePath() + File.separator + targetJar;
-	}
 }
