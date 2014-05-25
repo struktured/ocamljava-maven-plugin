@@ -29,4 +29,31 @@ public class OcamlJavaConstants {
 	public static final String COMPILE_SOURCES_OPTION = "-c";
 	public static final String ADD_TO_JAR_SOURCES_OPTION = "-o";
 	public static final String CLASSPATH_OPTION = "-classpath";
+	
+	
+//	Usage: ocamlwrap.jar <options> <files>
+//	Options are:
+//	  -class-name-prefix <string>  Set prefix for class names
+//	  -class-name-suffix <string>  Set suffix for class names
+//	  -I <string>  Add to search path
+//	  -library-args <string>  Arguments passed for library initialization
+//	  -library-init {explicit|static}  Set initialization mode
+//	  -library-package <string>  Set library package
+//	  -no-warnings  Disable warnings
+//	  -package <string>  Set package name
+//	  -string-mapping {java-string|ocamlstring|byte-array}  Set mapping for strings
+//	  -verbose  Enable verbose mode
+//	  -help  Display this list of options
+//	  --help  Display this list of options
+
+	public static final String LIBRARY_PACKAGE_OPTION = "-library-package";
+	public static final String LIBRARY_INIT_OPTION = "-library-init";
+	public static final String LIBRARY_ARGS_OPTION = "-library-args";
+	public static final String STRING_MAPPING_OPTION = "-string-mapping";
+	public static final String VERBOSE_OPTION = "-verbose";
+	public static final String NO_WARNINGS_OPTION = "-no-warnings";
+	public static final String CLASS_NAME_PREFIX_OPTION = "-class-name-prefix";
+	public static final String CLASS_NAME_SUFFIX_OPTION = "-class-name-suffix";
+	public static final String PACKAGE_OPTION = "-package";
+	
 }

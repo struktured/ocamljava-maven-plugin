@@ -3,8 +3,8 @@ package mandelbrot.ocamljava_maven_plugin.util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Collection;
+import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 
 import com.google.common.base.Preconditions;
@@ -19,16 +19,19 @@ public class JarExtractor {
 	public JarExtractor(final AbstractMojo abstractMojo) {
 		this.abstractMojo = Preconditions.checkNotNull(abstractMojo);
 	}
-
-	public Collection<String> addFiles(final String archiveFile, final String targetPath) {
+	
+	public Collection<String> extractFiles(final String archiveFile, final String targetPath) {
+		return extractFiles(archiveFile, targetPath, null);
+	}
+	
+	public Collection<String> extractFiles(final String archiveFile, final String targetPath, final Set<String> allowedExtensions) {
 
 		final ImmutableList.Builder<String> filesBuilder = ImmutableList.builder();
 
 		try {
 
-			final Collection<EntryInfo> entryInfos = new JarEntryReader(abstractMojo).readEntries(archiveFile);
+			final Collection<EntryInfo> entryInfos = new JarEntryReader(abstractMojo).readEntries(archiveFile, allowedExtensions);
 			
-		// Open archive file
 			final FileOutputStream stream = new FileOutputStream(archiveFile);
 
 			for (final EntryInfo entryInfo : entryInfos) {

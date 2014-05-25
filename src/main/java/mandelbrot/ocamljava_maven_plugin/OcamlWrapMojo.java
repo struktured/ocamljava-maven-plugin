@@ -9,7 +9,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Optional;
@@ -39,6 +38,8 @@ import com.google.common.collect.ImmutableSet;
  */
 public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 
+	private static final String ARTIFACT_DESCRIPTOR_SEPARATOR = ":";
+
 	/***
 	 * The artifacts that will be retrieved, scanned for ocaml compiled
 	 * interfaces, and then code generated for. Expressed with
@@ -66,9 +67,9 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	/***
 	 * Arguments passed for library initialization. Defaults to empty.
 	 * 
-	 * @parameter
+	 * @parameter default-value=""
 	 */
-	protected String[] libraryArgs = new String[] {};
+	protected String libraryArgs = "";
 
 	public static enum LibraryInitMode {
 		STATIC, EXPLICIT;
@@ -104,7 +105,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 
 	public static enum StringMapping {
 		JAVA_STRING, OCAMLSTRING, BYTE_ARRAY;
-		public String toCommmandLineArgument() {
+		public String toCommandLineValue() {
 			return name().toLowerCase().replace("_", "-");
 		}
 	}
@@ -126,6 +127,14 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	 **/
 	protected boolean verbose;
 
+	/***
+	 * Sets the package name.
+	 * 
+	 * @parameter default-value=""
+	 * 
+	 **/	
+	protected String packageName;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -136,30 +145,23 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 
 		final ImmutableList<String> artifactFiles = getArtifactFiles();
 
-		final ImmutableList.Builder<String> cmiFilesBuilder = ImmutableList
-				.builder();
+		final ImmutableList.Builder<String> cmiFilesBuilder = ImmutableList.builder();
 
 		for (final String artifactFile : artifactFiles) {
-			final Collection<String> compiledIntefaces = Collections2.filter(
-					new JarExtractor(this).addFiles(artifactFile,
-							getOcamlCompiledSourcesTargetFullPath()),
-					new Predicate<String>() {
-						@Override
-						public boolean apply(final String file) {
-							return OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION
-									.equalsIgnoreCase(FileUtils
-											.getExtension(file));
-						}
-					});
+			final Collection<String> compiledIntefaces = 
+					new JarExtractor(this).extractFiles(artifactFile,
+							getOcamlCompiledSourcesTargetFullPath(), ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
+					
 			cmiFilesBuilder.addAll(compiledIntefaces);
 		}
 
-		final Optional<String[]> commandLineArguments = generateCommandLineArguments(cmiFilesBuilder
-				.build());
+		final Optional<String[]> commandLineArguments = generateCommandLineArguments(cmiFilesBuilder.build());
 
-		if (commandLineArguments.isPresent())
+		if (commandLineArguments.isPresent()) {
+			getLog().info("command line arguments: " + ImmutableList.copyOf(commandLineArguments.get()));
 			org.ocamljava.wrapper.ocamljavaMain
 					.main(commandLineArguments.get());
+		}
 		else
 			getLog().info(
 					"no compiled module interfaces to wrap in "
@@ -183,9 +185,9 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 								ArtifactUtils.key(groupId, artifactId, version));
 
 						if (!StringUtils.isBlank(type)) {
-							builder.append(":" + type);
+							builder.append(ARTIFACT_DESCRIPTOR_SEPARATOR + type);
 							if (!StringUtils.isBlank(classifier)) {
-								builder.append(":" + classifier);
+								builder.append(ARTIFACT_DESCRIPTOR_SEPARATOR + classifier);
 							}
 						}
 						getLog().info("artifact key: " + builder.toString());
@@ -210,7 +212,53 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 			final Collection<String> files) {
 		if (files == null || files.isEmpty())
 			return Optional.absent();
-		return Optional.of(files.toArray(new String[] {}));
+		
+		final ImmutableList.Builder<String> builder = ImmutableList.builder();
+	
+		if (noWarnings)
+			builder.add(OcamlJavaConstants.NO_WARNINGS_OPTION);
+		
+		if (verbose)
+			builder.add(OcamlJavaConstants.VERBOSE_OPTION);
+		
+		if (!StringUtils.isBlank(classNamePrefix)) {
+			builder.add(OcamlJavaConstants.CLASS_NAME_PREFIX_OPTION);
+			builder.add(classNamePrefix);
+		}
+		
+		if (!StringUtils.isBlank(classNameSuffix)) {
+			builder.add(OcamlJavaConstants.CLASS_NAME_SUFFIX_OPTION);
+			builder.add(classNameSuffix);
+		}
+	
+		if (libraryInitMode != null) {
+			builder.add(OcamlJavaConstants.LIBRARY_INIT_OPTION);
+			builder.add(libraryInitMode.toCommandLineValue());
+		}
+
+		if (!StringUtils.isBlank(libraryArgs)) {
+			builder.add(OcamlJavaConstants.LIBRARY_ARGS_OPTION);
+			builder.add(String.format("\"%s\"", libraryArgs));
+		}
+	
+		if (!StringUtils.isBlank(libaryPackage)) {
+			builder.add(OcamlJavaConstants.LIBRARY_PACKAGE_OPTION);
+			builder.add(libaryPackage);
+		}
+	
+		if (!StringUtils.isBlank(packageName)) {
+			builder.add(OcamlJavaConstants.PACKAGE_OPTION);
+			builder.add(packageName);
+		}
+		
+		if (stringMapping != null) {
+			builder.add(OcamlJavaConstants.STRING_MAPPING_OPTION);
+			builder.add(stringMapping.toCommandLineValue());
+		}
+
+		builder.addAll(files);
+		
+		return Optional.of(builder.build().toArray(new String[] {}));
 	}
 
 }
