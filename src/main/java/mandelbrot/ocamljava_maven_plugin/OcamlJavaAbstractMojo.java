@@ -61,7 +61,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	protected String targetJar;
 	
 	public String getTargetJarFullPath() {
-		return outputDirectory.getAbsolutePath() + File.separator + targetJar;
+		return outputDirectory.getPath() + File.separator + targetJar;
 	}
 	
 
@@ -70,5 +70,30 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 				+ ocamlCompiledSourcesTarget;
 	}
 
+	/**
+	 * The target test jar to add ocaml compiled sources to.
+	 * @parameter default-value="${project.artifactId}-${project.version}-tests.jar"
+	 * @required
+	 * @readonly
+	 */
+	protected String targetTestJar;
 
+	/**
+	 * The target subfolder to hold all compiled ocaml test sources. This value
+	 * is combined with the build output directory (usually <code>target</code>) to 
+	 * create an actual file path. 
+	 * 
+	 * @parameter default-value="ocaml-tests"
+	 * 
+	 */
+	protected String ocamlCompiledTestsTarget;
+	
+	/**
+	 * Project's source directory as specified in the POM.
+	 * 
+	 * @parameter default-value="src/test/ocaml" 
+	 * @readonly
+	 */
+	protected final File ocamlTestDirectory = new File("src/test/ocaml");
+	
 }

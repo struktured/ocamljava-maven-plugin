@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
  * @threadSafe *
  * @since 1.0
  */
-public class OcamlJavaTestJarMojo extends OcamlJavaAbstractTestMojo {
+public class OcamlJavaTestJarMojo extends OcamlJavaJarAbstractMojo {
 
 
 
@@ -55,7 +55,7 @@ public class OcamlJavaTestJarMojo extends OcamlJavaAbstractTestMojo {
 	
 	private ImmutableList<String> generateCommandLineArguments(final String targetJar,
 			final ImmutableList<String> ocamlSourceFiles) {
-		return ImmutableList.<String>builder().add("-o").add(getTargetJarFullPath(targetJar)).addAll(ocamlSourceFiles).build();
+		return ImmutableList.<String>builder().add(OcamlJavaConstants.ADD_TO_JAR_SOURCES_OPTION).add(getTargetJarFullPath(targetJar)).addAll(ocamlSourceFiles).build();
 	}
 	
 	private boolean ensureTargetDirectoryExists() {
@@ -92,7 +92,7 @@ public class OcamlJavaTestJarMojo extends OcamlJavaAbstractTestMojo {
 
 
 	private boolean isOcamlCompiledSourceFile(final File file) {
-		final String extension = getExtension(file.getAbsolutePath());
+		final String extension = getExtension(file.getPath());
 		return COMPILED_IMPL_EXTENSION.equalsIgnoreCase(extension);
 	}
 
@@ -105,7 +105,13 @@ public class OcamlJavaTestJarMojo extends OcamlJavaAbstractTestMojo {
 		}
 	}
 
-	public String getTargetJarFullPath(String targetJar) {
-		return outputDirectory.getAbsolutePath() + File.separator  + targetJar;
+	public String getTargetJarFullPath(final String targetJar) {
+		return outputDirectory.getPath() + File.separator  + targetJar;
+	}
+
+
+	@Override
+	protected String chooseTargetJar() {
+		return targetTestJar;
 	}
 }
