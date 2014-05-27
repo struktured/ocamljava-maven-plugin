@@ -29,6 +29,9 @@ public class FilesByExtensionGatherer {
 	public Multimap<String, String> gather(final File root) {
 		final ImmutableMultimap.Builder<String,String> files = ImmutableMultimap.builder();
 		
+		if (root == null)
+			return files.build();
+		
 		final Optional<String> rootExtension;
 		if ((rootExtension = extensionOf(root)).isPresent()) {
 			files.put(rootExtension.get(), root.getPath());

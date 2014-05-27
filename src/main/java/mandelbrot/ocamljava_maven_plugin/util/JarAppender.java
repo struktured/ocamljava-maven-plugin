@@ -1,7 +1,6 @@
 package mandelbrot.ocamljava_maven_plugin.util;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,7 +9,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -76,21 +74,10 @@ public class JarAppender {
 		}
 
 	}
-	
-	private EntryInfo getEntryInfo(final JarEntry nextEntry, final JarInputStream in,
-		final byte[] buffer) throws IOException {
-		
-		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		
-		pipe(byteArrayOutputStream, buffer, in);
-		
-		return EntryInfo.builder().setBytes(byteArrayOutputStream.toByteArray()).setEntry(nextEntry).build();
-
-	}
 
 	private void addEntry(final File file, final JarOutputStream out,
 			final byte[] buffer) throws IOException {
-		final JarEntry jarAdd = new JarEntry(file.getName());
+		final JarEntry jarAdd = new JarEntry(file.getPath());
 		jarAdd.setTime(file.lastModified());
 		out.putNextEntry(jarAdd);
 

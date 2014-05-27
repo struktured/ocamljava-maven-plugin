@@ -6,28 +6,38 @@ import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.OCAML_SOURCE_
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
+import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import ocaml.compilers.ocamljavaMain;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
-
+import com.google.common.collect.Multimap;
 
 /**
- * <p>This is a goal which compiles OCaml sources during the maven compilation phase.
- * It is the same as executing something like</p>
- * <p><code>ocamljava -classpath classpath/lib.jar -c foo.ml bar.ml ...</code></p>
- * from the command line but instead uses maven properties to infer the source locations and class path.
- * All parameters can be overriden. See the configuration section of the documentation for more information.</p>
- * @requiresProject 
+ * <p>
+ * This is a goal which compiles OCaml sources during the maven compilation
+ * phase. It is the same as executing something like
+ * </p>
+ * <p>
+ * <code>ocamljava -classpath classpath/lib.jar -c foo.ml bar.ml ...</code>
+ * </p>
+ * from the command line but instead uses maven properties to infer the source
+ * locations and class path. All parameters can be overriden. See the
+ * configuration section of the documentation for more information.</p>
+ * 
+ * @requiresProject
  * @goal compile
  * @phase compile
  * @executionStrategy once-per-session
@@ -52,33 +62,64 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 			return;
 		}
 
-		getLog().info("ocaml source directory: " + ocamlSourceDirectory.getAbsolutePath());
-	
+		getLog().info(
+				"ocaml source directory: "
+						+ ocamlSourceDirectory.getAbsolutePath());
+
 		try {
-	
-			final ImmutableList<String> ocamlSourceFiles = gatherOcamlSourceFiles(ocamlSourceDirectory);
-			
-			if (!ocamlSourceFiles.isEmpty())
-			{
-				final String[] sourceArgs = generateCommandLineArguments(ocamlSourceFiles).toArray(new String[]{});
-				getLog().info("source args: " + ImmutableList.copyOf(sourceArgs));
-				ocamljavaMain.main(sourceArgs);
-				moveAllCompiledFiles(ocamlSourceFiles, ocamlCompiledSourcesTarget, ocamlSourceDirectory.getPath());
-			}
-			
+
+			final Multimap<String, String> ocamlSourceFiles = gatherOcamlSourceFiles(ocamlSourceDirectory);
+
+			final Collection<String> moduleInterfaces = ocamlSourceFiles
+					.get(OcamlJavaConstants.INTERFACE_SOURCE_EXTENSION);
+
+			compileSourcesAndMoveToTargetDirectory(moduleInterfaces);
+
+			final Collection<String> implementations = ocamlSourceFiles
+					.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION);
+
+			compileSourcesAndMoveToTargetDirectory(implementations);
+
 		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
 		}
 	}
 
-	private void moveAllCompiledFiles(final Collection<String> ocamlSourceFiles, final String outputDirectoryQualifier, final String toFilter) {
-		
-		for (final String extension: OcamlJavaConstants.OCAML_COMPILED_SOURCE_FILE_EXTENSIONS)
-			moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles, extension, outputDirectoryQualifier, toFilter);
-				
+	private void compileSourcesAndMoveToTargetDirectory(
+			final Collection<String> sourceFiles) throws MojoExecutionException {
+
+		final Multimap<String, String> byPathMapping = FileMappings
+				.buildPathMap(sourceFiles);
+
+		final Set<String> pathMappings = byPathMapping.keySet();
+
+		for (final String path : pathMappings) {
+
+			if (!sourceFiles.isEmpty()) {
+				final String[] sourceArgs = generateCommandLineArguments(pathMappings,
+						FileMappings.toPackage(path), sourceFiles).toArray(new String[] {});
+				getLog().info(
+						"ocamljava compile args: "
+								+ ImmutableList.copyOf(sourceArgs));
+				ocamljavaMain.main(sourceArgs);
+				moveCompiledFiles(sourceFiles, ocamlCompiledSourcesTarget,
+						ocamlSourceDirectory.getPath());
+			}
+		}
 	}
 
-	private Set<String> moveCompiledSourceFilesToTargetDirectory(final Collection<String> ocamlSourceFiles, final String compiledExtension,
+	private void moveCompiledFiles(final Collection<String> ocamlSourceFiles,
+			final String outputDirectoryQualifier, final String toFilter) {
+
+		for (final String extension : OcamlJavaConstants.OCAML_COMPILED_SOURCE_FILE_EXTENSIONS)
+			moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles,
+					extension, outputDirectoryQualifier, toFilter);
+
+	}
+
+	private Set<String> moveCompiledSourceFilesToTargetDirectory(
+			final Collection<String> ocamlSourceFiles,
+			final String compiledExtension,
 			final String outputDirectoryQualifier, final String toFilter) {
 		final Collection<String> transformed = Collections2.transform(
 				ocamlSourceFiles, new Function<String, String>() {
@@ -86,29 +127,38 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 					@Override
 					public String apply(final String path) {
 						final File srcFile = new File(path);
-				
-						final String compiledSourceName = changeExtension(srcFile, compiledExtension);
-						final File compiledSrcFile = new File(srcFile.getParent() + File.separator + compiledSourceName);
+
+						final String compiledSourceName = changeExtension(
+								srcFile, compiledExtension);
+						final File compiledSrcFile = new File(srcFile
+								.getParent()
+								+ File.separator
+								+ compiledSourceName);
 						final File qualifiedOutputDirectory = new File(
-								outputDirectory.getPath() + 
-								File.separator +
-								outputDirectoryQualifier + 
-								File.separator + 
-								compiledSrcFile.getParent().replace(toFilter, ""));
-						
+								outputDirectory.getPath()
+										+ File.separator
+										+ outputDirectoryQualifier
+										+ File.separator
+										+ compiledSrcFile.getParent().replace(
+												toFilter, ""));
+
 						try {
 							if (compiledSrcFile.exists()) {
-								getLog().info("moving src " + compiledSrcFile + " to output directory: " + qualifiedOutputDirectory);
+								getLog().info(
+										"moving src " + compiledSrcFile
+												+ " to output directory: "
+												+ qualifiedOutputDirectory);
 								FileUtils.copyFileToDirectory(compiledSrcFile,
 										qualifiedOutputDirectory, true);
 								FileUtils.deleteQuietly(compiledSrcFile);
-							}
-							else
-								getLog().warn("skipping transfer of file " + compiledSrcFile + " which doesn't exist.");
+							} else
+								getLog().warn(
+										"skipping transfer of file "
+												+ compiledSrcFile
+												+ " which doesn't exist.");
 						} catch (final IOException e) {
 							throw new RuntimeException(
-									"error moving compiled sources",
-									e);
+									"error moving compiled sources", e);
 						}
 						return outputDirectory.getAbsolutePath()
 								+ File.separator + compiledSourceName;
@@ -121,18 +171,38 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 		return srcFile.getName().split("\\" + DOT)[0] + DOT + extension;
 	}
 
-	private ImmutableList<String> generateCommandLineArguments(
-			final ImmutableList<String> ocamlSourceFiles) throws MojoExecutionException {
-		return ImmutableList.<String>builder()
-				.add(OcamlJavaConstants.CLASSPATH_OPTION)
-				.add(Joiner.on(";").join(ImmutableSet.builder()
-						.addAll(new ClassPathGatherer(this).getClassPath(project, false))
-						.build()))
+	private List<String> generateCommandLineArguments(
+			final Collection<String> includePaths, final String packageName,
+			final Collection<String> ocamlSourceFiles)
+			throws MojoExecutionException {
+
+		final ImmutableList.Builder<String> builder = ImmutableList
+				.<String> builder();
+
+		if (!StringUtils.isBlank(packageName)) {
+			builder.add(OcamlJavaConstants.JAVA_PACKAGE_OPTION)
+					.add(packageName);
+		}
+
+		for (final String includePath : includePaths) {
+			if (!StringUtils.isBlank(includePath)) {
+				builder.add(OcamlJavaConstants.INCLUDE_DIR_OPTION).add(
+						includePath);
+			}
+
+		}
+
+		builder.add(OcamlJavaConstants.CLASSPATH_OPTION)
+				.add(Joiner.on(";").join(
+						ImmutableSet
+								.builder()
+								.addAll(new ClassPathGatherer(this)
+										.getClassPath(project, false)).build()))
 				.add(OcamlJavaConstants.COMPILE_SOURCES_OPTION)
-				.addAll(ocamlSourceFiles)
-				.build();
+				.addAll(ocamlSourceFiles);
+		return builder.build();
 	}
-	
+
 	private boolean ensureTargetDirectoryExists() {
 		if (outputDirectory.exists()) {
 			return true;
@@ -140,25 +210,28 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 		return outputDirectory.mkdirs();
 	}
 
-	public ImmutableList<String> gatherOcamlSourceFiles(final File root) {
-		final ImmutableList.Builder<String> files = ImmutableList.builder();
+	public Multimap<String, String> gatherOcamlSourceFiles(final File root) {
+		final ImmutableMultimap.Builder<String, String> files = ImmutableMultimap
+				.builder();
 		if (root.isFile() && isOcamlSourceFile(root)) {
-			files.add(root.getPath());
+			files.put(org.codehaus.plexus.util.FileUtils.getExtension(root
+					.getName()), root.getPath());
 			return files.build();
 		}
-	
+
 		if (!root.isDirectory() || root.listFiles() == null)
 			return files.build();
-		
+
 		for (final File file : root.listFiles()) {
 			if (file.isDirectory()) {
 				getLog().info("scanning directory: " + file);
-				
-				files.addAll(gatherOcamlSourceFiles(file));
+
+				files.putAll(gatherOcamlSourceFiles(file));
 			} else {
 				if (isOcamlSourceFile(file)) {
 					getLog().info("adding ocaml source file: " + file);
-					files.add(file.getPath());
+					files.put(org.codehaus.plexus.util.FileUtils
+							.getExtension(file.getName()), file.getPath());
 				}
 			}
 		}
@@ -177,7 +250,7 @@ public class OcamlJavaCompileMojo extends OcamlJavaAbstractMojo {
 		if (-1 == dotPos) {
 			return null;
 		} else {
-			return filePath.substring(dotPos+1);
+			return filePath.substring(dotPos + 1);
 		}
 	}
 

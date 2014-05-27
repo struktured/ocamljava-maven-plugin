@@ -1,8 +1,10 @@
 package mandelbrot.ocamljava_maven_plugin;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
+import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import mandelbrot.ocamljava_maven_plugin.util.JarExtractor;
 
 import org.apache.maven.artifact.Artifact;
@@ -16,6 +18,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 
 /**
  * <p>
@@ -23,9 +26,9 @@ import com.google.common.collect.ImmutableSet;
  * generated java equivalents. It is the same as executing something like
  * </p>
  * <p>
- * <code>ocamlwrap lib.cmi</code>
+ * <code>ocamlwrap -package com.mycomp lib.cmi</code>
  * </p>
- * from the command line but instead uses maven properties to infer the compiled
+ * from the command line but instead uses maven parameters to infer the compiled
  * module interface locations. All parameters can be overridden. See the
  * configuration section of the documentation for more information.</p>
  * 
@@ -41,11 +44,11 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	private static final String ARTIFACT_DESCRIPTOR_SEPARATOR = ":";
 
 	/***
-	 * The artifacts that will be retrieved, scanned for ocaml compiled
-	 * interfaces, and then code generated for. Expressed with
-	 * groupId:artifactId:version[:type[:classifier]] format.
+	 * <p>The artifacts to scan for ocaml compiled interfaces and then perform code generation on. 
+	 * Expressed with groupId:artifactId:version[:type[:classifier]] format.</p>
 	 * 
-	 * @parameter
+	 * <p>NOTE: The artifacts must have been packaged as either a jar or zip file.</p>
+	 * @parameter 
 	 * @required
 	 */
 	protected Set<String> targetArtifacts = ImmutableSet.of();
@@ -88,20 +91,18 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	protected LibraryInitMode libraryInitMode = LibraryInitMode.EXPLICIT;
 
 	/***
-	 * Library package.
+	 * Library package. 
 	 * 
 	 * @parameter default-value=""
 	 */
 	protected String libaryPackage = "";
 
 	/***
-	 * Whether to disable warnings.
+	 * Whether to disable warnings during the code generation process.
 	 * 
 	 * @parameter default-value="false"
 	 */
 	protected boolean noWarnings;
-
-	// -package <string> "" package of generated classes
 
 	public static enum StringMapping {
 		JAVA_STRING, OCAMLSTRING, BYTE_ARRAY;
@@ -111,7 +112,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	}
 
 	/***
-	 * Determines the string mapping for OCaml string type. One of
+	 * Determines the string mapping for the OCaml string type. One of
 	 * <code>JAVA_STRING</code>, <code>OCAMLSTRING</code>, or
 	 * <code>BYTE-ARRAY</code>.
 	 * 
@@ -128,13 +129,31 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	protected boolean verbose;
 
 	/***
-	 * Sets the package name.
+	 * Sets the java package name for each source file.
 	 * 
 	 * @parameter default-value=""
 	 * 
 	 **/	
 	protected String packageName;
 
+	
+	/***
+	 * Sets how java packages are determined for the code generated classes.
+	 * <p>By default, a java package will be inferred according to the folder structure of the modules.
+	 * For instance, <code>"src/main/ocaml/foo/bar/lib.ml"</code> will generate <code>package foo.bar</code> at the top of <code>LibWrapper.java</code>.
+	 * To fix the package name for all compiled module interfaces, set this value to <code>FIXED</code> and fill in the {@link #packageName} parameter
+	 * accordingly.</p>
+	 *
+	 * @parameter default-value="DYNAMIC"
+	 * 
+	 **/	
+	protected JavaPackageMode javaPackageMode = JavaPackageMode.DYNAMIC;
+	
+	public static enum JavaPackageMode {
+		FIXED,
+		DYNAMIC
+	}
+	
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -143,19 +162,35 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 			return;
 		}
 
-		final ImmutableList<String> artifactFiles = getArtifactFiles();
+		final List<String> artifactFiles = getArtifactFiles();
 
-		final ImmutableList.Builder<String> cmiFilesBuilder = ImmutableList.builder();
-
-		for (final String artifactFile : artifactFiles) {
-			final Collection<String> compiledIntefaces = 
-					new JarExtractor(this).extractFiles(artifactFile,
-							getOcamlCompiledSourcesTargetFullPath(), ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
-					
-			cmiFilesBuilder.addAll(compiledIntefaces);
+		final List<String> cmiFiles = extractCompiledModuleInterfaces(artifactFiles);
+		
+		if (cmiFiles.isEmpty()) {
+			getLog().info("no compiled module interfaces found in " + getTargetJarFullPath());
+			return;
 		}
+		
+		if (JavaPackageMode.DYNAMIC.equals(javaPackageMode)) {
+			getLog().info("infer package names based on directory structure");
+			final Multimap<String, String> filesByPackageName = FileMappings.buildPackageMap(cmiFiles);
+		
+			final Set<String> packageNames = filesByPackageName.keySet();
+		
+			for (final String packageName : packageNames) {
+				final Collection<String> filesInPackage = filesByPackageName.get(packageName);
+				wrapFiles(filesInPackage, packageName);
+			}
+		} else {
+			getLog().info("package name is fixed to \"" + packageName + "\"");
+			wrapFiles(cmiFiles, packageName);
+		}
+	}
 
-		final Optional<String[]> commandLineArguments = generateCommandLineArguments(cmiFilesBuilder.build());
+	private void wrapFiles(final Collection<String> cmiFiles, final String packageName) {
+
+		
+		final Optional<String[]> commandLineArguments = generateCommandLineArguments(cmiFiles, packageName);
 
 		if (commandLineArguments.isPresent()) {
 			getLog().info("command line arguments: " + ImmutableList.copyOf(commandLineArguments.get()));
@@ -167,6 +202,25 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 					"no compiled module interfaces to wrap in "
 							+ getOcamlCompiledSourcesTargetFullPath());
 	}
+
+	private List<String> extractCompiledModuleInterfaces(
+			final Collection<String> artifactFiles) {
+		
+		final ImmutableList.Builder<String> cmiFilesBuilder = ImmutableList.builder();
+
+		for (final String artifactFile : artifactFiles) {
+			final Collection<String> compiledIntefaces = 
+					new JarExtractor(this).extractFiles(artifactFile,
+							getOcamlCompiledSourcesTargetFullPath(), 
+							ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
+					
+			cmiFilesBuilder.addAll(compiledIntefaces);
+		}
+
+		final List<String> cmiFiles = cmiFilesBuilder.build();
+		return cmiFiles;
+	}
+
 
 	private ImmutableList<String> getArtifactFiles() {
 		final ImmutableList.Builder<String> builder = ImmutableList.builder();
@@ -209,7 +263,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	}
 
 	private Optional<String[]> generateCommandLineArguments(
-			final Collection<String> files) {
+			final Collection<String> files, final String packageName) {
 		if (files == null || files.isEmpty())
 			return Optional.absent();
 		

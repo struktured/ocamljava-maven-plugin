@@ -55,5 +55,7 @@ public class OcamlJavaConstants {
 	public static final String CLASS_NAME_PREFIX_OPTION = "-class-name-prefix";
 	public static final String CLASS_NAME_SUFFIX_OPTION = "-class-name-suffix";
 	public static final String PACKAGE_OPTION = "-package";
+	public static final String JAVA_PACKAGE_OPTION = "-java-package";
+	public static final String INCLUDE_DIR_OPTION = "-I";
 	
 }
