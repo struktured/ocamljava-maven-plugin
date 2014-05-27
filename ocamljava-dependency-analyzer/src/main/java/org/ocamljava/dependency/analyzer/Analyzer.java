@@ -11,9 +11,8 @@ import java.util.regex.Pattern;
 import org.apache.maven.plugin.AbstractMojo;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
 public class Analyzer {
@@ -31,10 +30,15 @@ public class Analyzer {
 	}
 
 
-	public List<String> resolveModuleDependencies(final Multimap<String,String> sources) {
+	public Set<String> resolveModuleDependencies(final Collection<String> sources) {
 		
-		final ImmutableMap.Builder<String,String> dependencyMap = ImmutableBiMap.builder();
+		final Multimap<String, String> groupByModuleDependencies = groupByModuleDependencies(sources);
 		
+		final ImmutableSet.Builder<String> sourcesSortedByDependencyOrder = ImmutableSet.builder();
+		
+		
+		return sourcesSortedByDependencyOrder.build();
+				
 	}
 	public Multimap<String, String> groupByModuleDependencies(final Collection<String> sources) {
 		Preconditions.checkNotNull(sources);
