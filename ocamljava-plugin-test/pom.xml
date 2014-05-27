@@ -6,7 +6,7 @@
 		<artifactId>ocamljava-maven-plugin-root</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>ocamljava-test-plugin</artifactId>
+	<artifactId>ocamljava-plugin-test</artifactId>
 	<packaging>pom</packaging>
 	<name>OcamlJava Root Test Project</name>
 	<build>
