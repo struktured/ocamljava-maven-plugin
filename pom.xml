@@ -1,69 +1,70 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-		<groupId>mandelbrot</groupId>
-		<artifactId>ocamljava-maven-plugin-root</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+	<groupId>mandelbrot</groupId>
+	<artifactId>ocamljava-maven-plugin-root</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Ocaml Java Maven Plugin Root</name>
 	<url>https://github.com/struktured/ocamljava-maven-plugin</url>
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-plugin-api</artifactId>
-			<version>3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-core</artifactId>
-			<version>3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-artifact</artifactId>
-			<version>3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>14.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>fr.x9c</groupId>
-			<artifactId>ocamljava</artifactId>
-			<version>2.0-early-access11</version>
-		</dependency>
-		<dependency>
-			<groupId>fr.x9c</groupId>
-			<artifactId>ocamlwrap</artifactId>
-			<version>2.0-early-access11</version>
-		</dependency>
-		<dependency>
-			<groupId>fr.x9c</groupId>
-			<artifactId>ocaml-lib-files</artifactId>
-			<version>2.0-early-access11</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-project</artifactId>
-			<version>2.0.6</version>
-		</dependency>
-	</dependencies>
-	<description>This plugin provides maven integration for ocaml java. See http://ocamljava.x9c.fr for details on that specific project. The important thing to know is it's a pure java solution to integrating ocaml code with the JVM, and this project provides the necessary maven integration.</description>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-plugin-api</artifactId>
+				<version>3.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-core</artifactId>
+				<version>3.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-artifact</artifactId>
+				<version>3.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>14.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.0</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>fr.x9c</groupId>
+				<artifactId>ocamljava</artifactId>
+				<version>2.0-early-access11</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.x9c</groupId>
+				<artifactId>ocamlwrap</artifactId>
+				<version>2.0-early-access11</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.x9c</groupId>
+				<artifactId>ocaml-lib-files</artifactId>
+				<version>2.0-early-access11</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>2.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-project</artifactId>
+				<version>2.0.6</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<scm>
 		<connection>scm:git:https://github.com/struktured/ocamljava-maven-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:struktured/ocamljava-maven-plugin.git</developerConnection>
@@ -102,5 +103,8 @@
 			</plugin>
 		</plugins>
 	</reporting>
-	<modules><module>ocamljava-maven-plugin</module><module>ocamljava-plugin-test</module></modules>
+	<modules>
+		<module>ocamljava-maven-plugin</module>
+		<module>ocamljava-plugin-test</module>
+	</modules>
 </project>
