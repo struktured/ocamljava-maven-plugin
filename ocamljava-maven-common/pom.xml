@@ -8,8 +8,8 @@
 		<artifactId>ocamljava-maven-plugin-root</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>ocamljava-dependency-analyzer</artifactId>
-	<name>Ocaml Dependency Analyzer</name>
+	<artifactId>ocamljava-maven-common</artifactId>
+	<name>OcamlJava Maven Common Library</name>
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -44,12 +44,6 @@
 			<groupId>fr.x9c</groupId>
 			<artifactId>ocaml-lib-files</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>mandelbrot</groupId>
-			<artifactId>ocamljava-maven-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		
 	</dependencies>
 	<build>
 		<plugins>
