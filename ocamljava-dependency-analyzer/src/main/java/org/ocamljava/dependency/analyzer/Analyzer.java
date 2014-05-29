@@ -60,31 +60,40 @@ public class Analyzer {
 
 	}
 
-	public SortedSet<String> resolveModuleDependencies(final Collection<String> sources) {
+	public SortedSet<String> resolveModuleDependencies(
+			final Collection<String> sources) {
 		final Multimap<String, String> sourcesByModuleDependencies = groupSourcesByModuleDependencies(sources);
+
+		return sortDependencies(sourcesByModuleDependencies);
+
+	}
+
+	public SortedSet<String> sortDependencies(final Multimap<String, String> sourcesByModuleDependencies) {
 		
-		final Multimap<String, String> modulesByModuleDependencies = 
-				Multimaps.transformValues(sourcesByModuleDependencies, new Function<String,String>() { 
-			@Override public String apply (final String source) 
-			{return moduleNameOfSource(source).get();}});
-		
-		
-		
+		final Multimap<String, String> modulesByModuleDependencies = Multimaps
+				.transformValues(sourcesByModuleDependencies,
+						new Function<String, String>() {
+							@Override
+							public String apply(final String source) {
+								final Optional<String> moduleNameOfSource = moduleNameOfSource(source);
+								return moduleNameOfSource.or("");
+							}
+						});
+
 		// Given we know module X requires modules Y,Z, etc.,
 		// find an ordering of the modules such that X < Y iff Y requires X.
 		// We can also assume that if D = {Y_0, Y_1, ..., Y_N} and X < D, Y < D,
 		// then X < Y iff string(X) < string(Y)
 		// X < X is false and of course, X = X.
 
-		final ImmutableSortedSet<String> sortedSet = ImmutableSortedSet
-				.copyOf(creatComparator(modulesByModuleDependencies),
-						modulesByModuleDependencies.keySet());
+		final ImmutableSortedSet<String> sortedSet = ImmutableSortedSet.copyOf(
+				creatComparator(modulesByModuleDependencies),
+				modulesByModuleDependencies.keySet());
 
 		return sortedSet;
-
 	}
 
-	public Multimap<String, String> groupSourcesByModuleDependencies(
+	private Multimap<String, String> groupSourcesByModuleDependencies(
 			final Collection<String> sources) {
 		Preconditions.checkNotNull(sources);
 
@@ -93,6 +102,14 @@ public class Analyzer {
 
 		for (final String source : sources) {
 			final File sourceFile = new File(source);
+
+			final Optional<String> moduleNameOfSource = moduleNameOfSource(source);
+
+			// add self to grouping so it appears in the multimaps key set, but
+			// depend on nothing.
+			if (moduleNameOfSource.isPresent()) {
+				builder.put(moduleNameOfSource.get(), source);
+			}
 
 			Scanner scanner = null;
 			try {
@@ -143,38 +160,53 @@ public class Analyzer {
 
 	private static final Comparator<String> creatComparator(
 			final Multimap<String, String> dependencies) {
-		
+
 		return new Comparator<String>() {
 
 			@Override
 			public int compare(final String module1, final String module2) {
+
 				if (Objects.equal(module1, module2))
 					return 0;
-				
-				final Collection<String> module1Dependencies = dependencies.get(module1);
-				final Collection<String> module2Dependencies = dependencies.get(module2);
-			
-				final boolean module1RequiresModule2 = module1Dependencies.contains(module2);
-				final boolean module2RequiresModule1 = module2Dependencies.contains(module1);
-				
+
+				if (StringUtils.isBlank(module1)
+						&& !StringUtils.isBlank(module2))
+					return -1;
+
+				if (StringUtils.isBlank(module2)
+						&& !StringUtils.isBlank(module1))
+					return 1;
+
+				final Collection<String> module1Dependencies = dependencies
+						.get(module1);
+				final Collection<String> module2Dependencies = dependencies
+						.get(module2);
+
+				final boolean module1RequiresModule2 = module1Dependencies
+						.contains(module2);
+				final boolean module2RequiresModule1 = module2Dependencies
+						.contains(module1);
+
 				if (module2RequiresModule1 && module1RequiresModule2) {
-					throw new IllegalStateException("circular dependency: " + module1 + " and " + module2);
+					throw new IllegalStateException("circular dependency: "
+							+ module1 + " and " + module2);
 				}
-				
-				// Pick one which requires the other.
+
+				// The dependable is less than the dependent.
 				if (module2RequiresModule1)
 					return -1;
 				if (module1RequiresModule2)
 					return 1;
-				
+
 				// Choose one with shortest number of dependencies
-				final int cmp = Long.compare(module1Dependencies.size(), module2Dependencies.size());
+				final int cmp = Long.compare(module1Dependencies.size(),
+						module2Dependencies.size());
 				if (cmp != 0)
 					return cmp;
-				
-				// When all else fails try default alphanumeric comparison
+
+				// When all else fails use default alphanumeric comparison
 				return module1.compareTo(module2);
-				
+
 			}
 		};
 	}
