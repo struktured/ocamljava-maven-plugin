@@ -62,7 +62,7 @@ public class JarAppender {
 
 				if (file == null || !file.exists() || file.isDirectory())
 					continue; // Just in case...
-				abstractMojo.getLog().info("Adding new entry: " + file.getName());
+				abstractMojo.getLog().info("Adding new entry: " + file.getPath());
 				addEntry(file, out, buffer);
 			}
 			
@@ -77,6 +77,10 @@ public class JarAppender {
 
 	private void addEntry(final File file, final JarOutputStream out,
 			final byte[] buffer) throws IOException {
+		
+		// TODO fix this
+		abstractMojo.getLog().warn("need to file jar entry name so it's scoped according to working project directories!");
+		
 		final JarEntry jarAdd = new JarEntry(file.getPath());
 		jarAdd.setTime(file.lastModified());
 		out.putNextEntry(jarAdd);
