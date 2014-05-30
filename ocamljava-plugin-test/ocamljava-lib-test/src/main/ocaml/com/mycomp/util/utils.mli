@@ -1,2 +1,2 @@
-open Com.Mycomp.Data.Company
+open Company
 val is_public : company -> bool

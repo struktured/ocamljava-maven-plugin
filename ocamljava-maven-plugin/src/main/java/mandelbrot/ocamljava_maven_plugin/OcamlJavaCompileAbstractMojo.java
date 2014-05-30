@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
@@ -13,6 +15,7 @@ import ocaml.compilers.ocamljavaMain;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.StringUtils;
+import org.ocamljava.dependency.analyzer.Analyzer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -52,12 +55,19 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			final Collection<String> moduleInterfaces = ocamlSourceFiles
 					.get(OcamlJavaConstants.INTERFACE_SOURCE_EXTENSION);
 
-			compileSourcesAndMoveToTargetDirectory(moduleInterfaces);
+			
+			final Analyzer analyzer = new Analyzer(this);
+			final SortedMap<String, String> orderedModuleInterfaces = analyzer.resolveModuleDependencies(moduleInterfaces);
+
+			getLog().info("ordered module interfaces: " + orderedModuleInterfaces);
+			compileSourcesAndMoveToTargetDirectory(orderedModuleInterfaces.values());
 
 			final Collection<String> implementations = ocamlSourceFiles
 					.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION);
 
-			compileSourcesAndMoveToTargetDirectory(implementations);
+			final SortedMap<String,String> orderedModuleImpls = analyzer.resolveModuleDependencies(implementations);
+			getLog().info("ordered module impls: " + orderedModuleImpls);
+			compileSourcesAndMoveToTargetDirectory(orderedModuleImpls.values());
 
 		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);

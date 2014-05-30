@@ -12,6 +12,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.junit.After;
 import org.junit.Test;
 
 import com.google.common.base.Optional;
@@ -27,6 +28,10 @@ public class DependencyExtractorTest {
 			
 		}
 	};
+	
+	
+	private File dependable;
+	private File dependent;
 	
 	@Test
 	public void shouldExtractOpenStatement() throws IOException {
@@ -46,11 +51,8 @@ public class DependencyExtractorTest {
 		final Multimap<String, Optional<String>> groupSourcesByModuleDependencies = new DependencyExtractor(testMojo).
 				groupSourcesByModuleDependencies(list);	
 		//System.out.println(groupSourcesByModuleDependencies);
-		final Collection<Optional<String>> collection = groupSourcesByModuleDependencies.get("foobar");
 		
-
-		FileUtils.deleteQuietly(dependable);
-		FileUtils.deleteQuietly(dependent);
+		final Collection<Optional<String>> collection = groupSourcesByModuleDependencies.get("foobar");
 		
 		Assert.assertEquals(1, collection.size());
 		Assert.assertEquals(collection.iterator().next(), Optional.absent());
@@ -75,22 +77,30 @@ public class DependencyExtractorTest {
 		fileWriter.close();
 		}
 	}
-	
+
+	@After
+	public void afterTests() {
+		
+
+		if (dependable != null)
+		FileUtils.deleteQuietly(dependable);
+		
+		if (dependent != null)
+			FileUtils.deleteQuietly(dependent);
+
+	}
 	
 	@Test
 	public void shouldExtractScopedModule() throws IOException {
 		final String input = "let z = Foobar.BLACK\n";
 		
-		final File dependent = new File("foobar-dependent.ml");
+		this.dependent = new File("foobar-dependent.ml");
 		
 		final String input2 = "type color = BLACK|WHITE";
-		final File dependable = new File("foobar.ml");
+		this.dependable = new File("foobar.ml");
 	
 		writeData(input, dependent);	
 		writeData(input2, dependable);	
-		
-		FileUtils.deleteQuietly(dependable);
-		FileUtils.deleteQuietly(dependent);
 		
 		final List<String> list = ImmutableList.of(dependent.getPath(), dependable.getPath());
 		

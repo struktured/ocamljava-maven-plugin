@@ -1,29 +1,6 @@
 package mandelbrot.ocamljava_maven_plugin;
 
-import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.DOT;
-import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.OCAML_SOURCE_FILE_EXTENSIONS;
-
 import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
-import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
-import ocaml.compilers.ocamljavaMain;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.codehaus.plexus.util.StringUtils;
-
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 
 /**
  * <p>
@@ -34,7 +11,7 @@ import com.google.common.collect.Multimap;
  * <code>ocamljava -classpath classpath/lib.jar -c foo.ml bar.ml ...</code>
  * </p>
  * from the command line but instead uses maven properties to infer the source
- * locations and class path. All parameters can be overriden. See the
+ * locations and class path. All parameters can be overridden. See the
  * configuration section of the documentation for more information.</p>
  * 
  * @requiresProject

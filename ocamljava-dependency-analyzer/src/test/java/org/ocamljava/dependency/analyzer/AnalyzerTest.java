@@ -1,7 +1,7 @@
 package org.ocamljava.dependency.analyzer;
 
 import java.util.Iterator;
-import java.util.SortedSet;
+import java.util.Set;
 
 import junit.framework.Assert;
 
@@ -28,7 +28,7 @@ public class AnalyzerTest {
 		
 		builder.put("dependentModule", Optional.of("dependableModule"));
 		
-		final SortedSet<String> sortedDependencies = analyzer.sortDependencies(builder.build());
+		final Set<String> sortedDependencies = analyzer.sortDependencies(builder.build()).keySet();
 		
 		final Iterator<String> iterator = sortedDependencies.iterator();
 		
@@ -58,7 +58,7 @@ public class AnalyzerTest {
 		
 		builder.put("dependentModule2", Optional.of("dependableModule"));
 		
-		final SortedSet<String> sortedDependencies = analyzer.sortDependencies(builder.build());
+		final Set<String> sortedDependencies = analyzer.sortDependencies(builder.build()).keySet();
 		
 		final Iterator<String> iterator = sortedDependencies.iterator();
 		
@@ -96,7 +96,7 @@ public class AnalyzerTest {
 		builder.put("dependentModule3", Optional.of("dependentModule"));
 		
 		
-		final SortedSet<String> sortedDependencies = analyzer.sortDependencies(builder.build());
+		final Set<String> sortedDependencies = analyzer.sortDependencies(builder.build()).keySet();
 		
 		final Iterator<String> iterator = sortedDependencies.iterator();
 		

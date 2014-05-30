@@ -3,16 +3,20 @@ package org.ocamljava.dependency.analyzer;
 import java.io.File;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.SortedSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.codehaus.plexus.util.StringUtils;
 
-import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
@@ -46,22 +50,28 @@ public class Analyzer {
 
 	}
 
-	public SortedSet<String> resolveModuleDependencies(
+	public SortedMap<String, String> resolveModuleDependencies(
 			final Collection<String> sources) {
 		final Multimap<String, Optional<String>> sourcesByModuleDependencies = 
 				dependencyExtractor.groupSourcesByModuleDependencies(sources);
 
-		return sortDependencies(sourcesByModuleDependencies);
+		return sortDependencies(sourcesByModuleDependencies,dependencyExtractor.getModuleToFilePath());
 
 	}
 
-	public SortedSet<String> sortDependencies(final Multimap<String, Optional<String>> sourcesByModuleDependencies) {
+	public SortedMap<String, String> sortDependencies(final Multimap<String, Optional<String>> sourcesByModuleDependencies) {
+		return sortDependencies(sourcesByModuleDependencies, null);
+	}
+	
+	public SortedMap<String, String> sortDependencies(final Multimap<String, Optional<String>> sourcesByModuleDependencies,
+			final Map<String, String> moduleToFilePath) {
 		
 		final Multimap<String, Optional<String>> modulesByModuleDependencies = Multimaps
-				.transformValues(sourcesByModuleDependencies,
-						new Function<Optional<String>, Optional<String>>() {
-							@Override
-							public Optional<String> apply(final Optional<String> source) {
+				.transformEntries(sourcesByModuleDependencies,
+						new Maps.EntryTransformer<String, Optional<String>, Optional<String>>() {
+
+				@Override
+				public Optional<String> transformEntry(final String key, final Optional<String> source) {
 								if (source.isPresent())
 								{
 									final Optional<String> moduleNameOfSource = moduleNameOfSource(source.get());
@@ -71,18 +81,26 @@ public class Analyzer {
 								}
 							}
 						});
-
+		
 		// Given we know module X requires modules Y,Z, etc.,
 		// find an ordering of the modules such that X < Y iff Y requires X.
 		// We can also assume that if D = {Y_0, Y_1, ..., Y_N} and X < D, Y < D,
 		// then X < Y iff string(X) < string(Y)
 		// X < X is false and of course, X = X.
 
-		final ImmutableSortedSet<String> sortedSet = ImmutableSortedSet.copyOf(
-				creatComparator(modulesByModuleDependencies),
-				modulesByModuleDependencies.keySet());
-
+		if (moduleToFilePath != null) {
+		final ImmutableSortedMap<String, String> sortedSet = ImmutableSortedMap.copyOf(
+				moduleToFilePath,
+				creatComparator(modulesByModuleDependencies));
 		return sortedSet;
+		} else {
+			final  Builder<String, String> builder = ImmutableMap.builder();
+			final Set<String> keySet = modulesByModuleDependencies.keySet();
+			for (String string : keySet) {
+				builder.put(string, string);
+			}
+			return ImmutableSortedMap.copyOf(builder.build(), creatComparator(modulesByModuleDependencies));
+		}
 	}
 
 	private static final Comparator<String> creatComparator(
@@ -137,4 +155,5 @@ public class Analyzer {
 			}
 		};
 	}
+
 }

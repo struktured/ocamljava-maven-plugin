@@ -45,7 +45,7 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 				
 				final Collection<String> compiledModuleInterfaces =
 					ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION);
-				new JarAppender(this).addFiles(getTargetJarFullPath(), compiledModuleInterfaces);
+				new JarAppender(this).addFiles(getTargetJarFullPath(), compiledModuleInterfaces, getOcamlCompiledSourcesTargetFullPath());
 			}
 			
 		} catch (final Exception e) {

@@ -12,6 +12,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
 import org.apache.maven.plugin.AbstractMojo;
+import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -28,7 +29,7 @@ public class JarAppender {
 	}
 
 	public void addFiles(final String archiveFile,
-			final Collection<String> toBeJaredFiles) {
+			final Collection<String> toBeJaredFiles, final String prefixToFilter) {
 
 		final Collection<File> toBeJaredArray = Collections2.transform(
 				toBeJaredFiles,
@@ -62,8 +63,11 @@ public class JarAppender {
 
 				if (file == null || !file.exists() || file.isDirectory())
 					continue; // Just in case...
+				
 				abstractMojo.getLog().info("Adding new entry: " + file.getPath());
-				addEntry(file, out, buffer);
+				
+				addEntry(file, out, buffer, prefixToFilter == null || 
+						!(file.getPath().startsWith(prefixToFilter)) ? 0 : prefixToFilter.length());
 			}
 			
 			out.close();
@@ -76,12 +80,18 @@ public class JarAppender {
 	}
 
 	private void addEntry(final File file, final JarOutputStream out,
-			final byte[] buffer) throws IOException {
+			final byte[] buffer, final int prefixToFilterLength) throws IOException {
 		
-		// TODO fix this
-		abstractMojo.getLog().warn("need to file jar entry name so it's scoped according to working project directories!");
+		String substring = file.getPath().substring(prefixToFilterLength);
 		
-		final JarEntry jarAdd = new JarEntry(file.getPath());
+		while (substring.startsWith(File.separator))
+			substring = substring.substring(1);
+		while (substring.endsWith(File.separator))
+			substring = substring.substring(substring.length()-1);
+		
+		abstractMojo.getLog().info("infered package: " + substring);
+				
+		final JarEntry jarAdd = new JarEntry(substring);
 		jarAdd.setTime(file.lastModified());
 		out.putNextEntry(jarAdd);
 

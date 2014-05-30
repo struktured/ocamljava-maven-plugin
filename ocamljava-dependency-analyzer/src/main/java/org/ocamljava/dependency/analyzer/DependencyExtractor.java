@@ -3,6 +3,7 @@ package org.ocamljava.dependency.analyzer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,6 +13,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 public class DependencyExtractor {
@@ -21,6 +23,8 @@ public class DependencyExtractor {
 	Pattern.compile("[\\w\\=\\s\\+\\-]*?([A-Z][a-zA-z0-9]+)\\.[\\w]*?");
 	private final AbstractMojo abstractMojo;
 
+	private final Map<String, String> moduleToFilePath = Maps.newHashMap();;
+	
 	public DependencyExtractor(final AbstractMojo abstractMojo) {
 		this.abstractMojo = Preconditions.checkNotNull(abstractMojo);
 	}
@@ -32,13 +36,17 @@ public class DependencyExtractor {
 		final ImmutableMultimap.Builder<String, Optional<String>> builder = ImmutableMultimap
 				.builder();
 
+		moduleToFilePath.clear();
+		
 		for (final String source : sources) {
 			final File sourceFile = new File(source);
 
 			// TODO move this util method to separate class
 			final Optional<String> moduleNameOfSource = Analyzer.moduleNameOfSource(source);
 
-
+			if (moduleNameOfSource.isPresent())
+				moduleToFilePath.put(moduleNameOfSource.get(), source);
+			
 			// Hackish but convenient to  add self to grouping so it appears in the multimaps key set, but still
 			// depend on nothing.
 			if (moduleNameOfSource.isPresent()) {
@@ -83,6 +91,10 @@ public class DependencyExtractor {
 			}
 		}
 		return builder.build();
+	}
+
+	public Map<String, String> getModuleToFilePath() {
+		return moduleToFilePath;
 	}
 
 	private String extractModuleName(String line) {

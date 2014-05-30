@@ -60,6 +60,12 @@
 			<artifactId>ocamljava-maven-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>mandelbrot</groupId>
+			<artifactId>ocamljava-dependency-analyzer</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>
