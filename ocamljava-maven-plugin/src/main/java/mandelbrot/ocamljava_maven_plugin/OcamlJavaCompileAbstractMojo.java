@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.SortedSet;
 
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
@@ -60,14 +59,24 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			final SortedMap<String, String> orderedModuleInterfaces = analyzer.resolveModuleDependencies(moduleInterfaces);
 
 			getLog().info("ordered module interfaces: " + orderedModuleInterfaces);
-			compileSourcesAndMoveToTargetDirectory(orderedModuleInterfaces.values());
+			compileSources(orderedModuleInterfaces.values(), 
+					ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
 
 			final Collection<String> implementations = ocamlSourceFiles
 					.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION);
 
 			final SortedMap<String,String> orderedModuleImpls = analyzer.resolveModuleDependencies(implementations);
 			getLog().info("ordered module impls: " + orderedModuleImpls);
-			compileSourcesAndMoveToTargetDirectory(orderedModuleImpls.values());
+			compileSources(orderedModuleImpls.values(),
+					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, OcamlJavaConstants.OBJECT_BINARY_EXTENSION));
+
+
+			moveCompiledFiles(moduleInterfaces, chooseOcamlCompiledSourcesTarget(),
+					chooseOcamlSourcesDirectory().getPath(), ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
+
+			moveCompiledFiles(implementations, chooseOcamlCompiledSourcesTarget(),
+					chooseOcamlSourcesDirectory().getPath(), 
+					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, OcamlJavaConstants.OBJECT_BINARY_EXTENSION));
 
 		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
@@ -76,13 +85,14 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 	protected abstract File chooseOcamlSourcesDirectory();
 
-	private void compileSourcesAndMoveToTargetDirectory(
-			final Collection<String> sourceFiles) throws MojoExecutionException {
+	private Collection<String> compileSources(
+			final Collection<String> sourceFiles, final Set<String> extensions) throws MojoExecutionException {
 
 		final Multimap<String, String> byPathMapping = FileMappings
 				.buildPathMap(sourceFiles);
 
 		final Set<String> pathMappings = byPathMapping.keySet();
+		final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
 
 		for (final String path : pathMappings) {
 
@@ -93,18 +103,22 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 						"ocamljava compile args: "
 								+ ImmutableList.copyOf(sourceArgs));
 				ocamljavaMain.main(sourceArgs);
-				moveCompiledFiles(sourceFiles, chooseOcamlCompiledSourcesTarget(),
-						chooseOcamlSourcesDirectory().getPath());
+	//			builder.addAll(moveCompiledFiles(sourceFiles, chooseOcamlCompiledSourcesTarget(),
+		//				chooseOcamlSourcesDirectory().getPath(), extensions));
 			}
 		}
+		return builder.build();
 	}
 
-	private void moveCompiledFiles(final Collection<String> ocamlSourceFiles,
-			final String outputDirectoryQualifier, final String toFilter) {
+	private ImmutableSet<String> moveCompiledFiles(final Collection<String> ocamlSourceFiles,
+			final String outputDirectoryQualifier, final String toFilter, final Set<String> extensions) {
 
-		for (final String extension : OcamlJavaConstants.OCAML_COMPILED_SOURCE_FILE_EXTENSIONS)
-			moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles,
-					extension, outputDirectoryQualifier, toFilter);
+		final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+		
+		for (final String extension : extensions)
+			builder.addAll(moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles,
+					extension, outputDirectoryQualifier, toFilter));
+		return builder.build();
 
 	}
 
