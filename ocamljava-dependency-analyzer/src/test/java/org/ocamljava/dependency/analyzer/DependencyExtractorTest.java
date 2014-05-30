@@ -8,6 +8,7 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -47,6 +48,10 @@ public class DependencyExtractorTest {
 		//System.out.println(groupSourcesByModuleDependencies);
 		final Collection<Optional<String>> collection = groupSourcesByModuleDependencies.get("foobar");
 		
+
+		FileUtils.deleteQuietly(dependable);
+		FileUtils.deleteQuietly(dependent);
+		
 		Assert.assertEquals(1, collection.size());
 		Assert.assertEquals(collection.iterator().next(), Optional.absent());
 
@@ -83,6 +88,9 @@ public class DependencyExtractorTest {
 	
 		writeData(input, dependent);	
 		writeData(input2, dependable);	
+		
+		FileUtils.deleteQuietly(dependable);
+		FileUtils.deleteQuietly(dependent);
 		
 		final List<String> list = ImmutableList.of(dependent.getPath(), dependable.getPath());
 		
