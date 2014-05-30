@@ -10,6 +10,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Test;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMultimap;
 
 
@@ -21,11 +22,11 @@ public class AnalyzerTest {
 		
 		final Analyzer analyzer = new Analyzer(testMojo);
 	
-		final ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
+		final ImmutableMultimap.Builder<String, Optional<String>> builder = ImmutableMultimap.builder();
 	
-		builder.put("dependableModule", "");
+		builder.put("dependableModule", Optional.<String>absent());
 		
-		builder.put("dependentModule", "dependableModule");
+		builder.put("dependentModule", Optional.of("dependableModule"));
 		
 		final SortedSet<String> sortedDependencies = analyzer.sortDependencies(builder.build());
 		
@@ -49,13 +50,13 @@ public class AnalyzerTest {
 		
 		final Analyzer analyzer = new Analyzer(testMojo);
 	
-		final ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
+		final ImmutableMultimap.Builder<String, Optional<String>> builder = ImmutableMultimap.builder();
 	
-		builder.put("dependableModule", "");
+		builder.put("dependableModule", Optional.<String>absent());
 		
-		builder.put("dependentModule", "dependableModule");
+		builder.put("dependentModule", Optional.of("dependableModule"));
 		
-		builder.put("dependentModule2", "dependableModule");
+		builder.put("dependentModule2", Optional.of("dependableModule"));
 		
 		final SortedSet<String> sortedDependencies = analyzer.sortDependencies(builder.build());
 		
@@ -85,15 +86,14 @@ public class AnalyzerTest {
 		
 		final Analyzer analyzer = new Analyzer(testMojo);
 	
-		final ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
+		final ImmutableMultimap.Builder<String, Optional<String>> builder = ImmutableMultimap.builder();
 	
-		builder.put("dependableModule", "");
+		builder.put("dependableModule", Optional.<String>absent());
 		
-		builder.put("dependentModule", "dependableModule");
-		
-		builder.put("dependentModule2", "dependentModule");
-		builder.put("dependentModule2", "dependableModule");
-		builder.put("dependentModule3", "dependentModule");
+		builder.put("dependentModule", Optional.of("dependableModule"));
+		builder.put("dependentModule2", Optional.of("dependentModule"));
+		builder.put("dependentModule2", Optional.of("dependableModule"));
+		builder.put("dependentModule3", Optional.of("dependentModule"));
 		
 		
 		final SortedSet<String> sortedDependencies = analyzer.sortDependencies(builder.build());

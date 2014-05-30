@@ -37,34 +37,38 @@ public class Analyzer {
 				- (extension.length() == 0 ? 0 : extension.length()
 						+ File.separator.length()));
 
-		final String casedName = StringUtils
-				.capitalizeFirstLetter(rawModuleName);
+		final String lowerCasedName = rawModuleName.toLowerCase();
 
-		if (casedName.isEmpty())
+		if (lowerCasedName.isEmpty())
 			return Optional.absent();
 
-		return Optional.of(casedName);
+		return Optional.of(lowerCasedName);
 
 	}
 
 	public SortedSet<String> resolveModuleDependencies(
 			final Collection<String> sources) {
-		final Multimap<String, String> sourcesByModuleDependencies = 
+		final Multimap<String, Optional<String>> sourcesByModuleDependencies = 
 				dependencyExtractor.groupSourcesByModuleDependencies(sources);
 
 		return sortDependencies(sourcesByModuleDependencies);
 
 	}
 
-	public SortedSet<String> sortDependencies(final Multimap<String, String> sourcesByModuleDependencies) {
+	public SortedSet<String> sortDependencies(final Multimap<String, Optional<String>> sourcesByModuleDependencies) {
 		
-		final Multimap<String, String> modulesByModuleDependencies = Multimaps
+		final Multimap<String, Optional<String>> modulesByModuleDependencies = Multimaps
 				.transformValues(sourcesByModuleDependencies,
-						new Function<String, String>() {
+						new Function<Optional<String>, Optional<String>>() {
 							@Override
-							public String apply(final String source) {
-								final Optional<String> moduleNameOfSource = moduleNameOfSource(source);
-								return moduleNameOfSource.or("");
+							public Optional<String> apply(final Optional<String> source) {
+								if (source.isPresent())
+								{
+									final Optional<String> moduleNameOfSource = moduleNameOfSource(source.get());
+									return moduleNameOfSource;
+								} else {
+									return Optional.absent();
+								}
 							}
 						});
 
@@ -82,7 +86,7 @@ public class Analyzer {
 	}
 
 	private static final Comparator<String> creatComparator(
-			final Multimap<String, String> dependencies) {
+			final Multimap<String, Optional<String>> dependencies) {
 
 		return new Comparator<String>() {
 
@@ -100,15 +104,15 @@ public class Analyzer {
 						&& !StringUtils.isBlank(module1))
 					return 1;
 
-				final Collection<String> module1Dependencies = dependencies
+				final Collection<Optional<String>> module1Dependencies = dependencies
 						.get(module1);
-				final Collection<String> module2Dependencies = dependencies
+				final Collection<Optional<String>> module2Dependencies = dependencies
 						.get(module2);
 
 				final boolean module1RequiresModule2 = module1Dependencies
-						.contains(module2);
+						.contains(Optional.of(module2));
 				final boolean module2RequiresModule1 = module2Dependencies
-						.contains(module1);
+						.contains(Optional.of(module1));
 
 				if (module2RequiresModule1 && module1RequiresModule2) {
 					throw new IllegalStateException("circular dependency: "
@@ -121,7 +125,7 @@ public class Analyzer {
 				if (module1RequiresModule2)
 					return 1;
 
-				// Choose one with shortest number of dependencies
+				// Choose one with smallest number of dependencies
 				final int cmp = Long.compare(module1Dependencies.size(),
 						module2Dependencies.size());
 				if (cmp != 0)

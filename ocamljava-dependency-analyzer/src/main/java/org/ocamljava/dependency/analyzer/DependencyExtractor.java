@@ -16,27 +16,20 @@ import com.google.common.collect.Multimap;
 
 public class DependencyExtractor {
 
-	private static final String MODULE_REGEX_START_OF_LINE = "[A-Z][a-zA-z0-9_]+\\.";
-	private static final String MODULE_REGEX_MIDDLE_OF_LINE = "[\\s\\,\\;\\=\\+]"
-			+ MODULE_REGEX_START_OF_LINE;
-
-	final Pattern PATTERN_MODULE_MIDDLE_OF_LINE = Pattern
-			.compile(MODULE_REGEX_MIDDLE_OF_LINE);
-	final Pattern PATTERN_MODULE_START_OF_LINE = Pattern
-			.compile(MODULE_REGEX_START_OF_LINE);
-
-
+	
+ static final Pattern MODULE_REGEX_START_OF_LINE = 
+	Pattern.compile("[\\w\\=\\s\\+\\-]*?([A-Z][a-zA-z0-9]+)\\.[\\w]*?");
 	private final AbstractMojo abstractMojo;
 
 	public DependencyExtractor(final AbstractMojo abstractMojo) {
 		this.abstractMojo = Preconditions.checkNotNull(abstractMojo);
 	}
 	
-	public Multimap<String, String> groupSourcesByModuleDependencies(
+	public Multimap<String, Optional<String>> groupSourcesByModuleDependencies(
 			final Collection<String> sources) {
 		Preconditions.checkNotNull(sources);
 
-		final ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap
+		final ImmutableMultimap.Builder<String, Optional<String>> builder = ImmutableMultimap
 				.builder();
 
 		for (final String source : sources) {
@@ -45,35 +38,39 @@ public class DependencyExtractor {
 			// TODO move this util method to separate class
 			final Optional<String> moduleNameOfSource = Analyzer.moduleNameOfSource(source);
 
-			// add self to grouping so it appears in the multimaps key set, but
+
+			// Hackish but convenient to  add self to grouping so it appears in the multimaps key set, but still
 			// depend on nothing.
 			if (moduleNameOfSource.isPresent()) {
-				builder.put(moduleNameOfSource.get(), source);
+				builder.put(moduleNameOfSource.get(), Optional.<String>absent());
 			}
-
+			
 			Scanner scanner = null;
 			try {
 				scanner = new Scanner(sourceFile);
 
 				while (scanner.hasNext()) {
-					final String line = scanner.next();
+					final String line = scanner.nextLine();
 					if (line == null)
 						continue;
 					if (line.startsWith("open") && !line.equals("open")) {
 						final String moduleName = extractModuleName(line);
 
 						if (isValidModuleName(moduleName)) {
-							builder.put(moduleName, source);
+							builder.put(moduleNameOfSource.get(), Optional.of(moduleName));
 						}
 					}
 
-					final Matcher matcher = PATTERN_MODULE_MIDDLE_OF_LINE
+					final Matcher matcher = MODULE_REGEX_START_OF_LINE
 							.matcher(line);
-					for (int i = 0; i < matcher.groupCount(); i++) {
+					if (!matcher.matches())
+						continue;
+					
+					for (int i = 1; i <= matcher.groupCount(); i++) {
 						final String moduleName = extractModuleName(matcher
 								.group(i));
 						if (isValidModuleName(moduleName)) {
-							builder.put(moduleName, source);
+							builder.put(moduleNameOfSource.get(), Optional.of(moduleName));
 						}
 					}
 				}
@@ -88,14 +85,16 @@ public class DependencyExtractor {
 		return builder.build();
 	}
 
-	private String extractModuleName(final String line) {
-		return line.substring("open".length(), line.length()).replace(";", "")
-				.trim();
+	private String extractModuleName(String line) {
+		if (line.startsWith("open"))
+			line = line.substring("open".length(), line.length());
+		
+		return line.replace(";", "").trim().toLowerCase();
 	}
 
 	// TODO make much stricter
 	private boolean isValidModuleName(final String moduleName) {
-		return moduleName != null && !moduleName.trim().isEmpty();
+		return moduleName != null && !moduleName.trim().isEmpty() && !moduleName.contains(" ");
 	}
 
 }
