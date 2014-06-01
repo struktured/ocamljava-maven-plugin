@@ -7,6 +7,8 @@ import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.StringUtils;
 
 
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
@@ -144,7 +146,8 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	protected String toPackage(final File prefixToTruncate, final String path) {
 		
 		if (JavaPackageMode.DYNAMIC.equals(javaPackageMode)) {
-			return FileMappings.toPackage(prefixToTruncate, new File(path).getParent());
+			final String fixed = StringUtils.isBlank(FileUtils.getExtension(path)) ? path : new File(path).getParent();
+			return FileMappings.toPackage(prefixToTruncate, fixed);
 		} else {
 			return packageName;
 		}

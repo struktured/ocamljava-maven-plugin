@@ -109,8 +109,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 						"ocamljava compile args: "
 								+ ImmutableList.copyOf(sourceArgs));
 				ocamljavaMain.main(sourceArgs);
-	//			builder.addAll(moveCompiledFiles(sourceFiles, chooseOcamlCompiledSourcesTarget(),
-		//				chooseOcamlSourcesDirectory().getPath(), extensions));
+		
 			}
 		}
 		return builder.build();
