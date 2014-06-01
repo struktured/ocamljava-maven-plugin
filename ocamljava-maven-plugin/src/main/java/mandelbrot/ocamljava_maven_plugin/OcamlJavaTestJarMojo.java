@@ -114,4 +114,9 @@ public class OcamlJavaTestJarMojo extends OcamlJavaJarAbstractMojo {
 	protected String chooseTargetJar() {
 		return targetTestJar;
 	}
+	
+	@Override
+	protected String chooseTargetOcamlJar() {
+		return targetTestOcamlJar;
+	}
 }

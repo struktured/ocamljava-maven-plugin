@@ -40,7 +40,7 @@ import com.google.common.collect.Multimap;
  * @threadSafe *
  * @since 1.0
  */
-public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
+public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 
 	private static final String ARTIFACT_DESCRIPTOR_SEPARATOR = ":";
 
@@ -299,6 +299,17 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 		builder.addAll(files);
 		
 		return Optional.of(builder.build().toArray(new String[] {}));
+	}
+
+	@Override
+	protected String chooseTargetJar() {
+		// TODO Auto-generated method stub
+		return targetJar;
+	}
+
+	@Override
+	protected String chooseTargetOcamlJar() {
+		return targetOcamlJar;
 	}
 
 }

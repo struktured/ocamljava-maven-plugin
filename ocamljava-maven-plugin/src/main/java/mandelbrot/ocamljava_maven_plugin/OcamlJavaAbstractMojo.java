@@ -68,14 +68,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @required
 	 */
 	protected String targetOcamlJar;
-	
-	public String getTargetJarFullPath() {
-		return outputDirectory.getPath() + File.separator + targetJar;
-	}
-	
-	public String getOcamlTargetJarFullPath() {
-		return outputDirectory.getPath() + File.separator + targetOcamlJar;
-	}
 
 	public String getOcamlCompiledSourcesTargetFullPath() {
 		return outputDirectory.getPath() + File.separator
@@ -83,12 +75,20 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	}
 
 	/***
-	 * The target test jar to add ocaml compiled sources to.
+	 * The target test jar to depend on and possibly replace with ocaml compiled sources depending on
+	 * the value of the <code>replaceMainArtifact</code> parameter. 
 	 * @parameter default-value="${project.artifactId}-${project.version}-tests.jar"
 	 * @required
-	 * @readonly
 	 */
 	protected String targetTestJar;
+
+	/***
+	 * The target test jar created by the ocamljava jar creation tool. If <code>replaceMainArtifact</code> is
+	 * set to <code>true</code>, then this jar will replace the contents of the <code>targetTestJar</code> parameter.
+	 * @parameter default-value="${project.artifactId}-${project.version}-ocaml-tests.jar"
+	 * @required
+	 */
+	protected String targetTestOcamlJar;
 
 	/***
 	 * The target subfolder to hold all compiled ocaml test sources. This value

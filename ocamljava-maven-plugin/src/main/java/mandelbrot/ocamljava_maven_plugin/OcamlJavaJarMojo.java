@@ -20,5 +20,11 @@ public class OcamlJavaJarMojo extends OcamlJavaJarAbstractMojo {
 		return targetJar;
 	}
 
+	@Override
+	protected String chooseTargetOcamlJar() {
+		return targetOcamlJar;
+	}
+
+
 	
 }

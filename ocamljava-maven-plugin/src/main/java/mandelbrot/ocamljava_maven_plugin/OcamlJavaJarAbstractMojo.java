@@ -9,6 +9,7 @@ import ocaml.compilers.ocamljavaMain;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -25,7 +26,7 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 	protected abstract String chooseTargetJar();
 
 	@Override
-	public void execute() throws MojoExecutionException {
+	public void execute() throws MojoExecutionException, MojoFailureException {
 
 		if (!ensureTargetDirectoryExists()) {
 			getLog().error("Could not create target directory");
@@ -57,13 +58,14 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 						ImmutableList.<String>builder().addAll(compiledModuleInterfaces)
 				.addAll(ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_IMPL_EXTENSION)).build();
 				
-				new JarAppender(this).addFiles(getOcamlTargetJarFullPath(), implsAndInterfaces, 
+				new JarAppender(this).addFiles(getTargetOcamlJarFullPath(), implsAndInterfaces, 
 						getOcamlCompiledSourcesTargetFullPath());
 				
 			}
 			
 			if (replaceMainArtfact) {
-				FileUtils.copyFile(new File(getOcamlTargetJarFullPath()), 
+				getLog().info(("replacing main artifact " + getTargetJarFullPath() + " with " + getTargetOcamlJarFullPath()));
+				FileUtils.copyFile(new File(getTargetOcamlJarFullPath()), 
 						new File(getTargetJarFullPath()));
 			}
 			
@@ -72,6 +74,16 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
 		}
+	}
+
+
+		
+	public String getTargetJarFullPath() {
+		return outputDirectory.getPath() + File.separator + chooseTargetJar();
+	}
+	
+	public String getTargetOcamlJarFullPath() {
+		return outputDirectory.getPath() + File.separator + chooseTargetOcamlJar();
 	}
 
 
@@ -86,7 +98,7 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 			final Collection<String> ocamlSourceFiles) {
 		return ImmutableList.<String>builder()
 				.add(OcamlJavaConstants.ADD_TO_JAR_SOURCES_OPTION)
-				.add(getOcamlTargetJarFullPath())
+				.add(getTargetOcamlJarFullPath())
 				.add(OcamlJavaConstants.ADDITIONAL_JAR_OPTION)
 				.add(getTargetJarFullPath())
 				.addAll(ocamlSourceFiles)
@@ -99,5 +111,7 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 		}
 		return outputDirectory.mkdirs();
 	}
+
+	protected abstract String chooseTargetOcamlJar();
 	
 }
