@@ -1,5 +1,6 @@
 package mandelbrot.ocamljava_maven_plugin;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -147,7 +148,8 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 		
 		if (JavaPackageMode.DYNAMIC.equals(getJavaPackageMode())) {
 			getLog().info("infer package names based on directory structure");
-			final Multimap<String, String> filesByPackageName = FileMappings.buildPackageMap(cmiFiles);
+			final Multimap<String, String> filesByPackageName = FileMappings.buildPackageMap(
+					new File(getOcamlCompiledSourcesTargetFullPath()), cmiFiles);
 		
 			final Set<String> packageNames = filesByPackageName.keySet();
 		
@@ -173,7 +175,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 		}
 		else
 			getLog().info(
-					"no compiled module interfaces to wrap in "
+					"no compiled module interfaces to wrap for package \"" + packageName + "\" in " 
 							+ getOcamlCompiledSourcesTargetFullPath());
 	}
 
@@ -196,7 +198,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	}
 
 
-	private ImmutableList<String> getArtifactFiles() {
+	private List<String> getArtifactFiles() {
 		final ImmutableList.Builder<String> builder = ImmutableList.builder();
 
 		Collection<Artifact> filter = Collections2.filter(

@@ -17,16 +17,14 @@ public class FileMappings {
 
 	private FileMappings() {}
 	
-	public static Multimap<String, String> buildPackageMap(
+	public static Multimap<String, String> buildPackageMap(final File prefixToTruncate,
 			final Collection<String> artifactFiles) {
 
 		final ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap
 				.builder();
 
 		for (final String artifactFilePath : artifactFiles) {
-			final String parent = new File(artifactFilePath).getParent();
-			final String packageName = parent.replace(File.separatorChar,
-					PACKAGE_NAME_SEPARATOR);
+			final String packageName = toPackage(prefixToTruncate, artifactFilePath);
 			builder.put(packageName, artifactFilePath);
 		}
 		return builder.build();

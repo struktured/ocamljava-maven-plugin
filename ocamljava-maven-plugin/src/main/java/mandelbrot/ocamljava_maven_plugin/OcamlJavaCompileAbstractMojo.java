@@ -26,6 +26,14 @@ import com.google.common.collect.Multimap;
 
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
+	/***
+	 * Record debugging information.
+	 * 
+	 * @parameter default-value="false"
+	 * 
+	 */
+	protected boolean recordDebugInfo = false;
+		
 	private static final String DOT = ".";
 	@Override
 	public void execute() throws MojoExecutionException {
@@ -185,6 +193,10 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		final ImmutableList.Builder<String> builder = ImmutableList
 				.<String> builder();
 
+		if (recordDebugInfo) {
+			builder.add(OcamlJavaConstants.RECORD_DEBUGGING_INFO_OPTION);
+		}
+		
 		if (!StringUtils.isBlank(packageName)) {
 			builder.add(OcamlJavaConstants.JAVA_PACKAGE_OPTION)
 					.add(packageName);
@@ -252,5 +264,6 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	}
 
 	protected abstract String chooseOcamlCompiledSourcesTarget();
+	
 	
 }
