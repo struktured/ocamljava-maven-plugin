@@ -23,7 +23,7 @@ import com.google.common.collect.Multimaps;
 public class Analyzer {
 	private final AbstractMojo abstractMojo;
 	private final DependencyExtractor dependencyExtractor;
-
+	
 	public Analyzer(final AbstractMojo abstractMojo) {
 		this.abstractMojo = Preconditions.checkNotNull(abstractMojo);
 		this.dependencyExtractor = new DependencyExtractor(this.abstractMojo);

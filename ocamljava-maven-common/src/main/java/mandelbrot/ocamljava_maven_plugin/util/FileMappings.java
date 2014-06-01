@@ -7,8 +7,8 @@ import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
 public class FileMappings {
@@ -45,13 +45,17 @@ public class FileMappings {
 		return builder.build();
 	}
 
-	public static Function<String, String> toPackageTransform() {
+	public static Function<String, String> toPackageTransform(final File prefixToTruncate) {
 
 		return new Function<String, String>() {
 			@Override
-			public String apply(final String path) {
+			public String apply(String path) {
 				if (path == null)
 					return null;
+				
+				if (prefixToTruncate != null) {
+					path = path.replaceFirst(prefixToTruncate.getPath(), "");
+				}
 				
 				String result = StringUtils.isBlank(path) ? path : path.replace(
 						File.separatorChar, PACKAGE_NAME_SEPARATOR);
@@ -68,15 +72,12 @@ public class FileMappings {
 	}
 
 
-	public static Collection<String> toPackage(final Collection<String> paths) {
-		return Collections2.transform(paths, toPackageTransform());
+	public static Collection<String> toPackage(final File prefixToTruncate, final Collection<String> paths) {
+		return Collections2.transform(paths, toPackageTransform(prefixToTruncate));
 	}
 
-	public static String toPackage(final String path) {
-		if (path == null)
-			return null;
-		
-		return toPackage(ImmutableList.of(path)).iterator().next();
+	public static String toPackage(final File prefixToTruncate, final String path) {
+		return toPackage(prefixToTruncate, ImmutableSet.<String>of(path)).iterator().next();
 	}
 }
 

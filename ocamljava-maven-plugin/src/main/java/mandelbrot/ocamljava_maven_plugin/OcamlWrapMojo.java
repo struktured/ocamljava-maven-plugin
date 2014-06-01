@@ -1,5 +1,6 @@
 package mandelbrot.ocamljava_maven_plugin;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -148,6 +149,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	 * 
 	 **/	
 	protected JavaPackageMode javaPackageMode = JavaPackageMode.DYNAMIC;
+
 	
 	public static enum JavaPackageMode {
 		FIXED,
@@ -188,9 +190,9 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	}
 
 	private void wrapFiles(final Collection<String> cmiFiles, final String packageName) {
-
 		
-		final Optional<String[]> commandLineArguments = generateCommandLineArguments(cmiFiles, packageName);
+		final Collection<String> pathMappings = ImmutableList.of();
+		final Optional<String[]> commandLineArguments = generateCommandLineArguments(pathMappings, cmiFiles, packageName);
 
 		if (commandLineArguments.isPresent()) {
 			getLog().info("command line arguments: " + ImmutableList.copyOf(commandLineArguments.get()));
@@ -262,7 +264,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 		return artifactFiles;
 	}
 
-	private Optional<String[]> generateCommandLineArguments(
+	private Optional<String[]> generateCommandLineArguments(final Collection<String> includePaths,			
 			final Collection<String> files, final String packageName) {
 		if (files == null || files.isEmpty())
 			return Optional.absent();
@@ -274,6 +276,15 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 		
 		if (verbose)
 			builder.add(OcamlJavaConstants.VERBOSE_OPTION);
+	
+
+		for (final String includePath : includePaths) {
+			if (!StringUtils.isBlank(includePath)) {
+				builder.add(OcamlJavaConstants.INCLUDE_DIR_OPTION).add(
+						includePath);
+			}
+
+		}
 		
 		if (!StringUtils.isBlank(classNamePrefix)) {
 			builder.add(OcamlJavaConstants.CLASS_NAME_PREFIX_OPTION);

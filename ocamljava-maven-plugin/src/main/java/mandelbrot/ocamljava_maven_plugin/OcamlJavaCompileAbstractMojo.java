@@ -98,7 +98,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 			if (!sourceFiles.isEmpty()) {
 				final String[] sourceArgs = generateCommandLineArguments(pathMappings,
-						FileMappings.toPackage(path), sourceFiles).toArray(new String[] {});
+						FileMappings.toPackage(ocamlSourceDirectory, path), sourceFiles).toArray(new String[] {});
 				getLog().info(
 						"ocamljava compile args: "
 								+ ImmutableList.copyOf(sourceArgs));
