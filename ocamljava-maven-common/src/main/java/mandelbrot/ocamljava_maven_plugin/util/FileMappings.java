@@ -3,8 +3,6 @@ package mandelbrot.ocamljava_maven_plugin.util;
 import java.io.File;
 import java.util.Collection;
 
-import org.codehaus.plexus.util.StringUtils;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMultimap;
@@ -61,18 +59,10 @@ public class FileMappings {
 						path = path.substring(length);
 				}
 
+				path = path.replace(File.separatorChar, PACKAGE_NAME_SEPARATOR);
+
+				path = StringTransforms.trim(path, PACKAGE_NAME_SEPARATOR);
 				
-				path = StringUtils.isBlank(path) ? path : path.replace(
-						File.separatorChar, PACKAGE_NAME_SEPARATOR);
-
-				while (!path.isEmpty()
-						&& path.startsWith(String
-								.valueOf(PACKAGE_NAME_SEPARATOR)))
-					path = path.substring(1, path.length());
-
-				while (!path.isEmpty()
-						&& path.endsWith(String.valueOf(PACKAGE_NAME_SEPARATOR)))
-					path = path.substring(0, path.length() - 1);
 				return path;
 
 			}

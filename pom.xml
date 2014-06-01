@@ -83,8 +83,8 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.1</version>
 					<configuration>
-						<source>1.7</source>
-						<target>1.7</target>
+						<source>${maven.compiler.source}</source>
+						<target>${maven.compiler.target}</target>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -92,9 +92,33 @@
 					<artifactId>maven-plugin-plugin</artifactId>
 					<version>3.3</version>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-project-info-reports-plugin</artifactId>
+					<version>2.7</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jxr-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.7</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jxr-plugin</artifactId>
+				<version>2.4</version>
+			</plugin>
+		</plugins>
+	</reporting>
 	<scm>
 		<connection>scm:git:https://github.com/struktured/ocamljava-maven-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:struktured/ocamljava-maven-plugin.git</developerConnection>
@@ -119,20 +143,6 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-plugin-plugin</artifactId>
-				<version>3.1</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jxr-plugin</artifactId>
-				<version>2.4</version>
-			</plugin>
-		</plugins>
-	</reporting>
 	<modules>
 		<module>ocamljava-maven-common</module>
 		<module>ocamljava-maven-plugin</module>
