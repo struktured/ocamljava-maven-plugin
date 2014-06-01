@@ -1,13 +1,13 @@
 package mandelbrot.ocamljava_maven_plugin;
 
 import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.COMPILED_IMPL_EXTENSION;
-import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.DOT;
 
 import java.io.File;
 
 import ocaml.compilers.ocamljavaMain;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.codehaus.plexus.util.FileUtils;
 
 import com.google.common.collect.ImmutableList;
 
@@ -72,10 +72,11 @@ public class OcamlJavaTestJarMojo extends OcamlJavaJarAbstractMojo {
 			return files.build();
 		}
 	
-		if (!root.isDirectory() || root.listFiles() == null)
+		final File[] listFiles; 
+		if (!root.isDirectory() || (listFiles = root.listFiles()) == null)
 			return files.build();
 		
-		for (final File file : root.listFiles()) {
+		for (final File file : listFiles) {
 			if (file.isDirectory()) {
 				getLog().info("scanning directory: " + file);
 				
@@ -92,17 +93,8 @@ public class OcamlJavaTestJarMojo extends OcamlJavaJarAbstractMojo {
 
 
 	private boolean isOcamlCompiledSourceFile(final File file) {
-		final String extension = getExtension(file.getPath());
+		final String extension = FileUtils.getExtension(file.getPath());
 		return COMPILED_IMPL_EXTENSION.equalsIgnoreCase(extension);
-	}
-
-	public static String getExtension(final String filePath) {
-		final int dotPos = filePath.lastIndexOf(DOT);
-		if (-1 == dotPos) {
-			return null;
-		} else {
-			return filePath.substring(dotPos+1);
-		}
 	}
 
 	public String getTargetJarFullPath(final String targetJar) {

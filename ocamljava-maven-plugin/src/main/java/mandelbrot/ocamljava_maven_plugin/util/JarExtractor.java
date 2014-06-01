@@ -35,17 +35,17 @@ public class JarExtractor {
 			final FileOutputStream stream = new FileOutputStream(archiveFile);
 
 			for (final EntryInfo entryInfo : entryInfos) {
-				final File cmiFile = new File(targetPath, entryInfo
+				final File moduleFile = new File(targetPath, entryInfo
 						.getJarEntry().getName());
 				
-				if (!cmiFile.exists()) {
-					new File(cmiFile.getParent()).mkdirs();
-					cmiFile.createNewFile();
+				if (!moduleFile.exists()) {
+					new File(moduleFile.getParent()).mkdirs();
+					moduleFile.createNewFile();
 				}
 				
-				filesBuilder.add(cmiFile.getPath());
+				filesBuilder.add(moduleFile.getPath());
 				final FileOutputStream outputStream = new FileOutputStream(
-						cmiFile);
+						moduleFile);
 				outputStream.write(entryInfo.getBytes());
 				try {
 					outputStream.close();

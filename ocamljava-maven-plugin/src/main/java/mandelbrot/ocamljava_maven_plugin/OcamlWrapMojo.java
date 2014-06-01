@@ -14,7 +14,9 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
+import org.ocamljava.wrapper.ocamljavaMain;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -138,77 +140,90 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 			return;
 		}
 
-		final List<String> artifactFiles = getArtifactFiles();
+		final Collection<String> artifactFiles = getArtifactFiles();
 
-		final List<String> cmiFiles = extractCompiledModules(artifactFiles);
+		final Collection<String> moduleFiles = extractCompiledModules(artifactFiles);
 		
-		if (cmiFiles.isEmpty()) {
-			getLog().info("no compiled module interfaces found in " + getTargetJarFullPath());
+		if (moduleFiles.isEmpty()) {
+			getLog().info("no compiled modules found in " + getTargetJarFullPath());
 			return;
 		}
 		
 		if (JavaPackageMode.DYNAMIC.equals(getJavaPackageMode())) {
 			getLog().info("infer package names based on directory structure");
 			final Multimap<String, String> filesByPackageName = FileMappings.buildPackageMap(
-					new File(getOcamlCompiledSourcesTargetFullPath()), cmiFiles);
-		
+					new File(getOcamlCompiledSourcesTargetFullPath()), moduleFiles);
+	
+			getLog().info("filesByPackageName: " + filesByPackageName);
+			
 			final Set<String> packageNames = filesByPackageName.keySet();
 		
+			getLog().info("packageNames: " + packageNames);
+			
 			for (final String packageName : packageNames) {
+				getLog().info("wrap invoked for package: " + packageName);
 				final Collection<String> filesInPackage = filesByPackageName.get(packageName);
-				wrapFiles(Collections2.filter(filesInPackage, new Predicate<String>() {
+				try { wrapFiles(Collections2.filter(filesInPackage, new Predicate<String>() {
 					@Override
 					public boolean apply(final String value) {
 						return OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION.equalsIgnoreCase(FileUtils.extension(value));
 					}
 				}), packageName);
+				} catch (final Exception e) {
+					getLog().error("wrapping threw an exception", e);
+					throw new MojoExecutionException("wrapping threw an exception",e);
+				}
 			}
 		} else {
 			getLog().info("package name is fixed to \"" + packageName + "\"");
-			wrapFiles(cmiFiles, packageName);
+			wrapFiles(moduleFiles, packageName);
 		}
 	}
 
-	private void wrapFiles(final Collection<String> cmiFiles, final String packageName) {
+	private Optional<ocamljavaMain> wrapFiles(final Collection<String> cmiFiles, final String packageName) throws MojoExecutionException {
 		
 		final Collection<String> pathMappings = ImmutableList.of();
 		final Optional<String[]> commandLineArguments = generateCommandLineArguments(pathMappings, cmiFiles, packageName);
 
 		if (commandLineArguments.isPresent()) {
 			getLog().info("command line arguments: " + ImmutableList.copyOf(commandLineArguments.get()));
-			org.ocamljava.wrapper.ocamljavaMain
-					.main(commandLineArguments.get());
+
+			final ocamljavaMain result = org.ocamljava.wrapper.ocamljavaMain.mainWithReturn(commandLineArguments.get());
+			getLog().info("result: "+ Objects.toStringHelper(result).toString());
+			return Optional.of(result);
+
 		}
 		else
 			getLog().info(
 					"no compiled module interfaces to wrap for package \"" + packageName + "\" in " 
 							+ getOcamlCompiledSourcesTargetFullPath());
+		return Optional.absent();
 	}
 
-	private List<String> extractCompiledModules(
+	private Collection<String> extractCompiledModules(
 			final Collection<String> artifactFiles) {
 		
-		final ImmutableList.Builder<String> cmiFilesBuilder = ImmutableList.builder();
+		final ImmutableList.Builder<String> moduleFilesBuilder = ImmutableList.builder();
 
 		for (final String artifactFile : artifactFiles) {
-			final Collection<String> compiledIntefaces = 
+			final Collection<String> compiledModules = 
 					new JarExtractor(this).extractFiles(artifactFile,
 							getOcamlCompiledSourcesTargetFullPath(), 
 							ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION, 
 									OcamlJavaConstants.COMPILED_IMPL_EXTENSION));
 					
-			cmiFilesBuilder.addAll(compiledIntefaces);
+			moduleFilesBuilder.addAll(compiledModules);
 		}
 
-		final List<String> cmiFiles = cmiFilesBuilder.build();
-		return cmiFiles;
+		final List<String> moduleFiles = moduleFilesBuilder.build();
+		return moduleFiles;
 	}
 
 
-	private List<String> getArtifactFiles() {
+	private Collection<String> getArtifactFiles() {
 		final ImmutableList.Builder<String> builder = ImmutableList.builder();
 
-		Collection<Artifact> filter = Collections2.filter(
+		final Collection<Artifact> filter = Collections2.filter(
 				project.getArtifacts(), new Predicate<Artifact>() {
 					@Override
 					public boolean apply(final Artifact artifact) {
@@ -258,7 +273,6 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		if (verbose)
 			builder.add(OcamlJavaConstants.VERBOSE_OPTION);
 	
-
 		for (final String includePath : includePaths) {
 			if (!StringUtils.isBlank(includePath)) {
 				builder.add(OcamlJavaConstants.INCLUDE_DIR_OPTION).add(

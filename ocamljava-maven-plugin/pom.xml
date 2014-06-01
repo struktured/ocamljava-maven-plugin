@@ -92,10 +92,6 @@
 				<artifactId>maven-site-plugin</artifactId>
 				<version>3.3</version>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-plugin-plugin</artifactId>
-			</plugin>
 		</plugins>
 	</build>
 	<description>This plugin provides maven integration for ocaml java. See http://ocamljava.x9c.fr for details on that specific project. The important thing to know is it's a pure java solution to integrating ocaml code with the JVM, and this project provides the necessary maven integration.</description>
