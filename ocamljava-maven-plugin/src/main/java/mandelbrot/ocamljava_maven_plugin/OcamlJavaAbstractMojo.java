@@ -104,7 +104,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * Project's source directory as specified in the POM.
 	 * 
 	 * @parameter default-value="src/test/ocaml" 
-	 * @readonly
 	 */
 	protected final File ocamlTestDirectory = new File("src/test/ocaml");
 	
