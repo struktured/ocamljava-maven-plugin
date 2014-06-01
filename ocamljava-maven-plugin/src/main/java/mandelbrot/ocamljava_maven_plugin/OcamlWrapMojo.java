@@ -12,6 +12,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Optional;
@@ -155,7 +156,12 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		
 			for (final String packageName : packageNames) {
 				final Collection<String> filesInPackage = filesByPackageName.get(packageName);
-				wrapFiles(filesInPackage, packageName);
+				wrapFiles(Collections2.filter(filesInPackage, new Predicate<String>() {
+					@Override
+					public boolean apply(final String value) {
+						return OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION.equalsIgnoreCase(FileUtils.extension(value));
+					}
+				}), packageName);
 			}
 		} else {
 			getLog().info("package name is fixed to \"" + packageName + "\"");
@@ -258,7 +264,6 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 				builder.add(OcamlJavaConstants.INCLUDE_DIR_OPTION).add(
 						includePath);
 			}
-
 		}
 		
 		if (!StringUtils.isBlank(classNamePrefix)) {
@@ -303,7 +308,6 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 
 	@Override
 	protected String chooseTargetJar() {
-		// TODO Auto-generated method stub
 		return targetJar;
 	}
 
