@@ -43,6 +43,7 @@ public class JarEntryReader {
 	public Collection<EntryInfo> readEntries(final String archiveFile, final byte[] optionalBuffer) throws IOException {
 		return readEntries(archiveFile, optionalBuffer, null);
 	}
+	
 
 	public Collection<EntryInfo> readEntries(final String archiveFile,
 			final Set<String> allowedExtensions) throws IOException {

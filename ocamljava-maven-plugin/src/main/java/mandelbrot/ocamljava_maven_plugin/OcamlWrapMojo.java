@@ -1,6 +1,5 @@
 package mandelbrot.ocamljava_maven_plugin;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -129,33 +128,6 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 	 **/
 	protected boolean verbose;
 
-	/***
-	 * Sets the java package name for each source file.
-	 * 
-	 * @parameter default-value=""
-	 * 
-	 **/	
-	protected String packageName;
-
-	
-	/***
-	 * Sets how java packages are determined for the code generated classes.
-	 * <p>By default, a java package will be inferred according to the folder structure of the modules.
-	 * For instance, <code>"src/main/ocaml/foo/bar/lib.ml"</code> will generate <code>package foo.bar</code> at the top of <code>LibWrapper.java</code>.
-	 * To fix the package name for all compiled module interfaces, set this value to <code>FIXED</code> and fill in the {@link #packageName} parameter
-	 * accordingly.</p>
-	 *
-	 * @parameter default-value="DYNAMIC"
-	 * 
-	 **/	
-	protected JavaPackageMode javaPackageMode = JavaPackageMode.DYNAMIC;
-
-	
-	public static enum JavaPackageMode {
-		FIXED,
-		DYNAMIC
-	}
-	
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -173,7 +145,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 			return;
 		}
 		
-		if (JavaPackageMode.DYNAMIC.equals(javaPackageMode)) {
+		if (JavaPackageMode.DYNAMIC.equals(getJavaPackageMode())) {
 			getLog().info("infer package names based on directory structure");
 			final Multimap<String, String> filesByPackageName = FileMappings.buildPackageMap(cmiFiles);
 		

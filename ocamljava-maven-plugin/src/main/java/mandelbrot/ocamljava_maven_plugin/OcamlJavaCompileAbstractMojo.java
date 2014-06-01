@@ -27,7 +27,6 @@ import com.google.common.collect.Multimap;
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
 	private static final String DOT = ".";
-
 	@Override
 	public void execute() throws MojoExecutionException {
 
@@ -98,7 +97,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 			if (!sourceFiles.isEmpty()) {
 				final String[] sourceArgs = generateCommandLineArguments(pathMappings,
-						FileMappings.toPackage(ocamlSourceDirectory, path), sourceFiles).toArray(new String[] {});
+						toPackage(ocamlSourceDirectory, path), sourceFiles).toArray(new String[] {});
 				getLog().info(
 						"ocamljava compile args: "
 								+ ImmutableList.copyOf(sourceArgs));
@@ -109,6 +108,8 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		}
 		return builder.build();
 	}
+
+	
 
 	private ImmutableSet<String> moveCompiledFiles(final Collection<String> ocamlSourceFiles,
 			final String outputDirectoryQualifier, final String toFilter, final Set<String> extensions) {
