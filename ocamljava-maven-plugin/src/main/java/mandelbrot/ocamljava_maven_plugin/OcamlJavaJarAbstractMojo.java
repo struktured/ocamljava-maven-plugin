@@ -41,11 +41,15 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 			@SuppressWarnings("unused")
 			final ocamljavaMain mainWithReturn = ocamljavaMain.mainWithReturn(args);
 			
-			if (attachCompiledModuleInterfaces) {
+			if (attachCompiledModules) {
 				
 				final Collection<String> compiledModuleInterfaces =
 					ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION);
-				new JarAppender(this).addFiles(getTargetJarFullPath(), compiledModuleInterfaces, getOcamlCompiledSourcesTargetFullPath());
+				
+				final ImmutableList<String> coll = ImmutableList.<String>builder().addAll(compiledModuleInterfaces)
+				.addAll(ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_IMPL_EXTENSION)).build();
+				
+				new JarAppender(this).addFiles(getTargetJarFullPath(), coll, getOcamlCompiledSourcesTargetFullPath());
 			}
 			
 		} catch (final Exception e) {
@@ -55,10 +59,11 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 
 
 	/***
-	 * Determines whether to attach the compiled module interfaces to the final packaged jar.
+	 * Determines whether to attach the compiled modules and module interfaces to the final packaged jar.
+	 * This is necessary for projects that will invoke the ocaml wrap goal and reference this artifact.
 	 * @parameter default-value="true"
 	 */
-	protected boolean attachCompiledModuleInterfaces;
+	protected boolean attachCompiledModules;
 	
 	private ImmutableList<String> generateCommandLineArguments(final String targetJar,
 			final Collection<String> ocamlSourceFiles) {
