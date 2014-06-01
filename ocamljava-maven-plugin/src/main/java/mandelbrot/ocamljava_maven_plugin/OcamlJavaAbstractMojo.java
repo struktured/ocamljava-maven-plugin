@@ -55,17 +55,30 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	protected final File ocamlSourceDirectory = new File("src/main/ocaml");
 
 	/**
-	 * The target jar to add ocaml compiled sources to.
+	 * The target jar to depend on and possibly replace with ocaml compiled sources depending on
+	 * the value of the <code>replaceMainArtifact</code> parameter. 
 	 * @parameter default-value="${project.artifactId}-${project.version}.jar"
 	 * @required
 	 * @readonly
 	 */
 	protected String targetJar;
+
+	/**
+	 * The target jar created by the ocamljava jar creation tool. If <code>replaceMainArtifact</code> is
+	 * set to <code>true</code>, then this jar will replace the contents of the <code>targetJar</code> parameter.
+	 * @parameter default-value="${project.artifactId}-${project.version}-ocaml.jar"
+	 * @required
+	 * @readonly
+	 */
+	protected String targetOcamlJar;
 	
 	public String getTargetJarFullPath() {
 		return outputDirectory.getPath() + File.separator + targetJar;
 	}
 	
+	public String getOcamlTargetJarFullPath() {
+		return outputDirectory.getPath() + File.separator + targetOcamlJar;
+	}
 
 	public String getOcamlCompiledSourcesTargetFullPath() {
 		return outputDirectory.getPath() + File.separator
@@ -135,7 +148,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	protected String toPackage(final File prefixToTruncate, final String path) {
 		
 		if (JavaPackageMode.DYNAMIC.equals(javaPackageMode)) {
-			return FileMappings.toPackage(prefixToTruncate, path);
+			return FileMappings.toPackage(prefixToTruncate, new File(path).getParent());
 		} else {
 			return packageName;
 		}

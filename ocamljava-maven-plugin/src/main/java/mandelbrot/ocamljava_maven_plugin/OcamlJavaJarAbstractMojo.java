@@ -7,6 +7,7 @@ import mandelbrot.ocamljava_maven_plugin.util.FilesByExtensionGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.JarAppender;
 import ocaml.compilers.ocamljavaMain;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import com.google.common.collect.ImmutableList;
@@ -15,6 +16,12 @@ import com.google.common.collect.Multimap;
 
 public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 
+	/***
+	 * Whether to replace the main artifact jar with ocaml enhanced version.
+	 * @parameter default-value="true"
+	 */
+	protected boolean replaceMainArtfact = true;
+	
 	protected abstract String chooseTargetJar();
 
 	@Override
@@ -33,7 +40,7 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 							OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION))
 					.gather(new File(getOcamlCompiledSourcesTargetFullPath()));
 		
-			final String[] args = generateCommandLineArguments(targetJar, ocamlCompiledSourceFiles.get(
+			final String[] args = generateCommandLineArguments(ocamlCompiledSourceFiles.get(
 					OcamlJavaConstants.COMPILED_IMPL_EXTENSION)).toArray(new String[]{});
 
 			getLog().info("args: " + ImmutableList.copyOf(args));
@@ -46,11 +53,21 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 				final Collection<String> compiledModuleInterfaces =
 					ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION);
 				
-				final ImmutableList<String> coll = ImmutableList.<String>builder().addAll(compiledModuleInterfaces)
+				final Collection<String> implsAndInterfaces = 
+						ImmutableList.<String>builder().addAll(compiledModuleInterfaces)
 				.addAll(ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_IMPL_EXTENSION)).build();
 				
-				new JarAppender(this).addFiles(getTargetJarFullPath(), coll, getOcamlCompiledSourcesTargetFullPath());
+				new JarAppender(this).addFiles(getOcamlTargetJarFullPath(), implsAndInterfaces, 
+						getOcamlCompiledSourcesTargetFullPath());
+				
 			}
+			
+			if (replaceMainArtfact) {
+				FileUtils.copyFile(new File(getOcamlTargetJarFullPath()), 
+						new File(getTargetJarFullPath()));
+			}
+			
+			
 			
 		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
@@ -65,10 +82,15 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 	 */
 	protected boolean attachCompiledModules;
 	
-	private ImmutableList<String> generateCommandLineArguments(final String targetJar,
+	private ImmutableList<String> generateCommandLineArguments(
 			final Collection<String> ocamlSourceFiles) {
-		return ImmutableList.<String>builder().add(OcamlJavaConstants.ADD_TO_JAR_SOURCES_OPTION).
-				add(getTargetJarFullPath()).addAll(ocamlSourceFiles).build();
+		return ImmutableList.<String>builder()
+				.add(OcamlJavaConstants.ADD_TO_JAR_SOURCES_OPTION)
+				.add(getOcamlTargetJarFullPath())
+				.add(OcamlJavaConstants.ADDITIONAL_JAR_OPTION)
+				.add(getTargetJarFullPath())
+				.addAll(ocamlSourceFiles)
+				.build();
 	}
 	
 	private boolean ensureTargetDirectoryExists() {

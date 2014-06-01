@@ -139,7 +139,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 
 		final List<String> artifactFiles = getArtifactFiles();
 
-		final List<String> cmiFiles = extractCompiledModuleInterfaces(artifactFiles);
+		final List<String> cmiFiles = extractCompiledModules(artifactFiles);
 		
 		if (cmiFiles.isEmpty()) {
 			getLog().info("no compiled module interfaces found in " + getTargetJarFullPath());
@@ -179,7 +179,7 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 							+ getOcamlCompiledSourcesTargetFullPath());
 	}
 
-	private List<String> extractCompiledModuleInterfaces(
+	private List<String> extractCompiledModules(
 			final Collection<String> artifactFiles) {
 		
 		final ImmutableList.Builder<String> cmiFilesBuilder = ImmutableList.builder();
@@ -188,7 +188,8 @@ public class OcamlWrapMojo extends OcamlJavaAbstractMojo {
 			final Collection<String> compiledIntefaces = 
 					new JarExtractor(this).extractFiles(artifactFile,
 							getOcamlCompiledSourcesTargetFullPath(), 
-							ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
+							ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION, 
+									OcamlJavaConstants.COMPILED_IMPL_EXTENSION));
 					
 			cmiFilesBuilder.addAll(compiledIntefaces);
 		}
