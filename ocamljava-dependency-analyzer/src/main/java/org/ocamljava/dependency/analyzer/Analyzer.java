@@ -3,7 +3,6 @@ package org.ocamljava.dependency.analyzer;
 import java.io.File;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
@@ -15,10 +14,13 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.SortedSetMultimap;
+import com.google.common.collect.TreeMultimap;
 
 /**  
 * Given we know module X requires modules Y,Z, etc.,
@@ -70,8 +72,8 @@ public class Analyzer {
 		return sortDependencies(sourcesByModuleDependencies, null);
 	}
 	
-	public SortedMap<String, String> sortDependencies(final Multimap<String, Optional<String>> sourcesByModuleDependencies,
-			final Map<String, String> moduleToFilePath) {
+	public SortedSetMultimap<String, String> sortDependencies(final Multimap<String, Optional<String>> sourcesByModuleDependencies,
+			final Multimap<String, String> moduleToFilePath) {
 		
 		final Multimap<String, Optional<String>> modulesByModuleDependencies = Multimaps
 				.transformEntries(sourcesByModuleDependencies,
@@ -90,12 +92,12 @@ public class Analyzer {
 						});
 		
 		if (moduleToFilePath != null) {
-			final ImmutableSortedMap<String, String> sortedSet = ImmutableSortedMap.copyOf(
+			final ImmutableMultimap<String, String> sortedSet = copyOf(
 				moduleToFilePath,
 				creatComparator(modulesByModuleDependencies));
 			return sortedSet;
 		} else {
-			final  Builder<String, String> builder = ImmutableMap.builder();
+			final Builder<String, String> builder = ImmutableMap.builder();
 			final Set<String> keySet = modulesByModuleDependencies.keySet();
 			for (String string : keySet) {
 				builder.put(string, string);
