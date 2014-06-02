@@ -20,6 +20,13 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
+/**  
+* Given we know module X requires modules Y,Z, etc.,
+* this class finds an ordering of the modules such that X < Y iff Y requires X.
+* We can also assume that if D = {Y_0, Y_1, ..., Y_N} and X < D, Y < D,
+* then X < Y iff string(X) < string(Y)
+* X < X is false and of course, X = X.
+*/
 public class Analyzer {
 	private final AbstractMojo abstractMojo;
 	private final DependencyExtractor dependencyExtractor;
@@ -55,7 +62,7 @@ public class Analyzer {
 		final Multimap<String, Optional<String>> sourcesByModuleDependencies = 
 				dependencyExtractor.groupSourcesByModuleDependencies(sources);
 
-		return sortDependencies(sourcesByModuleDependencies,dependencyExtractor.getModuleToFilePath());
+		return sortDependencies(sourcesByModuleDependencies, dependencyExtractor.getModuleToFilePath());
 
 	}
 
@@ -82,17 +89,11 @@ public class Analyzer {
 							}
 						});
 		
-		// Given we know module X requires modules Y,Z, etc.,
-		// find an ordering of the modules such that X < Y iff Y requires X.
-		// We can also assume that if D = {Y_0, Y_1, ..., Y_N} and X < D, Y < D,
-		// then X < Y iff string(X) < string(Y)
-		// X < X is false and of course, X = X.
-
 		if (moduleToFilePath != null) {
-		final ImmutableSortedMap<String, String> sortedSet = ImmutableSortedMap.copyOf(
+			final ImmutableSortedMap<String, String> sortedSet = ImmutableSortedMap.copyOf(
 				moduleToFilePath,
 				creatComparator(modulesByModuleDependencies));
-		return sortedSet;
+			return sortedSet;
 		} else {
 			final  Builder<String, String> builder = ImmutableMap.builder();
 			final Set<String> keySet = modulesByModuleDependencies.keySet();

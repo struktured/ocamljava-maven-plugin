@@ -12,6 +12,7 @@ import org.apache.maven.plugin.AbstractMojo;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -44,12 +45,11 @@ public class DependencyExtractor {
 			// TODO move this util method to separate class
 			final Optional<String> moduleNameOfSource = Analyzer.moduleNameOfSource(source);
 
-			if (moduleNameOfSource.isPresent())
+			if (moduleNameOfSource.isPresent()) {
 				moduleToFilePath.put(moduleNameOfSource.get(), source);
 			
-			// Hackish but convenient to  add self to grouping so it appears in the multimaps key set, but still
-			// depend on nothing.
-			if (moduleNameOfSource.isPresent()) {
+				// Hackish but convenient to  add self to grouping so it appears in the multimaps key set, but still
+				// depend on nothing.
 				builder.put(moduleNameOfSource.get(), Optional.<String>absent());
 			}
 			
@@ -94,7 +94,7 @@ public class DependencyExtractor {
 	}
 
 	public Map<String, String> getModuleToFilePath() {
-		return moduleToFilePath;
+		return ImmutableMap.copyOf(moduleToFilePath);
 	}
 
 	private String extractModuleName(String line) {
