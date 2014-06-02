@@ -1,13 +1,35 @@
 package org.ocamljava.dependency.data;
 
+import java.util.Comparator;
+
+import org.codehaus.plexus.util.FileUtils;
+
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 public class ModuleKey {
 
+	public static class Builder {
+		private String moduleName;
+		private ModuleType moduleType;
+		
+		public Builder setModuleName(final String moduleName) {
+			this.moduleName = moduleName; return this;
+		}
+		
+		public Builder setModuleType(final ModuleType moduleType) {
+			this.moduleType = moduleType; return this;
+		}
+		
+		public ModuleKey build() {
+			return new ModuleKey(moduleName, moduleType);
+		}
+		
+	}
+
 	public enum ModuleType {
 		
-		// TODO factor out constants from OcamlJavaConstants class into the ocamljava  mavencommon module
 		IMPL("ml"), INTERFACE("mli");
 		
 		private final String extension;
@@ -18,6 +40,31 @@ public class ModuleKey {
 		
 		public String getExtension() {
 			return extension;
+		}
+		
+		public static Comparator<ModuleType> dependencyCompareTo() {
+			return new Comparator<ModuleType>() {
+				@Override
+				public int compare(final ModuleType o1, final ModuleType o2) {
+					
+					if (Objects.equal(o1, o2))
+						return 0;
+					
+					return INTERFACE.equals(o1) ? -1 : 1;
+					
+				}
+			};
+		}
+
+		public static Optional<ModuleType> fromFile(final String source) {
+			final String extension = FileUtils.getExtension(source);
+			
+			for (final ModuleType moduleType :values()) {
+				if (moduleType.getExtension().equals(extension)) {
+					return Optional.of(moduleType);
+				}
+			}
+			return Optional.absent();
 		}
 	}
 
@@ -30,7 +77,6 @@ public class ModuleKey {
 	public String getModuleName() {
 		return moduleName;
 	}
-
 
 	public ModuleType getModuleType() {
 		return moduleType;
