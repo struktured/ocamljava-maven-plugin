@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
 
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
@@ -15,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.StringUtils;
 import org.ocamljava.dependency.analyzer.Analyzer;
+import org.ocamljava.dependency.data.ModuleDescriptor;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.SortedSetMultimap;
 
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
@@ -63,18 +64,21 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 			
 			final Analyzer analyzer = new Analyzer(this);
-			final SortedMap<String, String> orderedModuleInterfaces = analyzer.resolveModuleDependencies(moduleInterfaces);
-
-			getLog().info("ordered module interfaces: " + orderedModuleInterfaces);
-			compileSources(orderedModuleInterfaces.values(), 
-					ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
+//			final SortedMap<String, String> orderedModuleInterfaces = analyzer.resolveModuleDependencies(moduleInterfaces);
+//
+//			getLog().info("ordered module interfaces: " + orderedModuleInterfaces);
+//			compileSources(orderedModuleInterfaces.values(), 
+//					ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
 
 			final Collection<String> implementations = ocamlSourceFiles
 					.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION);
 
-			final SortedMap<String,String> orderedModuleImpls = analyzer.resolveModuleDependencies(implementations);
-			getLog().info("ordered module impls: " + orderedModuleImpls);
-			compileSources(orderedModuleImpls.values(),
+
+			ImmutableSet<String> intersAndImpls = ImmutableSet.<String>builder().addAll(moduleInterfaces).addAll(implementations).build();
+			final SortedSetMultimap<String, ModuleDescriptor> orderedModuleIntersAndImpls = 
+					analyzer.resolveModuleDependencies(intersAndImpls);
+			getLog().info("ordered modules: " + orderedModuleIntersAndImpls);
+			compileSources(orderedModuleIntersAndImpls.values(),
 					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, OcamlJavaConstants.OBJECT_BINARY_EXTENSION));
 
 			moveCompiledFiles(moduleInterfaces, chooseOcamlCompiledSourcesTarget(),
@@ -92,8 +96,9 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	protected abstract File chooseOcamlSourcesDirectory();
 
 	private Collection<String> compileSources(
-			final Collection<String> sourceFiles, final Set<String> extensions) throws MojoExecutionException {
+			final Collection<ModuleDescriptor> moduleDescriptors, final Set<String> extensions) throws MojoExecutionException {
 
+		final Collection<String> sourceFiles = Collections2.transform(moduleDescriptors, ModuleDescriptor.toFileTransform());
 		final Multimap<String, String> byPathMapping = FileMappings
 				.buildPathMap(sourceFiles);
 
