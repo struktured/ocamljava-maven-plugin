@@ -1,6 +1,9 @@
 package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +48,13 @@ import com.google.common.collect.Multimap;
  */
 public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 
+	/***
+	 * The working directory where the generated Java source files are created.
+	 * @parameter default=value="${project.build.directory}/generated-sources/ocaml".
+	 * @required
+	 */
+	protected File generatedSourcesOutputDirectory;
+	
 	private static final String ARTIFACT_DESCRIPTOR_SEPARATOR = ":";
 
 	/***
@@ -190,6 +200,31 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 
 			final ocamljavaMain result = org.ocamljava.wrapper.ocamljavaMain.mainWithReturn(commandLineArguments.get());
 			getLog().info("result: "+ Objects.toStringHelper(result).toString());
+
+			for (final String cmiFile : cmiFiles) {
+				
+				final String generatedSourceName = inferGeneratedSourceName(cmiFile);
+			
+				// TODO not quite right, use package name to get subfolder structure, or something
+				final String target = this.generatedSourcesOutputDirectory + 
+						new File(cmiFile).getParent() + File.separator + generatedSourceName;
+				
+				final Path path = Paths.get("");
+		
+				try {
+					
+					// TODO Note quite right either, see above
+					final File file = new File(path.toFile().getPath()  + File.separator + generatedSourceName);
+					final File file2 = new File(target);
+					getLog().info("copying " + file + " to " + file2);
+				
+					file2.getParentFile().mkdirs();
+					
+					FileUtils.copyFile(file, file2);
+				} catch (final IOException e)  {
+					getLog().error("io exception", e);
+				}
+			}
 			return Optional.of(result);
 
 		}
@@ -198,6 +233,13 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 					"no compiled module interfaces to wrap for package \"" + packageName + "\" in " 
 							+ getOcamlCompiledSourcesTargetFullPath());
 		return Optional.absent();
+	}
+
+	private String inferGeneratedSourceName(final String cmiFile) {
+		final String generatedSource = FileUtils.basename(new File(cmiFile).getName());
+		
+		return Optional.fromNullable(this.classNamePrefix).or("") + generatedSource + 
+				Optional.fromNullable(this.classNameSuffix).or("");
 	}
 
 	private Collection<String> extractCompiledModules(
