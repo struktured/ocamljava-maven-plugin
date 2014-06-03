@@ -1,8 +1,10 @@
 package org.ocamljava.dependency.data;
 
+import java.io.File;
 import java.util.Comparator;
 
 import org.codehaus.plexus.util.FileUtils;
+import org.ocamljava.dependency.analyzer.Analyzer;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -55,7 +57,11 @@ public class ModuleKey {
 				}
 			};
 		}
-
+		
+		public static Optional<ModuleType> fromFile(final File file) {
+			return fromFile(file.getPath());
+		}
+		
 		public static Optional<ModuleType> fromFile(final String source) {
 			final String extension = FileUtils.getExtension(source);
 			
@@ -112,6 +118,16 @@ public class ModuleKey {
 	@Override
 	public String toString() {
 		return Objects.toStringHelper(this).toString();
+	}
+	
+	public static ModuleKey fromFile(final String sourceFilePath) {
+		return fromFile(new File(sourceFilePath));
+	}
+	
+	public static ModuleKey fromFile(final File sourceFile) {
+		return new ModuleKey.Builder().setModuleName(Analyzer.moduleNameOfSource(sourceFile.getPath()).get())
+				.setModuleType(ModuleType.fromFile(sourceFile).get())
+				.build();
 	}
 
 	

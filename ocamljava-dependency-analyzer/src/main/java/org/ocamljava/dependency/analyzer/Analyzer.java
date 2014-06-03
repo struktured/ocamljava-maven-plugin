@@ -3,19 +3,14 @@ package org.ocamljava.dependency.analyzer;
 import java.io.File;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Set;
-import java.util.SortedMap;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.codehaus.plexus.util.StringUtils;
+import org.ocamljava.dependency.data.ModuleDescriptor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -59,7 +54,7 @@ public class Analyzer {
 
 	}
 
-	public SortedMap<String, String> resolveModuleDependencies(
+	public SortedSetMultimap<String, ModuleDescriptor> resolveModuleDependencies(
 			final Collection<String> sources) {
 		final Multimap<String, Optional<String>> sourcesByModuleDependencies = 
 				dependencyExtractor.groupSourcesByModuleDependencies(sources);
@@ -68,13 +63,10 @@ public class Analyzer {
 
 	}
 
-	public SortedMap<String, String> sortDependencies(final Multimap<String, Optional<String>> sourcesByModuleDependencies) {
-		return sortDependencies(sourcesByModuleDependencies, null);
-	}
 	
-	public SortedSetMultimap<String, String> sortDependencies(final Multimap<String, Optional<String>> sourcesByModuleDependencies,
-			final Multimap<String, String> moduleToFilePath) {
-		
+	public SortedSetMultimap<String, ModuleDescriptor> sortDependencies(final Multimap<String, Optional<String>> sourcesByModuleDependencies,
+			final SortedSetMultimap<String, ModuleDescriptor> moduleToFilePath) {
+	
 		final Multimap<String, Optional<String>> modulesByModuleDependencies = Multimaps
 				.transformEntries(sourcesByModuleDependencies,
 						new Maps.EntryTransformer<String, Optional<String>, Optional<String>>() {
@@ -91,19 +83,15 @@ public class Analyzer {
 							}
 						});
 		
-		if (moduleToFilePath != null) {
-			final ImmutableMultimap<String, String> sortedSet = copyOf(
-				moduleToFilePath,
-				creatComparator(modulesByModuleDependencies));
-			return sortedSet;
-		} else {
-			final Builder<String, String> builder = ImmutableMap.builder();
-			final Set<String> keySet = modulesByModuleDependencies.keySet();
-			for (String string : keySet) {
-				builder.put(string, string);
-			}
-			return ImmutableSortedMap.copyOf(builder.build(), creatComparator(modulesByModuleDependencies));
-		}
+			final TreeMultimap<String, ModuleDescriptor> treeMultimap = 
+					TreeMultimap.create(creatComparator(modulesByModuleDependencies),
+					moduleToFilePath.valueComparator()
+			);
+			
+			final boolean changed = treeMultimap.putAll(moduleToFilePath);
+			Preconditions.checkState(changed);
+			
+			return Multimaps.unmodifiableSortedSetMultimap(treeMultimap);
 	}
 
 	private static final Comparator<String> creatComparator(

@@ -2,6 +2,7 @@ package org.ocamljava.dependency.data;
 
 import java.io.File;
 
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -90,4 +91,13 @@ public class ModuleDescriptor extends ModuleKey {
 		}
 		
 	}
+	
+	public static Function<ModuleDescriptor,String> toFileTransform() {
+		return new Function<ModuleDescriptor, String>() {
+			public String apply(final ModuleDescriptor desc) {
+					return desc.getModuleFile().get().getPath();
+			}
+		};
+	}
+
 }
