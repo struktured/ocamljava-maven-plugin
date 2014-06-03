@@ -10,7 +10,17 @@ OcamlJava Maven Plugin
 
   General information about the goals.
 
-  * {{{<goal>.html}ocamljava:compile}} compiles ocaml sources, typically from the src/main/ocaml folder.
+  * {{{./compile-mojo.html}ocamljava:compile}} compiles ocaml sources, typically from the <code>src/main/ocaml</code> folder.
+  
+  * {{{./testCompile-mojo.html}ocamljava:testCompile}} compiles test ocaml sources, typically from the <code>src/test/ocaml</code> folder.
+  
+  * {{{./jar-mojo.html}ocamljava:jar}} attach ocaml compiled sources to the packaged jar.
+  
+  * {{{./test-jar-mojo.html}ocamljava:test-jar}} attach ocaml compiled test sources to the packaged test jar.
+  
+  * {{{./wrap-mojo.html}ocamljava:wrap}} wrap the ocaml modules from another maven module with code generated java source files.
+
+
 
 * Usage
 
