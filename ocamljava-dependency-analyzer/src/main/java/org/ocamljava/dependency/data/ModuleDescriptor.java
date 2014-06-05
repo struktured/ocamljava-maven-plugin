@@ -36,7 +36,7 @@ public class ModuleDescriptor extends ModuleKey {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(moduleName, moduleType, moduleFile);
+		return Objects.hashCode(moduleName, moduleType, moduleFile, javaPackageName);
 	}
 
 	@Override
@@ -111,13 +111,6 @@ public class ModuleDescriptor extends ModuleKey {
 					return desc.getModuleFile().get().getPath();
 			}
 		};
-	}
-
-	@Override
-	public String toString() {
-		return "ModuleDescriptor [javaPackageName=" + javaPackageName
-				+ ", moduleFile=" + moduleFile + ", moduleName=" + moduleName
-				+ ", moduleType=" + moduleType + "]";
 	}
 
 }
