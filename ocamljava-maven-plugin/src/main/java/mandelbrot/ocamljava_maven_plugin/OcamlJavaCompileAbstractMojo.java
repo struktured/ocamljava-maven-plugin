@@ -64,29 +64,24 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 			
 			final Analyzer analyzer = new Analyzer(this);
-//			final SortedMap<String, String> orderedModuleInterfaces = analyzer.resolveModuleDependencies(moduleInterfaces);
-//
-//			getLog().info("ordered module interfaces: " + orderedModuleInterfaces);
-//			compileSources(orderedModuleInterfaces.values(), 
-//					ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
 
 			final Collection<String> implementations = ocamlSourceFiles
 					.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION);
 
-
-			ImmutableSet<String> intersAndImpls = ImmutableSet.<String>builder().addAll(moduleInterfaces).addAll(implementations).build();
+			final ImmutableSet<String> intersAndImpls = ImmutableSet.<String>builder()
+					.addAll(moduleInterfaces)
+					.addAll(implementations).build();
+			
 			final SortedSetMultimap<String, ModuleDescriptor> orderedModuleIntersAndImpls = 
 					analyzer.resolveModuleDependencies(intersAndImpls);
+			
 			getLog().info("ordered modules: " + orderedModuleIntersAndImpls);
-			compileSources(orderedModuleIntersAndImpls.values(),
-					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, OcamlJavaConstants.OBJECT_BINARY_EXTENSION));
-
-			moveCompiledFiles(moduleInterfaces, chooseOcamlCompiledSourcesTarget(),
-					chooseOcamlSourcesDirectory().getPath(), ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
+			compileSources(orderedModuleIntersAndImpls.values());
 
 			moveCompiledFiles(implementations, chooseOcamlCompiledSourcesTarget(),
 					chooseOcamlSourcesDirectory().getPath(), 
-					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, OcamlJavaConstants.OBJECT_BINARY_EXTENSION));
+					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, 
+							OcamlJavaConstants.OBJECT_BINARY_EXTENSION, OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
 
 		} catch (final Exception e) {
 			throw new MojoExecutionException("ocamljava threw an error", e);
@@ -96,7 +91,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	protected abstract File chooseOcamlSourcesDirectory();
 
 	private Collection<String> compileSources(
-			final Collection<ModuleDescriptor> moduleDescriptors, final Set<String> extensions) throws MojoExecutionException {
+			final Collection<ModuleDescriptor> moduleDescriptors) throws MojoExecutionException {
 
 		final Collection<String> sourceFiles = Collections2.transform(moduleDescriptors, ModuleDescriptor.toFileTransform());
 		final Multimap<String, String> byPathMapping = FileMappings
