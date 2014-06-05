@@ -3,6 +3,9 @@ package mandelbrot.ocamljava_maven_plugin.util;
 import java.io.File;
 import java.util.Collection;
 
+import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.StringUtils;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMultimap;
@@ -51,7 +54,9 @@ public class FileMappings {
 			public String apply(String path) {
 				if (path == null)
 					return null;
-
+				
+				path = StringUtils.isBlank(FileUtils.getExtension(path)) ? path : new File(path).getParent();
+		
 				if (prefixToTruncate != null) {
 
 					final int length = prefixToTruncate.getPath().length();
@@ -71,6 +76,8 @@ public class FileMappings {
 
 	public static Collection<String> toPackage(final File prefixToTruncate,
 			final Collection<String> paths) {
+		
+	
 		return Collections2.transform(paths,
 				toPackageTransform(prefixToTruncate));
 	}
@@ -79,5 +86,16 @@ public class FileMappings {
 			final String path) {
 		return toPackage(prefixToTruncate, ImmutableSet.<String> of(path))
 				.iterator().next();
+	}
+	
+	public static String toPackagePath(final File prefixToTruncate,
+			final String path) {
+		return toPackage(prefixToTruncate, ImmutableSet.<String> of(path))
+				.iterator().next().replace(PACKAGE_NAME_SEPARATOR, File.separatorChar);
+	}
+
+	public static String toPackagePath(final String prefixToTruncate,
+			final String path) {
+		return toPackagePath(new File(prefixToTruncate), path);
 	}
 }

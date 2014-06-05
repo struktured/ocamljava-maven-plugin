@@ -48,9 +48,11 @@ import com.google.common.collect.Multimap;
  */
 public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 
+	private static final String JAVA_EXTENSION = ".java";
+
 	/***
 	 * The working directory where the generated Java source files are created.
-	 * @parameter default=value="${project.build.directory}/generated-sources/ocaml".
+	 * @parameter default-value="${project.build.directory}/generated-sources/ocaml"
 	 * @required
 	 */
 	protected File generatedSourcesOutputDirectory;
@@ -202,25 +204,30 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 			getLog().info("result: "+ Objects.toStringHelper(result).toString());
 
 			for (final String cmiFile : cmiFiles) {
-				
-				final String generatedSourceName = inferGeneratedSourceName(cmiFile);
 			
-				// TODO not quite right, use package name to get subfolder structure, or something
-				final String target = this.generatedSourcesOutputDirectory + 
-						new File(cmiFile).getParent() + File.separator + generatedSourceName;
-				
-				final Path path = Paths.get("");
-		
 				try {
 					
-					// TODO Note quite right either, see above
-					final File file = new File(path.toFile().getPath()  + File.separator + generatedSourceName);
-					final File file2 = new File(target);
-					getLog().info("copying " + file + " to " + file2);
+					final String generatedSourceName = inferGeneratedSourceName(cmiFile);
 				
-					file2.getParentFile().mkdirs();
+					final String packagePath = FileMappings.toPackagePath(getOcamlCompiledSourcesTargetFullPath(), cmiFile);
+					final String target = 
+							// eg. target/generate-sources/ocaml/com/mycomp/FooWrapper.java
+							this.generatedSourcesOutputDirectory + File.separator + packagePath;
 					
-					FileUtils.copyFile(file, file2);
+					final Path path = Paths.get("");
+								
+					// TODO ..should I just scan for *.java instead, or some regex pattern specified in maven project?
+					final File file = new File(path.toFile().getPath() + File.separator + packagePath, generatedSourceName);
+					
+					if (!file.exists()) {
+						getLog().warn("expected file " + file + " but it does not exist! skiping...");
+						continue;
+					} 
+					
+					final File targetDir = new File(target);
+					getLog().info("copying " + file + " to " + targetDir);
+				
+					FileUtils.copyFileToDirectory(file, targetDir);
 				} catch (final IOException e)  {
 					getLog().error("io exception", e);
 				}
@@ -239,7 +246,7 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		final String generatedSource = FileUtils.basename(new File(cmiFile).getName());
 		
 		return Optional.fromNullable(this.classNamePrefix).or("") + generatedSource + 
-				Optional.fromNullable(this.classNameSuffix).or("");
+				Optional.fromNullable(this.classNameSuffix).or("") + JAVA_EXTENSION;
 	}
 
 	private Collection<String> extractCompiledModules(
