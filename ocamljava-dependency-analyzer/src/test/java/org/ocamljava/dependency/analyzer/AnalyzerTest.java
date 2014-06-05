@@ -38,10 +38,9 @@ public class AnalyzerTest {
 		final ImmutableMultimap.Builder<String, Optional<String>> builder = ImmutableMultimap
 				.builder();
 
-		String dependableModule = DEPENDABLE_MODULE;
-		builder.put(dependableModule, Optional.<String> absent());
+		builder.put(DEPENDABLE_MODULE, Optional.<String> absent());
 
-		builder.put(DEPENDENT_MODULE, Optional.of(dependableModule));
+		builder.put(DEPENDENT_MODULE, Optional.of(DEPENDABLE_MODULE));
 
 		dependencyExtractor.groupSourcesByModuleDependencies(ImmutableList.of(
 				"dependable_module.ml", "dependent_module.ml"));
@@ -52,7 +51,7 @@ public class AnalyzerTest {
 
 		final Iterator<String> iterator = sortedDependencies.iterator();
 
-		verifyEntry(dependableModule, iterator);
+		verifyEntry(DEPENDABLE_MODULE, iterator);
 		
 		verifyEntry(DEPENDENT_MODULE, iterator);
 	

@@ -9,18 +9,25 @@ import com.google.common.base.Preconditions;
 
 public class ModuleDescriptor extends ModuleKey {
 
+	private final String javaPackageName;
+
 	public ModuleDescriptor(final String moduleName,
-			final ModuleType moduleType, final File moduleFile) {
-		this(moduleName, moduleType, Optional.fromNullable(moduleFile));
+			final ModuleType moduleType, final File moduleFile, final String javaPackageName) {
+		this(moduleName, moduleType, Optional.fromNullable(moduleFile), javaPackageName);
 	}
 
 	public ModuleDescriptor(final String moduleName,
-			final ModuleType moduleType, final Optional<File> moduleFile) {
+			final ModuleType moduleType, final Optional<File> moduleFile, final String javaPackageName) {
 		super(moduleName, moduleType);
 		this.moduleFile = Preconditions.checkNotNull(moduleFile);
+		this.javaPackageName = Preconditions.checkNotNull(javaPackageName);
 	}
 
 
+	public String getJavaPackageName() {
+		return javaPackageName;
+	}
+	
 	public Optional<File> getModuleFile() {
 		return moduleFile;
 	}
@@ -53,12 +60,13 @@ public class ModuleDescriptor extends ModuleKey {
 			return false;
 		if (moduleType != other.moduleType)
 			return false;
-		return true;
+		return Objects.equal(javaPackageName, other.javaPackageName);
 	}
 	
 	
 	public static class Builder extends ModuleKey.Builder {
 		private File moduleFile;
+		private String javaPackageName;
 		
 		@Override
 		public Builder setModuleName(final String moduleName) {
@@ -77,10 +85,15 @@ public class ModuleDescriptor extends ModuleKey {
 			return this;
 		}
 		
+		public Builder setJavaPackageName(final String javaPackageName) {
+			this.javaPackageName = javaPackageName;
+			return this;
+		}
+		
 		@Override
 		public ModuleDescriptor build() {
 			final ModuleKey key = super.build();
-			return new ModuleDescriptor(key.getModuleName(), key.getModuleType(), moduleFile);
+			return new ModuleDescriptor(key.getModuleName(), key.getModuleType(), moduleFile, javaPackageName);
 		}
 
 		public Builder setModuleKey(final ModuleKey key) {
@@ -98,6 +111,13 @@ public class ModuleDescriptor extends ModuleKey {
 					return desc.getModuleFile().get().getPath();
 			}
 		};
+	}
+
+	@Override
+	public String toString() {
+		return "ModuleDescriptor [javaPackageName=" + javaPackageName
+				+ ", moduleFile=" + moduleFile + ", moduleName=" + moduleName
+				+ ", moduleType=" + moduleType + "]";
 	}
 
 }

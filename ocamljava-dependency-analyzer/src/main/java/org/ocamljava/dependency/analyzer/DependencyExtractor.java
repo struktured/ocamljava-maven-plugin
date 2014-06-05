@@ -2,11 +2,14 @@ package org.ocamljava.dependency.analyzer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.ocamljava.dependency.data.ModuleDescriptor;
@@ -83,7 +86,7 @@ public class DependencyExtractor {
 	}
 
 	public Multimap<String, Optional<String>> groupSourcesByModuleDependencies(
-			final Collection<String> sources) {
+			final Collection<String> sources, final File prefixToTruncate) {
 		Preconditions.checkNotNull(sources);
 
 		final ImmutableMultimap.Builder<String, Optional<String>> builder = ImmutableMultimap
@@ -102,6 +105,7 @@ public class DependencyExtractor {
 				moduleToFilePath.put(moduleNameOfSource.get(), new ModuleDescriptor.Builder()
 						.setModuleFile(sourceFile)
 						.setModuleKey(ModuleKey.fromFile(sourceFile))
+						.setJavaPackageName(FileMappings.toPackage(prefixToTruncate, source))
 						.build());
 
 				// Hackish but convenient to add self to grouping so it appears
@@ -177,6 +181,10 @@ public class DependencyExtractor {
 	private boolean isValidModuleName(final String moduleName) {
 		return moduleName != null && !moduleName.trim().isEmpty()
 				&& !moduleName.contains(" ");
+	}
+
+	public Multimap<String, Optional<String>> groupSourcesByModuleDependencies(Collection<String> sources) {
+		return groupSourcesByModuleDependencies(sources, Paths.get("").toFile());
 	}
 
 }

@@ -1,6 +1,7 @@
 package org.ocamljava.dependency.analyzer;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Comparator;
 
@@ -53,11 +54,15 @@ public class Analyzer {
 		return Optional.of(lowerCasedName);
 
 	}
-
 	public SortedSetMultimap<String, ModuleDescriptor> resolveModuleDependencies(
 			final Collection<String> sources) {
+		return resolveModuleDependencies(sources, Paths.get("").toFile());
+	}
+	
+	public SortedSetMultimap<String, ModuleDescriptor> resolveModuleDependencies(
+			final Collection<String> sources, final File prefixToTruncate) {
 		final Multimap<String, Optional<String>> sourcesByModuleDependencies = 
-				dependencyExtractor.groupSourcesByModuleDependencies(sources);
+				dependencyExtractor.groupSourcesByModuleDependencies(sources, prefixToTruncate);
 
 		return sortDependencies(sourcesByModuleDependencies, dependencyExtractor.getModuleToFilePath());
 

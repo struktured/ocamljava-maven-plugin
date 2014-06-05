@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
+import org.omg.CosNaming.IstringHelper;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -53,11 +54,14 @@ public class FileMappings {
 			@Override
 			public String apply(String path) {
 				if (path == null)
-					return null;
+					return "";
 				
 				path = StringUtils.isBlank(FileUtils.getExtension(path)) ? path : new File(path).getParent();
 		
-				if (prefixToTruncate != null) {
+				if (path == null)
+					return "";
+				
+				if (prefixToTruncate != null && prefixToTruncate.getPath() != null && prefixToTruncate.exists()) {
 
 					final int length = prefixToTruncate.getPath().length();
 					if (path.length() >= length)

@@ -73,7 +73,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 					.addAll(implementations).build();
 			
 			final SortedSetMultimap<String, ModuleDescriptor> orderedModuleIntersAndImpls = 
-					analyzer.resolveModuleDependencies(intersAndImpls);
+					analyzer.resolveModuleDependencies(intersAndImpls, chooseOcamlSourcesDirectory());
 			
 			getLog().info("ordered modules: " + orderedModuleIntersAndImpls);
 			compileSources(orderedModuleIntersAndImpls.values());
