@@ -3,7 +3,6 @@ package org.ocamljava.dependency.analyzer;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 
@@ -107,7 +106,7 @@ public class DependencyExtractorTest {
 		
 		final Multimap<String, Optional<String>> groupSourcesByModuleDependencies = new DependencyExtractor(testMojo).
 				groupSourcesByModuleDependencies(list);	
-		//System.out.println(groupSourcesByModuleDependencies);
+		
 		final Collection<Optional<String>> collection = groupSourcesByModuleDependencies.get("foobar");
 		
 		Assert.assertEquals(1, collection.size());

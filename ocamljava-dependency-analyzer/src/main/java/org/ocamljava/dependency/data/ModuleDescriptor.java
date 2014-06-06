@@ -7,7 +7,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
-public class ModuleDescriptor extends ModuleKey {
+public class ModuleDescriptor extends ModuleKey implements Comparable<ModuleDescriptor> {
 
 	private final String javaPackageName;
 
@@ -111,6 +111,38 @@ public class ModuleDescriptor extends ModuleKey {
 					return desc.getModuleFile().get().getPath();
 			}
 		};
+	}
+
+	public boolean nameEquals(final String module) {
+		return Objects.equal(getModuleName(), module);
+	}
+
+	@Override
+	public int compareTo(final ModuleDescriptor arg0) {
+		if (arg0 == null)
+			return -1;
+		
+		int compareTo = Optional.fromNullable(getModuleName()).or("").compareTo(Optional.fromNullable(arg0.getModuleName()).or(""));
+		
+		if (compareTo != 0)
+			return compareTo;
+		
+		compareTo = getModuleFile().or(new File("")).compareTo(arg0.getModuleFile().or(new File("")));
+		
+		if (compareTo != 0)
+			return compareTo;
+		
+		compareTo = Optional.fromNullable(getModuleType()).or(ModuleType.IMPL)
+				.compareTo(Optional.fromNullable(arg0.getModuleType()).or(ModuleType.IMPL));
+		
+		if (compareTo != 0)
+			return compareTo;
+		
+		compareTo = Optional.fromNullable(getJavaPackageName()).or("")
+				.compareTo(Optional.fromNullable(arg0.getJavaPackageName()).or(""));
+		
+		return compareTo;
+		
 	}
 
 }

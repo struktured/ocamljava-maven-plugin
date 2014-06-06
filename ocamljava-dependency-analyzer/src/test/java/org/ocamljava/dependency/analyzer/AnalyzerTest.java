@@ -1,5 +1,10 @@
 package org.ocamljava.dependency.analyzer;
 
+import static org.ocamljava.dependency.analyzer.SharedTestInstances.DEPENDABLE_MODULE;
+import static org.ocamljava.dependency.analyzer.SharedTestInstances.DEPENDENT_MODULE;
+import static org.ocamljava.dependency.analyzer.SharedTestInstances.DEPENDENT_MODULE2;
+import static org.ocamljava.dependency.analyzer.SharedTestInstances.DEPENDENT_MODULE3;
+
 import java.io.File;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -24,30 +29,13 @@ import com.google.common.collect.ImmutableMultimap;
 
 public class AnalyzerTest {
 
-	private static final String DEPENDENT_MODULE3 = "dependent_module3";
-	private static final String DEPENDENT_MODULE2 = "dependent_module2";
-	private static final String DEPENDABLE_MODULE = "dependable_module";
-	private static final String DEPENDENT_MODULE = "dependent_module";
 	private static AbstractMojo testMojo;
 
 	@Test
 	public void shouldOrderTwoModulesByDependency() {
 
-		final Analyzer analyzer = new Analyzer(testMojo);
 
-		final ImmutableMultimap.Builder<String, Optional<String>> builder = ImmutableMultimap
-				.builder();
-
-		builder.put(DEPENDABLE_MODULE, Optional.<String> absent());
-
-		builder.put(DEPENDENT_MODULE, Optional.of(DEPENDABLE_MODULE));
-
-		dependencyExtractor.groupSourcesByModuleDependencies(ImmutableList.of(
-				"dependable_module.ml", "dependent_module.ml"));
-
-		final Set<String> sortedDependencies = analyzer.sortDependencies(
-				builder.build(), dependencyExtractor.getModuleToFilePath())
-				.keySet();
+		final Set<String> sortedDependencies = SharedTestInstances.createSimpleDependency().keySet();
 
 		final Iterator<String> iterator = sortedDependencies.iterator();
 
@@ -56,6 +44,7 @@ public class AnalyzerTest {
 		verifyEntry(DEPENDENT_MODULE, iterator);
 	
 	}
+
 
 	private void verifyEntry(String modelName, final Iterator<String> iterator) {
 		if (iterator.hasNext())
@@ -78,6 +67,8 @@ public class AnalyzerTest {
 
 		builder.put(DEPENDENT_MODULE2, Optional.of(DEPENDABLE_MODULE));
 
+		final DependencyExtractor dependencyExtractor = new DependencyExtractor(testMojo, false);
+		
 		dependencyExtractor.groupSourcesByModuleDependencies(ImmutableList.of(
 				"dependable_module.ml", "dependent_module.ml",
 				"dependent_module2.ml"));
@@ -107,11 +98,12 @@ public class AnalyzerTest {
 		builder.put(DEPENDENT_MODULE2, Optional.of(DEPENDENT_MODULE));
 		builder.put(DEPENDENT_MODULE2, Optional.of(DEPENDABLE_MODULE));
 		builder.put(DEPENDENT_MODULE3, Optional.of(DEPENDENT_MODULE));
-
+		final DependencyExtractor dependencyExtractor = new DependencyExtractor(testMojo, false);
+		
 		dependencyExtractor.groupSourcesByModuleDependencies(ImmutableList.of(
 				"dependable_module.ml", "dependent_module.ml",
 				"dependent_module2.ml", "dependent_module3.ml"));
-
+		
 		final Set<String> sortedDependencies = analyzer.sortDependencies(
 				builder.build(), dependencyExtractor.getModuleToFilePath())
 				.keySet();
@@ -138,16 +130,12 @@ public class AnalyzerTest {
 		};
 	}
 
-	private DependencyExtractor dependencyExtractor;
-
 	@Before
 	public void beforeTest() {
-		this.dependencyExtractor = new DependencyExtractor(testMojo, false);
 	}
 
 	@After
 	public void afterTest() {
-		this.dependencyExtractor = null;
 	}
 
 	@AfterClass
@@ -167,6 +155,7 @@ public class AnalyzerTest {
 
 		builder.put(DEPENDENT_MODULE, Optional.of(DEPENDABLE_MODULE));
 
+		final DependencyExtractor dependencyExtractor = SharedTestInstances.dependencyExtractor();
 		dependencyExtractor.groupSourcesByModuleDependencies(ImmutableList.of(
 				"dependable_module.ml", "dependable_module.mli", "dependent_module.ml", "dependent_module.mli"));
 
