@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
@@ -17,8 +18,10 @@ import java.util.jar.Manifest;
 import org.apache.maven.plugin.AbstractMojo;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -84,23 +87,35 @@ public class JarAppender {
 			
 			abstractMojo.getLog().info("Adding new entry: " + file.getPath());
 			
-			addEntry(file, out, buffer, prefixToFilter == null || 
-					!(file.getPath().startsWith(prefixToFilter)) ? 0 : prefixToFilter.length());
+			addEntry(file, out, buffer, prefixToFilter);
 		}
 		
-		out.close();
-		stream.close();
+		try { out.close(); } catch (final Exception e) {}
+		
+		try { stream.close(); } catch (final Exception e) {}
+		
 	}
 
 	private void addEntry(final File file, final JarOutputStream out,
-			final byte[] buffer, final int prefixToFilterLength) throws IOException {
+			final byte[] buffer, final String prefixToFilter) throws IOException {
 		
-		String substring = file.getPath().substring(prefixToFilterLength);
+		String substring = file.getPath();
 		
-		while (substring.startsWith(File.separator))
-			substring = substring.substring(1);
-		while (substring.endsWith(File.separator))
-			substring = substring.substring(substring.length()-1);
+		if (prefixToFilter != null) {
+		final List<String> split = ImmutableList.copyOf
+				(Splitter.on(File.separator).split(Optional.fromNullable(prefixToFilter).or("")));
+
+		
+		for (int k = 0; k < split.size();k++) {
+			final String join = Joiner.on(File.separator).join(split.subList(k, split.size()));
+			if (file.getPath().startsWith(join)) {
+				substring = substring.substring(join.length(), substring.length());
+				break;
+			}
+		}
+		}
+		
+		substring = StringTransforms.trim(substring, File.separator);
 		
 		abstractMojo.getLog().info("infered package: " + substring);
 				

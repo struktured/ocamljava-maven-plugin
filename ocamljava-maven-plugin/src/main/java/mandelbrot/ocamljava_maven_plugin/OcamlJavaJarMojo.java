@@ -1,5 +1,7 @@
 package mandelbrot.ocamljava_maven_plugin;
 
+import java.io.File;
+
 
 /**
  * <p>This is a goal which attaches OCaml compiled sources to a target jar during the packaging phase.
@@ -23,6 +25,16 @@ public class OcamlJavaJarMojo extends OcamlJavaJarAbstractMojo {
 	@Override
 	protected String chooseTargetOcamlJar() {
 		return targetOcamlJar;
+	}
+
+	@Override
+	protected File chooseOcamlSourcesDirectory() {
+		return ocamlSourceDirectory;
+	}
+
+	@Override
+	protected String chooseOcamlCompiledSourcesTarget() {
+		return ocamlCompiledSourcesTarget;
 	}
 
 

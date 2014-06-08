@@ -111,4 +111,16 @@ public class OcamlJavaTestJarMojo extends OcamlJavaJarAbstractMojo {
 	protected String chooseTargetOcamlJar() {
 		return targetTestOcamlJar;
 	}
+
+
+	@Override
+	protected File chooseOcamlSourcesDirectory() {
+		return ocamlTestDirectory;
+	}
+
+
+	@Override
+	protected String chooseOcamlCompiledSourcesTarget() {
+		return ocamlCompiledTestsTarget;
+	}
 }

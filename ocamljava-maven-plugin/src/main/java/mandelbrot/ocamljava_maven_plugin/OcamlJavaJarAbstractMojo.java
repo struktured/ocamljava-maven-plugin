@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
-public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
+public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaCompileAbstractMojo {
 
 	/***
 	 * Whether to replace the main artifact jar with ocaml enhanced version.
@@ -54,11 +54,12 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 				final Collection<String> compiledModuleInterfaces =
 					ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION);
 				
-				final Collection<String> implsAndInterfaces = ImmutableList.<String>builder()
+				final Collection<String> all = ImmutableList.<String>builder()
+						.add(chooseDependencyGraphTargetFullPath().getPath())
 						.addAll(compiledModuleInterfaces)
 						.addAll(ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_IMPL_EXTENSION)).build();
 				
-				new JarAppender(this).addFiles(getTargetOcamlJarFullPath(), implsAndInterfaces, 
+				new JarAppender(this).addFiles(getTargetOcamlJarFullPath(), all, 
 						getOcamlCompiledSourcesTargetFullPath());
 				
 			}
@@ -77,7 +78,8 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 	}
 
 
-		
+	
+
 	public String getTargetJarFullPath() {
 		return outputDirectory.getPath() + File.separator + chooseTargetJar();
 	}

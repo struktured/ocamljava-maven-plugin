@@ -13,6 +13,7 @@ import ocaml.compilers.ocamljavaMain;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.StringUtils;
 import org.ocamljava.dependency.analyzer.Analyzer;
 import org.ocamljava.dependency.data.DependencyGraph;
@@ -28,7 +29,11 @@ import com.google.common.collect.Multimap;
 
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
-	private static final String DEPENDENCIES_JSON_FILE_NAME = "dependencies.json";
+
+	public File chooseDependencyGraphTargetFullPath() {
+		return new File(chooseOcamlCompiledSourcesTarget()  + 
+				File.separator + dependencyGraphTarget);
+	}
 
 	/***
 	 * Record debugging information.
@@ -40,7 +45,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		
 	private static final String DOT = ".";
 	@Override
-	public void execute() throws MojoExecutionException {
+	public void execute() throws MojoExecutionException, MojoFailureException {
 
 		if (!ensureTargetDirectoryExists()) {
 			getLog().error("Could not create target directory");
@@ -77,8 +82,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			final DependencyGraph dependencyGraph = 
 					analyzer.resolveModuleDependenciesByPackageName(intersAndImpls, chooseOcamlSourcesDirectory());
 
-			final File file = new File(getOcamlCompiledSourcesTargetFullPath() + 
-					File.separator + DEPENDENCIES_JSON_FILE_NAME);
+			final File file = chooseDependencyGraphTargetFullPath();
 			file.getParentFile().mkdirs();
 			
 			dependencyGraph.write(file, chooseOcamlSourcesDirectory());

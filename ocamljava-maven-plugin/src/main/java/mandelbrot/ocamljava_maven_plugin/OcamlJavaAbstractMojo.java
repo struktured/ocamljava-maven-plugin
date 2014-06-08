@@ -10,8 +10,18 @@ import org.apache.maven.project.MavenProject;
 
 
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
-	
-	
+
+		
+	public static final String DEPENDENCIES_JSON = "dependencies.json";
+
+	/***
+	 * The name of the generated ocaml dependency graph file, to be place in the target directory
+	 * (usually one of <code>target/ocaml-bin</code> or </code>target/ocaml-tests</code>)
+	 * @parameter default-value="dependencies.json"
+	 * @required
+	 */
+	protected String dependencyGraphTarget = DEPENDENCIES_JSON;		
+
 	/***
 	 * @parameter default-value="${project}"
 	 * @required
@@ -153,4 +163,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	public boolean isDynamicPackageMode() {
 		return JavaPackageMode.DYNAMIC.equals(javaPackageMode);
 	}
+	
+
 }

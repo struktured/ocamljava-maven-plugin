@@ -379,4 +379,16 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		return targetOcamlJar;
 	}
 
+	
+	// TODO make this class abstract, override for test / regular mojos
+	@Override
+	protected File chooseOcamlSourcesDirectory() {
+		return ocamlSourceDirectory;
+	}
+
+	@Override
+	protected String chooseOcamlCompiledSourcesTarget() {
+		return ocamlCompiledSourcesTarget;
+	}
+
 }

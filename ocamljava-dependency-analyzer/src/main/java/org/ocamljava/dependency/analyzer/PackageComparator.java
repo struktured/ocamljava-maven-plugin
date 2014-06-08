@@ -1,6 +1,7 @@
 package org.ocamljava.dependency.analyzer;
 
 import java.util.Comparator;
+
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -16,6 +17,8 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableMultimap.Builder;
 import com.google.common.collect.SortedSetMultimap;
 
+// TODO Unused..found another algorithm which just iterates in order and inserts into an immultible multimap builder
+// as it sees each package name / module descriptor entry.
 public class PackageComparator implements Comparator<String> {
 
 	private final ImmutableMultimap<String, ModuleDescriptor> modulesByPackageName;
