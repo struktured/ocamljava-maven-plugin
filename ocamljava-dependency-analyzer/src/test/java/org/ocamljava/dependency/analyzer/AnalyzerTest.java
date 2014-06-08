@@ -73,7 +73,7 @@ public class AnalyzerTest {
 				"dependable_module.ml", "dependent_module.ml",
 				"dependent_module2.ml"));
 
-		final Set<String> sortedDependencies = analyzer.sortDependencies(
+		final Set<String> sortedDependencies = analyzer.sortDependenciesByModuleName(
 				builder.build(), dependencyExtractor.getModuleToFilePath())
 				.keySet();
 
@@ -104,7 +104,7 @@ public class AnalyzerTest {
 				"dependable_module.ml", "dependent_module.ml",
 				"dependent_module2.ml", "dependent_module3.ml"));
 		
-		final Set<String> sortedDependencies = analyzer.sortDependencies(
+		final Set<String> sortedDependencies = analyzer.sortDependenciesByModuleName(
 				builder.build(), dependencyExtractor.getModuleToFilePath())
 				.keySet();
 
@@ -159,7 +159,7 @@ public class AnalyzerTest {
 		dependencyExtractor.groupSourcesByModuleDependencies(ImmutableList.of(
 				"dependable_module.ml", "dependable_module.mli", "dependent_module.ml", "dependent_module.mli"));
 
-		final Set<Entry<String, ModuleDescriptor>> sortedDependencies = analyzer.sortDependencies(
+		final Set<Entry<String, ModuleDescriptor>> sortedDependencies = analyzer.sortDependenciesByModuleName(
 				builder.build(), dependencyExtractor.getModuleToFilePath())
 				.entries();
 

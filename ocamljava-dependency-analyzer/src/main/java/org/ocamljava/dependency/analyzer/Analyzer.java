@@ -4,14 +4,18 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.codehaus.plexus.util.StringUtils;
+import org.ocamljava.dependency.data.DependencyGraph;
 import org.ocamljava.dependency.data.ModuleDescriptor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -64,12 +68,37 @@ public class Analyzer {
 		final Multimap<String, Optional<String>> sourcesByModuleDependencies = 
 				dependencyExtractor.groupSourcesByModuleDependencies(sources, prefixToTruncate);
 
-		return sortDependencies(sourcesByModuleDependencies, dependencyExtractor.getModuleToFilePath());
+		return sortDependenciesByModuleName(sourcesByModuleDependencies, dependencyExtractor.getModuleToFilePath());
 
 	}
 
+	public DependencyGraph resolveModuleDependenciesByPackageName(
+			final Collection<String> sources, final File prefixToTruncate) {
+		final Multimap<String, Optional<String>> sourcesByModuleDependencies = 
+				dependencyExtractor.groupSourcesByModuleDependencies(sources, prefixToTruncate);
+
+		return sortDependenciesByPackageName(sourcesByModuleDependencies, dependencyExtractor.getModuleToFilePath());
+
+	}
 	
-	public SortedSetMultimap<String, ModuleDescriptor> sortDependencies(final Multimap<String, Optional<String>> sourcesByModuleDependencies,
+	public DependencyGraph sortDependenciesByPackageName(
+			final Multimap<String, Optional<String>> sourcesByModuleDependencies,
+			final SortedSetMultimap<String, ModuleDescriptor> moduleToFilePath) {
+		final SortedSetMultimap<String,ModuleDescriptor> dependenciesByModuleName = 
+				sortDependenciesByModuleName(sourcesByModuleDependencies, moduleToFilePath);
+		
+		final Set<Entry<String, ModuleDescriptor>> entries = dependenciesByModuleName.entries();
+	
+		final ImmutableMultimap.Builder<String, ModuleDescriptor> builder = ImmutableMultimap.builder();
+		
+		for (final Entry<String, ModuleDescriptor> entry : entries) {
+			builder.put(entry.getValue().getJavaPackageName(), entry.getValue());
+		}
+		return new DependencyGraph(builder.build().asMap());
+	}
+
+	public SortedSetMultimap<String, ModuleDescriptor> sortDependenciesByModuleName(
+			final Multimap<String, Optional<String>> sourcesByModuleDependencies,
 			final SortedSetMultimap<String, ModuleDescriptor> moduleToFilePath) {
 	
 		final Multimap<String, Optional<String>> modulesByModuleDependencies = Multimaps

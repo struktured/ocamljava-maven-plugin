@@ -1,9 +1,11 @@
 package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
@@ -14,7 +16,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.StringUtils;
 import org.ocamljava.dependency.analyzer.Analyzer;
-import org.ocamljava.dependency.analyzer.PackageComparator;
+import org.ocamljava.dependency.data.DependencyGraph;
 import org.ocamljava.dependency.data.ModuleDescriptor;
 
 import com.google.common.base.Function;
@@ -24,8 +26,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.SortedSetMultimap;
-import com.google.common.collect.TreeMultimap;
 
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
@@ -73,21 +73,32 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 					.addAll(moduleInterfaces)
 					.addAll(implementations).build();
 			
-			final SortedSetMultimap<String, ModuleDescriptor> orderedModuleIntersAndImpls = 
-					analyzer.resolveModuleDependencies(intersAndImpls, chooseOcamlSourcesDirectory());
-		
-			final PackageComparator keyComparator = new PackageComparator(orderedModuleIntersAndImpls);
-			final ImmutableMultimap<String, ModuleDescriptor> modulesByPackageName = 
-					keyComparator.getModulesByPackageName();
+			final DependencyGraph dependencyGraph = 
+					analyzer.resolveModuleDependenciesByPackageName(intersAndImpls, chooseOcamlSourcesDirectory());
+	
+			//final PackageComparator keyComparator = new PackageComparator(orderedModuleIntersAndImpls);
+			//final ImmutableMultimap<String, ModuleDescriptor> modulesByPackageName = 
+				//	keyComparator.getModulesByPackageName();
 			
 			// TODO use this for something, TODO value comparator isn't right. 
 			// TODO finish this! 
-			final SortedSetMultimap<String, ModuleDescriptor> sortedByPackage = 
-					TreeMultimap.create(keyComparator, orderedModuleIntersAndImpls.valueComparator());
-			sortedByPackage.putAll(modulesByPackageName);
+			//final SortedSetMultimap<String, ModuleDescriptor> sortedByPackage = 
+				//	TreeMultimap.create(keyComparator, orderedModuleIntersAndImpls.valueComparator());
+			//sortedByPackage.putAll(modulesByPackageName);
+
+			final File file = new File(getOcamlCompiledSourcesTargetFullPath() + 
+					File.separator + "dependencies.json");
+			file.getParentFile().mkdirs();
 			
-			getLog().info("ordered modules: " + orderedModuleIntersAndImpls);
-			compileSources(orderedModuleIntersAndImpls.values());
+			dependencyGraph.write(file);
+			
+			getLog().info("ordered modules: " + dependencyGraph);
+			final Set<Entry<String, Collection<ModuleDescriptor>>> entrySet = dependencyGraph.getDependencies().entrySet();
+			
+			for (final Entry<String, Collection<ModuleDescriptor>> entry : entrySet) {
+				compileSources(entry.getValue());
+			}
+		
 
 			moveCompiledFiles(implementations, chooseOcamlCompiledSourcesTarget(),
 					chooseOcamlSourcesDirectory().getPath(), 

@@ -33,7 +33,7 @@ public class SharedTestInstances {
 		dependencyExtractor.groupSourcesByModuleDependencies(ImmutableList.of(
 			  "com/zfirst/dependable_module.ml", "com/asecond/dependent_module.ml"));
 
-		final SortedSetMultimap<String, ModuleDescriptor> sortedDependencies = analyzer.sortDependencies(
+		final SortedSetMultimap<String, ModuleDescriptor> sortedDependencies = analyzer.sortDependenciesByModuleName(
 				builder.build(), dependencyExtractor.getModuleToFilePath());
 				
 		return sortedDependencies;
