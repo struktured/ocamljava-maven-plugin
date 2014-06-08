@@ -105,6 +105,7 @@ public class DependencyExtractor {
 			if (moduleNameOfSource.isPresent()) {
 				moduleToFilePath.put(moduleNameOfSource.get(), new ModuleDescriptor.Builder()
 						.setModuleFile(sourceFile)
+				//		.setModuleFile(new File(sourceFile.getPath().replace(prefixToTruncate.getPath(), "")))
 						.setModuleKey(ModuleKey.fromFile(sourceFile))
 						.setJavaPackageName(FileMappings.toPackage(prefixToTruncate, source))
 						.build());

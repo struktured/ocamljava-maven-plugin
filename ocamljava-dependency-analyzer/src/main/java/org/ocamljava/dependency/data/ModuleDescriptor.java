@@ -8,6 +8,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonTypeName;
 import org.codehaus.plexus.util.StringUtils;
+import org.ocamljava.dependency.data.ModuleDescriptor.Builder;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
@@ -135,6 +136,14 @@ public class ModuleDescriptor extends ModuleKey implements
 			setModuleName(key.getModuleName());
 			setModuleType(key.getModuleType());
 
+			return this;
+		}
+
+		public Builder copyOf(final ModuleDescriptor paramF) {
+			setModuleKey(paramF);
+			setModuleFile(paramF.getModuleFile().orNull());
+			setModuleName(paramF.getModuleName());
+			setJavaPackageName(paramF.getJavaPackageName());
 			return this;
 		}
 

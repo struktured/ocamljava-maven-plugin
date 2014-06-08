@@ -12,13 +12,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import mandelbrot.ocamljava_maven_plugin.util.StringTransforms;
+
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonTypeName;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.SortedSetMultimap;
 
@@ -75,7 +79,7 @@ public class DependencyGraph {
 		return Objects.equal(this.dependencies, graph.dependencies);
 	}
 	
-	public void write(final File file) {
+	public void write(final File file, final File prefixToTruncate) {
 		final FileOutputStream outputStream;
 		try {
 			outputStream = new FileOutputStream(file);
@@ -84,7 +88,7 @@ public class DependencyGraph {
 		}
 		
 		try {
-			write(outputStream);
+			write(outputStream, prefixToTruncate);
 		} finally {
 			try {
 				outputStream.close();
@@ -94,9 +98,42 @@ public class DependencyGraph {
 		}
 	}
 	
-	public <T extends OutputStream> T write(final T outputStream) {
+	public <T extends OutputStream> T write(final T outputStream, final File prefixToTruncate) {
 		try {
-			OBJECT_MAPPER.writeValue(outputStream, this);
+			
+			if (prefixToTruncate == null) {
+				OBJECT_MAPPER.writeValue(outputStream, this);
+				return outputStream;
+			}
+			
+			final ImmutableMultimap.Builder<String, ModuleDescriptor> multimapBuilder = ImmutableMultimap.builder();
+			
+			final Set<Entry<String, Collection<ModuleDescriptor>>> dependencies2 = this.getDependencies().entrySet();
+			for (final Entry<String, Collection<ModuleDescriptor>> entry : dependencies2) {
+				multimapBuilder.putAll(entry.getKey(), 
+						Collections2.transform(entry.getValue(), new Function<ModuleDescriptor, ModuleDescriptor> () {
+
+					@Override
+					public ModuleDescriptor apply(final ModuleDescriptor paramF) {
+						if (prefixToTruncate == null) {
+							return paramF;
+						}
+						
+						if (!paramF.getModuleFile().isPresent())
+							return paramF;
+						
+						final ModuleDescriptor.Builder builder = new ModuleDescriptor.Builder();
+						builder.copyOf(paramF).setModuleFile(
+								new File(StringTransforms.trim
+								(paramF.getModuleFile().get().getPath().replace(prefixToTruncate.getPath(), ""), File.separatorChar)));
+						return builder.build();
+					}
+					
+				}));
+			}
+			
+			final DependencyGraph dependencyGraph = new DependencyGraph(multimapBuilder.build().asMap());
+			OBJECT_MAPPER.writeValue(outputStream, dependencyGraph);
 			return outputStream;
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
@@ -116,7 +153,7 @@ public class DependencyGraph {
 		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		
 		try {
-			return write(outputStream).toString();
+			return write(outputStream, null).toString();
 		} finally {
 			try {
 				outputStream.close();
