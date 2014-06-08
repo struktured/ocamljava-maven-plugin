@@ -1,15 +1,12 @@
 package org.ocamljava.dependency.data;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Comparator;
 
-import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeName;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.plexus.util.FileUtils;
 import org.ocamljava.dependency.analyzer.Analyzer;

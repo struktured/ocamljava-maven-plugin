@@ -12,8 +12,6 @@ import org.junit.Test;
 import org.ocamljava.dependency.analyzer.SharedTestInstances;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.common.collect.SortedSetMultimap;
 
 public class DependencyGraphTest {

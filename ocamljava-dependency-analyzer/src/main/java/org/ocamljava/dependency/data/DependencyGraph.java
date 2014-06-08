@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -20,9 +19,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Maps;
 import com.google.common.collect.SortedSetMultimap;
 
 

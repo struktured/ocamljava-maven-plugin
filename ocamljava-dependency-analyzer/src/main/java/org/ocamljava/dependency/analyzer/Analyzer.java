@@ -89,7 +89,7 @@ public class Analyzer {
 						});
 		
 			final TreeMultimap<String, ModuleDescriptor> treeMultimap = 
-					TreeMultimap.create(creatComparator(modulesByModuleDependencies),
+					TreeMultimap.create(createComparator(modulesByModuleDependencies),
 					moduleToFilePath.valueComparator()
 			);
 			
@@ -99,7 +99,7 @@ public class Analyzer {
 			return Multimaps.unmodifiableSortedSetMultimap(treeMultimap);
 	}
 
-	private static final Comparator<String> creatComparator(
+	private static final Comparator<String> createComparator(
 			final Multimap<String, Optional<String>> dependencies) {
 
 		return new Comparator<String>() {
