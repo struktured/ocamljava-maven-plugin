@@ -14,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.StringUtils;
 import org.ocamljava.dependency.analyzer.Analyzer;
+import org.ocamljava.dependency.analyzer.PackageComparator;
 import org.ocamljava.dependency.data.ModuleDescriptor;
 
 import com.google.common.base.Function;
@@ -24,6 +25,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SortedSetMultimap;
+import com.google.common.collect.TreeMultimap;
 
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
@@ -62,7 +64,6 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			final Collection<String> moduleInterfaces = ocamlSourceFiles
 					.get(OcamlJavaConstants.INTERFACE_SOURCE_EXTENSION);
 
-			
 			final Analyzer analyzer = new Analyzer(this);
 
 			final Collection<String> implementations = ocamlSourceFiles
@@ -74,6 +75,16 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			
 			final SortedSetMultimap<String, ModuleDescriptor> orderedModuleIntersAndImpls = 
 					analyzer.resolveModuleDependencies(intersAndImpls, chooseOcamlSourcesDirectory());
+		
+			final PackageComparator keyComparator = new PackageComparator(orderedModuleIntersAndImpls);
+			final ImmutableMultimap<String, ModuleDescriptor> modulesByPackageName = 
+					keyComparator.getModulesByPackageName();
+			
+			// TODO use this for something, TODO value comparator isn't right. 
+			// TODO finish this! 
+			final SortedSetMultimap<String, ModuleDescriptor> sortedByPackage = 
+					TreeMultimap.create(keyComparator, orderedModuleIntersAndImpls.valueComparator());
+			sortedByPackage.putAll(modulesByPackageName);
 			
 			getLog().info("ordered modules: " + orderedModuleIntersAndImpls);
 			compileSources(orderedModuleIntersAndImpls.values());

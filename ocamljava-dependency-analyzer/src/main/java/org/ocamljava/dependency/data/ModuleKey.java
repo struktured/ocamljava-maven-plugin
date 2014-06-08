@@ -1,16 +1,30 @@
 package org.ocamljava.dependency.data;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Comparator;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeName;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.plexus.util.FileUtils;
 import org.ocamljava.dependency.analyzer.Analyzer;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
+@JsonTypeName("moduleKey")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value=ModuleDescriptor.class, name="moduleDescriptor"),
+})
 public class ModuleKey {
+
+	public static final String MODULE_TYPE_PROPERTY = "moduleType";
+	public static final String MODULE_NAME_PROPERTY = "moduleName";
 
 	public static class Builder {
 		private String moduleName;
@@ -74,8 +88,9 @@ public class ModuleKey {
 		}
 	}
 
-	public ModuleKey(final String moduleName,
-			final ModuleType moduleType) {
+	@JsonCreator
+	public ModuleKey(final @JsonProperty(MODULE_NAME_PROPERTY) String moduleName,
+			final @JsonProperty(MODULE_TYPE_PROPERTY) ModuleType moduleType) {
 		this.moduleName = Preconditions.checkNotNull(moduleName);
 		this.moduleType = Preconditions.checkNotNull(moduleType);
 	}
@@ -117,7 +132,11 @@ public class ModuleKey {
 
 	@Override
 	public String toString() {
-		return Objects.toStringHelper(this).toString();
+		try {
+			return new ObjectMapper().writeValueAsString(this);
+		} catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public static ModuleKey fromFile(final String sourceFilePath) {

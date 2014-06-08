@@ -27,6 +27,7 @@ import com.google.common.collect.TreeMultimap;
 
 public class DependencyExtractor {
 
+	private static final String OPEN_KEYWORD = "open";
 	static final Pattern MODULE_REGEX_START_OF_LINE = Pattern
 			.compile("[\\w\\=\\s\\+\\-]*?([A-Z][a-zA-z0-9]+)\\.[\\w]*?");
 	private final AbstractMojo abstractMojo;
@@ -134,7 +135,7 @@ public class DependencyExtractor {
 				final String line = scanner.nextLine();
 				if (line == null)
 					continue;
-				if (line.startsWith("open") && !line.equals("open")) {
+				if (line.startsWith(OPEN_KEYWORD) && !line.equals(OPEN_KEYWORD)) {
 					final String moduleName = extractModuleName(line);
 
 					if (isValidModuleName(moduleName)) {
@@ -171,8 +172,8 @@ public class DependencyExtractor {
 	}
 
 	private String extractModuleName(String line) {
-		if (line.startsWith("open"))
-			line = line.substring("open".length(), line.length());
+		if (line.startsWith(OPEN_KEYWORD))
+			line = line.substring(OPEN_KEYWORD.length(), line.length());
 
 		return line.replace(";", "").trim().toLowerCase();
 	}

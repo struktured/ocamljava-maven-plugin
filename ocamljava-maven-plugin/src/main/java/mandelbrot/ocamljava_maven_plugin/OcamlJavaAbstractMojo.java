@@ -143,10 +143,14 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	
 	protected String toPackage(final File prefixToTruncate, final String path) {
 		
-		if (JavaPackageMode.DYNAMIC.equals(javaPackageMode)) {
+		if (isDynamicPackageMode()) {
 		return FileMappings.toPackage(prefixToTruncate, path);
 		} else {
 			return packageName;
 		}
+	}
+
+	public boolean isDynamicPackageMode() {
+		return JavaPackageMode.DYNAMIC.equals(javaPackageMode);
 	}
 }

@@ -18,7 +18,7 @@ import com.google.common.collect.SortedSetMultimap;
 
 public class PackageComparator implements Comparator<String> {
 
-	private ImmutableMultimap<String, ModuleDescriptor> modulesByPackageName;
+	private final ImmutableMultimap<String, ModuleDescriptor> modulesByPackageName;
 
 	public PackageComparator(final SortedSetMultimap<String, ModuleDescriptor> resolvedModuleDependencies) {
 		this.resolvedModuleDependencies = Preconditions.checkNotNull(resolvedModuleDependencies);
@@ -31,11 +31,15 @@ public class PackageComparator implements Comparator<String> {
 			
 			builder.put(javaPackageName, entry.getValue());
 			
-			
 		}
+		
 		this.modulesByPackageName = builder.build();
 		
 		
+	}
+
+	public ImmutableMultimap<String, ModuleDescriptor> getModulesByPackageName() {
+		return modulesByPackageName;
 	}
 
 	final SortedSetMultimap<String, ModuleDescriptor> resolvedModuleDependencies;

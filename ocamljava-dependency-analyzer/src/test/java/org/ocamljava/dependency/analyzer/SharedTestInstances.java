@@ -1,12 +1,5 @@
 package org.ocamljava.dependency.analyzer;
 
-import static org.ocamljava.dependency.analyzer.SharedTestInstances.DEPENDABLE_MODULE;
-import static org.ocamljava.dependency.analyzer.SharedTestInstances.DEPENDENT_MODULE;
-
-import java.util.Set;
-
-import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
-
 import org.apache.maven.plugin.AbstractMojo;
 import org.ocamljava.dependency.data.ModuleDescriptor;
 

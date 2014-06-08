@@ -5,7 +5,6 @@ import java.util.Collection;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
-import org.omg.CosNaming.IstringHelper;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -80,8 +79,6 @@ public class FileMappings {
 
 	public static Collection<String> toPackage(final File prefixToTruncate,
 			final Collection<String> paths) {
-		
-	
 		return Collections2.transform(paths,
 				toPackageTransform(prefixToTruncate));
 	}
