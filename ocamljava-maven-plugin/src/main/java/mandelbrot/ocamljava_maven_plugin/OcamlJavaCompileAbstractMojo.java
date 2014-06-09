@@ -21,6 +21,7 @@ import org.ocamljava.dependency.data.ModuleDescriptor;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
@@ -90,8 +91,15 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			getLog().info("ordered modules: " + dependencyGraph);
 			final Set<Entry<String, Collection<ModuleDescriptor>>> entrySet = dependencyGraph.getDependencies().entrySet();
 			
+			final ImmutableSet.Builder<String> includeDirectoryBuilder = ImmutableSet.builder();
+		
 			for (final Entry<String, Collection<ModuleDescriptor>> entry : entrySet) {
-				compileSources(entry.getValue());
+				compileSources(includeDirectoryBuilder.build(), entry.getValue());
+				includeDirectoryBuilder.addAll(Collections2.transform(entry.getValue(), new Function<ModuleDescriptor, String>() {
+					public String apply (final ModuleDescriptor moduleDescriptor) {
+						return moduleDescriptor.getModuleFile().get().getParent();
+					}
+				}));
 			}
 		
 			moveCompiledFiles(implementations, chooseOcamlCompiledSourcesTarget(),
@@ -106,7 +114,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 	protected abstract File chooseOcamlSourcesDirectory();
 
-	private Collection<String> compileSources(
+	private Collection<String> compileSources(final Collection<String> includeDirs,
 			final Collection<ModuleDescriptor> moduleDescriptors) throws MojoExecutionException {
 
 		final Collection<String> sourceFiles = Collections2.transform(moduleDescriptors, ModuleDescriptor.toFileTransform());
@@ -119,15 +127,16 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		for (final String path : pathMappings) {
 
 			if (!sourceFiles.isEmpty()) {
-				final String[] sourceArgs = generateCommandLineArguments(pathMappings,
+				final String[] sourceArgs = generateCommandLineArguments(ImmutableSet.<String>builder()
+						.addAll(includeDirs)
+						.addAll(pathMappings)
+						.build(),
 						toPackage(ocamlSourceDirectory, path), sourceFiles).toArray(new String[] {});
-				getLog().info(
-						"ocamljava compile args: "
-								+ ImmutableList.copyOf(sourceArgs));
+				getLog().info("ocamljava compile args: " + ImmutableList.copyOf(sourceArgs));
 				ocamljavaMain.main(sourceArgs);
-		
 			}
 		}
+		
 		return builder.build();
 	}
 

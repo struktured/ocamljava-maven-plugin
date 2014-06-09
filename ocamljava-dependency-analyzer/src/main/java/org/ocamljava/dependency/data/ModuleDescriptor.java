@@ -13,7 +13,11 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
+/***
+ * A description of a single ocaml module. Serializable via JSON format.
+ * @author carm
+ *
+ */
 @JsonTypeName("moduleDescriptor")
 public class ModuleDescriptor extends ModuleKey implements
 		Comparable<ModuleDescriptor> {
@@ -83,17 +87,12 @@ public class ModuleDescriptor extends ModuleKey implements
 		if (getClass() != obj.getClass())
 			return false;
 		final ModuleDescriptor other = (ModuleDescriptor) obj;
-		if (moduleFile == null) {
-			if (other.moduleFile != null)
-				return false;
-		} else if (!moduleFile.equals(other.moduleFile))
+		
+		if (!Objects.equal(moduleFile, other.moduleFile))
 			return false;
-		if (moduleName == null) {
-			if (other.moduleName != null)
-				return false;
-		} else if (!moduleName.equals(other.moduleName))
+		if (!Objects.equal(moduleName, other.moduleName))
 			return false;
-		if (moduleType != other.moduleType)
+		if (!Objects.equal(moduleType, other.moduleType))
 			return false;
 		return Objects.equal(javaPackageName, other.javaPackageName);
 	}
@@ -206,9 +205,6 @@ public class ModuleDescriptor extends ModuleKey implements
 				
 				if (paramT1 == null)
 					return 1;
-				
-				if (paramT2 == null)
-					return -1;
 				
 				return paramT1.compareTo(paramT2);
 			}
