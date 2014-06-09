@@ -7,15 +7,14 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import mandelbrot.ocamljava_maven_plugin.util.ArtifactDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import mandelbrot.ocamljava_maven_plugin.util.JarExtractor;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
@@ -32,7 +31,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.ImmutableSet.Builder;
 
 /**
  * <p>
@@ -64,7 +62,6 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 	 */
 	protected File generatedSourcesOutputDirectory;
 	
-	private static final String ARTIFACT_DESCRIPTOR_SEPARATOR = ":";
 
 	/***
 	 * <p>The artifacts to scan for ocaml compiled interfaces and then perform code generation on. 
@@ -311,27 +308,16 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 					@Override
 					public boolean apply(final Artifact artifact) {
 
-						final String artifactId = artifact.getArtifactId();
-						final String groupId = artifact.getGroupId();
-						final String type = artifact.getType();
-						final String version = artifact.getVersion();
-						final String classifier = artifact.getClassifier();
-						final StringBuilder builder = new StringBuilder(
-								ArtifactUtils.key(groupId, artifactId, version));
-
-						if (!StringUtils.isBlank(type)) {
-							builder.append(ARTIFACT_DESCRIPTOR_SEPARATOR + type);
-							if (!StringUtils.isBlank(classifier)) {
-								builder.append(ARTIFACT_DESCRIPTOR_SEPARATOR + classifier);
-							}
-						}
-						getLog().info("artifact key: " + builder.toString());
+						final String artifactDescription = ArtifactDescriptor.toDescriptor(artifact);
+						getLog().info("artifact key: " + artifactDescription);
 						for (final String targetArtifact : targetArtifacts)
-							if (builder.toString().startsWith(targetArtifact))
+							if (artifactDescription.startsWith(targetArtifact))
 								return true;
 
 						return false;
 					}
+
+					
 				});
 
 		for (final Artifact artifact : filter) {

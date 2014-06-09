@@ -92,7 +92,7 @@ public class DependencyGraph {
 		} finally {
 			try {
 				outputStream.close();
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				
 			}
 		}
