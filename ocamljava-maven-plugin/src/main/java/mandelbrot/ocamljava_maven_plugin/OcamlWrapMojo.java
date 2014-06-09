@@ -1,12 +1,15 @@
 package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import mandelbrot.ocamljava_maven_plugin.util.JarExtractor;
@@ -17,15 +20,19 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
+import org.ocamljava.dependency.data.DependencyGraph;
 import org.ocamljava.wrapper.ocamljavaMain;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableSet.Builder;
 
 /**
  * <p>
@@ -154,17 +161,43 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 
 		final Collection<String> artifactFiles = getArtifactFiles();
 
-		final Collection<String> moduleFiles = extractCompiledModules(artifactFiles);
+		final Multimap<String, String> filesByExtension = extractFilesFromArtifacts(artifactFiles);
 		
-		if (moduleFiles.isEmpty()) {
-			getLog().info("no compiled modules found in " + getTargetJarFullPath());
+		final FileInputStream inputStream;
+		try {
+			inputStream = new FileInputStream(new File(
+					Collections2.filter(filesByExtension.get(OcamlJavaConstants.JSON_EXTENSION), 
+							Predicates.contains(Pattern.compile(dependencyGraphTarget.replace(".", "\\.")))).iterator().next()));
+		} catch (final FileNotFoundException e) {
+			throw new MojoExecutionException("missing or corrupt dependency graph: " + dependencyGraphTarget + ", can't wrap!", e);
+		}
+		
+		final DependencyGraph dependencyGraph = DependencyGraph.read
+				(inputStream);
+
+		getLog().info("dependencyGraph: " + dependencyGraph);
+		
+		if (filesByExtension.isEmpty()) {
+			getLog().info("no relevant files found in " + getTargetJarFullPath());
+			return;
+		}
+		
+		final ImmutableSet<String> compiledFiles = 
+				ImmutableSet.<String>builder().addAll(filesByExtension.get(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION))
+				.addAll(filesByExtension.get(OcamlJavaConstants.COMPILED_IMPL_EXTENSION)).build();
+		
+
+		if (compiledFiles.isEmpty()) {
+			getLog().info("no wrappable files found in " + getTargetJarFullPath());
 			return;
 		}
 		
 		if (JavaPackageMode.DYNAMIC.equals(getJavaPackageMode())) {
 			getLog().info("infer package names based on directory structure");
+					
 			final Multimap<String, String> filesByPackageName = FileMappings.buildPackageMap(
-					new File(getOcamlCompiledSourcesTargetFullPath()), moduleFiles);
+					new File(getOcamlCompiledSourcesTargetFullPath()), 
+					compiledFiles);
 	
 			getLog().info("filesByPackageName: " + filesByPackageName);
 			
@@ -188,7 +221,7 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 			}
 		} else {
 			getLog().info("package name is fixed to \"" + packageName + "\"");
-			wrapFiles(moduleFiles, packageName);
+			wrapFiles(compiledFiles, packageName);
 		}
 	}
 
@@ -249,23 +282,24 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 				Optional.fromNullable(this.classNameSuffix).or("") + JAVA_EXTENSION;
 	}
 
-	private Collection<String> extractCompiledModules(
+	private Multimap<String, String> extractFilesFromArtifacts(
 			final Collection<String> artifactFiles) {
 		
-		final ImmutableList.Builder<String> moduleFilesBuilder = ImmutableList.builder();
+		final ImmutableMultimap.Builder<String, String> moduleFilesBuilder = ImmutableMultimap.builder();
 
 		for (final String artifactFile : artifactFiles) {
 			final Collection<String> compiledModules = 
 					new JarExtractor(this).extractFiles(artifactFile,
 							getOcamlCompiledSourcesTargetFullPath(), 
 							ImmutableSet.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION, 
-									OcamlJavaConstants.COMPILED_IMPL_EXTENSION));
+									OcamlJavaConstants.COMPILED_IMPL_EXTENSION, OcamlJavaConstants.JSON_EXTENSION));
 					
-			moduleFilesBuilder.addAll(compiledModules);
+			for (final String string : compiledModules) {
+				moduleFilesBuilder.put(FileUtils.getExtension(string), string);
+			}
 		}
 
-		final List<String> moduleFiles = moduleFilesBuilder.build();
-		return moduleFiles;
+		return moduleFilesBuilder.build();
 	}
 
 

@@ -19,7 +19,8 @@ public class OcamlJavaConstants {
 	public static final String COMPILED_IMPL_EXTENSION = "cmj";
 	public static final String COMPILED_INTERFACE_EXTENSION = "cmi";
 	public static final String OBJECT_BINARY_EXTENSION = "jo";
-
+	public static final String JSON_EXTENSION = "json";
+	
 	public static final Set<String> OCAML_SOURCE_FILE_EXTENSIONS = ImmutableSet
 			.of(IMPL_SOURCE_EXTENSION, INTERFACE_SOURCE_EXTENSION);
 	
