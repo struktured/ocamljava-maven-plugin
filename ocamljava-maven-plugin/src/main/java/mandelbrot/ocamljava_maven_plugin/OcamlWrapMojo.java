@@ -212,6 +212,8 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 
 			getLog().info("packageNames: " + packageNames);
 
+			final ImmutableSet.Builder<String> includeDirsBuilder = ImmutableSet.builder();
+			
 			for (final String packageName : packageNames) {
 				getLog().info("wrap invoked for package: " + packageName);
 				final Collection<String> filesInPackage = filesByPackageName
@@ -251,7 +253,8 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 					final ImmutableSortedSet<String> sorted = ImmutableSortedSet.copyOf(comparator, filtered);
 					getLog().info("sorted files to wrap: " + sorted);
 					
-					wrapFiles(sorted, packageName);
+					wrapFiles(includeDirsBuilder.build(), sorted, packageName);
+					includeDirsBuilder.add(new File(filesInPackage.iterator().next()).getParent());
 				} catch (final Exception e) {
 					getLog().error("wrapping threw an exception", e);
 					throw new MojoExecutionException(
@@ -259,8 +262,13 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 				}
 			}
 		} else {
+
+			final Multimap<String, String> buildPathMap = FileMappings.buildPathMap(compiledFiles);
+			
 			getLog().info("package name is fixed to \"" + packageName + "\"");
-			wrapFiles(compiledFiles, packageName);
+			
+			// TODO should I sort these includes as well? probably
+			wrapFiles(buildPathMap.keySet(), compiledFiles, packageName);
 		}
 	}
 
@@ -288,13 +296,12 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		return dependencyGraph;
 	}
 
-	private Optional<ocamljavaMain> wrapFiles(
+	private Optional<ocamljavaMain> wrapFiles(final Collection<String> includeDirs,
 			final Collection<String> cmiFiles, final String packageName)
 			throws MojoExecutionException {
 
-		final Collection<String> pathMappings = ImmutableList.of();
 		final Optional<String[]> commandLineArguments = generateCommandLineArguments(
-				pathMappings, cmiFiles, packageName);
+				includeDirs, cmiFiles, packageName);
 
 		if (commandLineArguments.isPresent()) {
 			getLog().info(
