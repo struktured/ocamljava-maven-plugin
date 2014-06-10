@@ -205,11 +205,9 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 
 			getLog().info("filesByPackageName: " + filesByPackageName);
 
-			final Set<String> packageNames; // = filesByPackageName.keySet();
-
 			// Important to use this ordering to iterate through the packages
-			packageNames = dependencyGraph.getDependencies().keySet();
-
+			final Set<String> packageNames = dependencyGraph.getDependencies().keySet();
+			
 			getLog().info("packageNames: " + packageNames);
 
 			final ImmutableSet.Builder<String> includeDirsBuilder = ImmutableSet.builder();
@@ -229,25 +227,8 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 								}
 							});
 					
-					final Collection<ModuleDescriptor> moduleDescriptors = dependencyGraph.getDependencies().get(packageName);
-					
-					final Comparator<? super String> comparator = new Comparator<String>() {
-						@Override
-						public int compare(final String paramT1, final String paramT2) {
-							if (Objects.equal(paramT1, paramT2)) {
-								return 0;
-							}
-							for (final ModuleDescriptor moduleDescriptor : moduleDescriptors) {
-								if (Objects.equal(moduleDescriptor.getModuleName(), Analyzer.moduleNameOfSource(paramT1))) {
-									return -1;
-								}
-								if (Objects.equal(moduleDescriptor.getModuleName(), Analyzer.moduleNameOfSource(paramT2))) {
-									return 1;
-								}
-							}
-							return Optional.fromNullable(paramT1).or("").compareTo(paramT2);
-						}
-					};
+					final Comparator<? super String> comparator = createComparator(
+							dependencyGraph, packageName);
 					getLog().info("filtered files to wrap: " + filtered);
 					
 					final ImmutableSortedSet<String> sorted = ImmutableSortedSet.copyOf(comparator, filtered);
@@ -267,9 +248,37 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 			
 			getLog().info("package name is fixed to \"" + packageName + "\"");
 			
+			// TODO ORDER THE FILES THEMSELVES AT THE MINIMUM! !!!!!!!
 			// TODO should I sort these includes as well? probably
-			wrapFiles(buildPathMap.keySet(), compiledFiles, packageName);
+			
+			final Comparator<? super String> comparator = createComparator(dependencyGraph, packageName);
+			
+			wrapFiles(buildPathMap.keySet(), ImmutableSortedSet.copyOf(comparator, compiledFiles), packageName);
 		}
+	}
+
+	private Comparator<? super String> createComparator(
+			final DependencyGraph dependencyGraph, final String packageName) {
+		final Collection<ModuleDescriptor> moduleDescriptors = dependencyGraph.getDependencies().get(packageName);
+		
+		final Comparator<? super String> comparator = new Comparator<String>() {
+			@Override
+			public int compare(final String paramT1, final String paramT2) {
+				if (Objects.equal(paramT1, paramT2)) {
+					return 0;
+				}
+				for (final ModuleDescriptor moduleDescriptor : moduleDescriptors) {
+					if (Objects.equal(moduleDescriptor.getModuleName(), Analyzer.moduleNameOfSource(paramT1))) {
+						return -1;
+					}
+					if (Objects.equal(moduleDescriptor.getModuleName(), Analyzer.moduleNameOfSource(paramT2))) {
+						return 1;
+					}
+				}
+				return Optional.fromNullable(paramT1).or("").compareTo(paramT2);
+			}
+		};
+		return comparator;
 	}
 
 	private DependencyGraph getDependendyGraph(
@@ -281,9 +290,7 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 					Collections2
 							.filter(filesByExtension
 									.get(OcamlJavaConstants.JSON_EXTENSION),
-									Predicates.contains(Pattern
-											.compile(dependencyGraphTarget
-													.replace(".", "\\."))))
+									dependencyGraphFieExists())
 							.iterator().next()));
 		} catch (final FileNotFoundException e) {
 			throw new MojoExecutionException(
@@ -294,6 +301,12 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		final DependencyGraph dependencyGraph = DependencyGraph
 				.read(inputStream);
 		return dependencyGraph;
+	}
+
+	private Predicate<CharSequence> dependencyGraphFieExists() {
+		return Predicates.contains(Pattern
+				.compile(dependencyGraphTarget
+						.replace(".", "\\.")));
 	}
 
 	private Optional<ocamljavaMain> wrapFiles(final Collection<String> includeDirs,
@@ -385,8 +398,8 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 											OcamlJavaConstants.COMPILED_IMPL_EXTENSION,
 											OcamlJavaConstants.JSON_EXTENSION));
 
-			for (final String string : compiledModules) {
-				moduleFilesBuilder.put(FileUtils.getExtension(string), string);
+			for (final String compiledModule : compiledModules) {
+				moduleFilesBuilder.put(FileUtils.getExtension(compiledModule), compiledModule);
 			}
 		}
 

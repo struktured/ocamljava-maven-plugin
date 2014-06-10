@@ -30,11 +30,6 @@ import com.google.common.collect.Multimap;
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
 
-	public File chooseDependencyGraphTargetFullPath() {
-		return new File(chooseOcamlCompiledSourcesTarget()  + 
-				File.separator + dependencyGraphTarget);
-	}
-
 	/***
 	 * Record debugging information.
 	 * 
@@ -43,6 +38,19 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	 */
 	protected boolean recordDebugInfo = false;
 		
+	/***
+	 * Optimize code for size rather than speed.
+	 * 
+	 * @parameter default-value="false"
+	 * 
+	 */
+	protected boolean compact = false;
+		
+	public File chooseDependencyGraphTargetFullPath() {
+		return new File(chooseOcamlCompiledSourcesTarget()  + 
+				File.separator + dependencyGraphTarget);
+	}
+
 	private static final String DOT = ".";
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -217,6 +225,10 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 		if (recordDebugInfo) {
 			builder.add(OcamlJavaConstants.RECORD_DEBUGGING_INFO_OPTION);
+		}
+
+		if (compact) {
+			builder.add(OcamlJavaConstants.COMPACT_OPTION);
 		}
 		
 		if (!StringUtils.isBlank(packageName)) {
