@@ -21,6 +21,7 @@ import org.ocamljava.dependency.data.ModuleDescriptor;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
@@ -91,7 +92,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 					analyzer.resolveModuleDependenciesByPackageName(intersAndImpls, chooseOcamlSourcesDirectory());
 
 			final File file = chooseDependencyGraphTargetFullPath();
-			file.getParentFile().mkdirs();
+			Preconditions.checkState(file.getParentFile().mkdirs(), "couldn't create directories: " + file.getParentFile().toString());
 			
 			dependencyGraph.write(file, chooseOcamlSourcesDirectory());
 			
@@ -103,7 +104,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			for (final Entry<String, Collection<ModuleDescriptor>> entry : entrySet) {
 				compileSources(includeDirectoryBuilder.build(), entry.getValue());
 				includeDirectoryBuilder.addAll(Collections2.transform(entry.getValue(), new Function<ModuleDescriptor, String>() {
-					public String apply (final ModuleDescriptor moduleDescriptor) {
+					@Override public String apply (final ModuleDescriptor moduleDescriptor) {
 						return moduleDescriptor.getModuleFile().get().getParent();
 					}
 				}));

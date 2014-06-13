@@ -76,10 +76,11 @@ OcamlJava Maven Plugin
 
 * Examples
 
-  To provide you with better understanding of some usages of the Plugin Name,
-  you can take a look into the following examples:
+  The first example demonstrates how to compile and link your ocaml modules into a jar:
 
-  * {{{examples/example-one.html}Example Description One}}
+  * {{{examples/example-one.html}Compiling ocaml sources and packaging them}}:
 
-  * {{{examples/example-two.html}Example Description Two}}
+  This example demonsrates how to code generate java sources given ocaml-enhanced artifacts (such as the first example):
+
+  * {{{examples/example-two.html}Wrapping ocaml types with code generated java sources}}
  
