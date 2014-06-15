@@ -22,7 +22,6 @@ import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
@@ -53,8 +52,6 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 				File.separator + dependencyGraphTarget);
 	}
 
-	private static final String DOT = ".";
-	
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
