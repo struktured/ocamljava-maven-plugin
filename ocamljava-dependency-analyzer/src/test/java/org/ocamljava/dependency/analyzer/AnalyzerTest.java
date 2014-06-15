@@ -11,6 +11,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import junit.framework.Assert;
+import mandelbrot.dependency.analyzer.Analyzer;
+import mandelbrot.dependency.analyzer.DependencyExtractor;
+import mandelbrot.dependency.data.ModuleDescriptor;
+import mandelbrot.dependency.data.ModuleKey.ModuleType;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -20,8 +24,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.ocamljava.dependency.data.ModuleDescriptor;
-import org.ocamljava.dependency.data.ModuleKey.ModuleType;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;

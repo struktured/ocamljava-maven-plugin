@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import junit.framework.Assert;
+import mandelbrot.dependency.data.DependencyGraph;
+import mandelbrot.dependency.data.ModuleDescriptor;
 
 import org.junit.Test;
 import org.ocamljava.dependency.analyzer.SharedTestInstances;

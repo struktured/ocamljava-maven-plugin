@@ -1,4 +1,4 @@
-package org.ocamljava.dependency.analyzer;
+package mandelbrot.dependency.analyzer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,12 +9,12 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import mandelbrot.dependency.data.ModuleDescriptor;
+import mandelbrot.dependency.data.ModuleKey;
+import mandelbrot.dependency.data.ModuleKey.ModuleType;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.ocamljava.dependency.data.ModuleDescriptor;
-import org.ocamljava.dependency.data.ModuleKey;
-import org.ocamljava.dependency.data.ModuleKey.ModuleType;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;

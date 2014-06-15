@@ -1,12 +1,11 @@
-package org.ocamljava.dependency.analyzer;
+package mandelbrot.dependency.analyzer;
 
 import java.util.Comparator;
-
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.ocamljava.dependency.data.ModuleDescriptor;
+import mandelbrot.dependency.data.ModuleDescriptor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;

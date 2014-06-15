@@ -1,4 +1,4 @@
-package org.ocamljava.dependency.analyzer;
+package mandelbrot.dependency.analyzer;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -7,10 +7,11 @@ import java.util.Comparator;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import mandelbrot.dependency.data.DependencyGraph;
+import mandelbrot.dependency.data.ModuleDescriptor;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.codehaus.plexus.util.StringUtils;
-import org.ocamljava.dependency.data.DependencyGraph;
-import org.ocamljava.dependency.data.ModuleDescriptor;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;

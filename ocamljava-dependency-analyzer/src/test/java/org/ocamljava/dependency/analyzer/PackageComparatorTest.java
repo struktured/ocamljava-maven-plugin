@@ -1,12 +1,14 @@
 package org.ocamljava.dependency.analyzer;
 
 import junit.framework.Assert;
+import mandelbrot.dependency.analyzer.PackageComparator;
+import mandelbrot.dependency.data.ModuleDescriptor;
 
 import org.junit.Test;
-import org.ocamljava.dependency.data.ModuleDescriptor;
 
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
+
 import static org.ocamljava.dependency.analyzer.SharedTestInstances.*;
 
 public class PackageComparatorTest {

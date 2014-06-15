@@ -1,7 +1,10 @@
 package org.ocamljava.dependency.analyzer;
 
+import mandelbrot.dependency.analyzer.Analyzer;
+import mandelbrot.dependency.analyzer.DependencyExtractor;
+import mandelbrot.dependency.data.ModuleDescriptor;
+
 import org.apache.maven.plugin.AbstractMojo;
-import org.ocamljava.dependency.data.ModuleDescriptor;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;

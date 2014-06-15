@@ -1,4 +1,4 @@
-package org.ocamljava.dependency.data;
+package mandelbrot.dependency.data;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

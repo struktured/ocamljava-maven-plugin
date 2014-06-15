@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import mandelbrot.dependency.analyzer.Analyzer;
+import mandelbrot.dependency.data.DependencyGraph;
+import mandelbrot.dependency.data.ModuleDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
+import mandelbrot.ocamljava_maven_plugin.util.FileExtensions;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import ocaml.compilers.ocamljavaMain;
 
@@ -15,9 +19,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.StringUtils;
-import org.ocamljava.dependency.analyzer.Analyzer;
-import org.ocamljava.dependency.data.DependencyGraph;
-import org.ocamljava.dependency.data.ModuleDescriptor;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -53,6 +54,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	}
 
 	private static final String DOT = ".";
+	
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -92,7 +94,9 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 					analyzer.resolveModuleDependenciesByPackageName(intersAndImpls, chooseOcamlSourcesDirectory());
 
 			final File file = chooseDependencyGraphTargetFullPath();
-			Preconditions.checkState(file.getParentFile().mkdirs(), "couldn't create directories: " + file.getParentFile().toString());
+			
+			if (file.getParentFile().mkdirs())
+				;
 			
 			dependencyGraph.write(file, chooseOcamlSourcesDirectory());
 			
@@ -173,7 +177,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 					public String apply(final String path) {
 						final File srcFile = new File(path);
 
-						final String compiledSourceName = changeExtension(
+						final String compiledSourceName = FileExtensions.changeExtension(
 								srcFile, compiledExtension);
 						final File compiledSrcFile = new File(srcFile
 								.getParent()
@@ -210,10 +214,6 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 					}
 				});
 		return ImmutableSet.copyOf(transformed);
-	}
-
-	private String changeExtension(final File srcFile, final String extension) {
-		return srcFile.getName().split("\\" + DOT)[0] + DOT + extension;
 	}
 
 	private List<String> generateCommandLineArguments(

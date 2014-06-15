@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 
 import junit.framework.Assert;
+import mandelbrot.dependency.analyzer.DependencyExtractor;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;

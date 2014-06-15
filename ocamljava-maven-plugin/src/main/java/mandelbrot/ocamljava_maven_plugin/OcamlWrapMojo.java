@@ -11,6 +11,9 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import mandelbrot.dependency.analyzer.Analyzer;
+import mandelbrot.dependency.data.DependencyGraph;
+import mandelbrot.dependency.data.ModuleDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.ArtifactDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import mandelbrot.ocamljava_maven_plugin.util.JarExtractor;
@@ -20,9 +23,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
-import org.ocamljava.dependency.analyzer.Analyzer;
-import org.ocamljava.dependency.data.DependencyGraph;
-import org.ocamljava.dependency.data.ModuleDescriptor;
 import org.ocamljava.wrapper.ocamljavaMain;
 
 import com.google.common.base.Objects;

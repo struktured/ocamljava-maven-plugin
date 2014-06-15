@@ -1,7 +1,9 @@
-package org.ocamljava.dependency.data;
+package mandelbrot.dependency.data;
 
 import java.io.File;
 import java.util.Comparator;
+
+import mandelbrot.dependency.analyzer.Analyzer;
 
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -9,7 +11,6 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeName;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.plexus.util.FileUtils;
-import org.ocamljava.dependency.analyzer.Analyzer;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
