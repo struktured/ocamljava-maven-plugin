@@ -4,13 +4,23 @@ from subprocess import call
 import sys
 VERSION = '2.0-early-access11'
 
-# TODO only partially implemented comamnd line arg, due to absolute path not being truncated in the for loop
-MYPATH = getcwd() if len(sys.argv) <= 1 else sys.argv[1]
+# TODO make this portable
+SEPARATOR = "/"
 
-onlyfiles = [f for f in listdir(MYPATH) if isfile(join(MYPATH,f)) and (str(f)).split('.')[1] == "jar"]
+file_name_base = "download-" + VERSION
+file_name_php = file_name_base + ".php"
+file_name_tgz = file_name_base + " .tar.gZ"
+
+system("wget".join(["http://ocamljava.x9c.fr/preview/" + file_name_php]))
+system("tar".join(["-xvf", file_name_tgz]))
+
+MYPATH = getcwd() 
+
+onlyfiles = [f for f in listdir(MYPATH) if isfile(join(MYPATH,f)) and (str(f)).split('.')[1] == "xml"]
 
 for f in onlyfiles :
-	command_args = " ".join(["mvn", "install:install-file", "-Dfile=" + str(f), 
-		"-DgroupId=fr.x9c", "-DartifactId=" + str(f).split('.')[0],
-		"-Dversion=" + VERSION, "-Dpackaging=jar"])
+	pomFile = str(f)
+	inferedJar = getcwd() + SEPARATOR + "ocamljava-" + VERSION + SEPARATOR + "lib" + SEPARATOR + pomFile
+
+	command_args = " ".join(["mvn", "install:install-file", "-Dfile=" + inferedJar, "-DpomFile=" + pomFile])
 	system(command_args)
