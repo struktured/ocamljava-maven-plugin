@@ -6,6 +6,7 @@
 	<version>2.0-early-access11</version>
 	<packaging>jar</packaging>
 	<name>Ocaml Java</name>
+	<description>Ocaml Java Core Library</description>
 	<build>
 		<plugins>
 			<plugin>
@@ -25,6 +26,38 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
+	
+	<licenses>
+		<license>
+			<name>GNU Lesser General Public License (LGPL)</name>
+			<url>http://www.gnu.org/licenses/lgpl.txt</url>
+		</license>
+		<license>
+			<name>The Q Public License Version (QPL-1.0)</name>
+			<url>http://opensource.org/licenses/QPL-1.0</url>
+		</license>
+	</licenses>
 
+	<url>http://ocamljava.x9c.fr/</url>
+	<scm>
+		<connection></connection>
+		<url>http://ocamljava.x9c.fr/preview</url>
+	</scm>
+	<developers>
+		<developer>
+			<name>Xavier Clerc</name>
+			<email>forum@x9c.fr</email>
+			<roles>
+				<role>Primary Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Carmelo Piccione</name>
+			<email>carmelo.piccione+ocamljava@gmail.com</email>
+			<roles>
+				<role>Maven Artifact Maintainer</role>
+			</roles>
+		</developer>
+	</developers>
 </project>
 
