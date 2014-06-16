@@ -47,10 +47,12 @@ def bundle(artifact):
     copy(pom_to_copy, bundle_staging_folder)
     sign(join(bundle_staging_folder, dest_pom))
 
-    create_fake_jar(artifact + "-" + VERSION + "-sources",
-		    bundle_staging_folder)
-    create_fake_jar(artifact + "-" + VERSION + "-javadoc",
-		    bundle_staging_folder)
-
-
+    jar_prefix = artifact + "-" + VERSION + "-sources"
+    create_fake_jar(jar_prefix, bundle_staging_folder)
+    sign(join(bundle_staging_folder, jar_prefix + ".jar"))
+  
+    jar_prefix = artifact + "-" + VERSION + "-javadoc"
+    create_fake_jar(jar_prefix, bundle_staging_folder)
+    sign(join(bundle_staging_folder, jar_prefix + ".jar"))
+    
 bundle(TARGET_ARTIFACT)
