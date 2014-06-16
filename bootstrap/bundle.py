@@ -24,6 +24,11 @@ def sign(file_name):
     command = " ".join(["gpg", "-ab", file_name])
     system(command)
 
+def create_fake_jar(base_name, to):
+    print "Creating fake jar " + base_name
+    command = " ".join(["jar", "cf", join(to, base_name + ".jar"), "README"])
+    system(command)
+
 def bundle(artifact):
     print "Starting bundle routing for " + artifact
     bundle_staging_folder = join(getcwd(), BUNDLE_STAGING_FOLDER)
@@ -40,5 +45,11 @@ def bundle(artifact):
     print "Copying: " + pom_to_copy + " to " + bundle_staging_folder
     copy(pom_to_copy, bundle_staging_folder)
     sign(join(bundle_staging_folder, dest_pom))
+
+    create_fake_jar(artifact + "-" + VERSION + "-sources",
+		    bundle_staging_folder)
+    create_fake_jar(artifact + "-" + VERSION + "-javadoc",
+		    bundle_staging_folder)
+
 
 bundle(TARGET_ARTIFACT)
