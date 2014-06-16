@@ -92,8 +92,11 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 			final File file = chooseDependencyGraphTargetFullPath();
 			
-			if (file.getParentFile().mkdirs())
-				;
+			final boolean madeDirs = file.getParentFile().mkdirs();
+			
+			if (getLog().isDebugEnabled()) {
+				getLog().debug("made directory \"" + file + "\"? " + madeDirs);
+			}
 			
 			dependencyGraph.write(file, chooseOcamlSourcesDirectory());
 			

@@ -15,14 +15,12 @@ public class JarMerger {
 		this.abstractMojo = Preconditions.checkNotNull(abstractMojo);
 	}
 	
-	public void merge(final File mergeFromJar, File mergeToJar) throws IOException {
+	public void merge(final File mergeFromJar, final File mergeToJar) throws IOException {
 		
 		final Collection<EntryInfo> entryInfos = new JarEntryReader(abstractMojo).readEntries(mergeFromJar.getPath());
-	
 		final JarAppender jarAppender = new JarAppender(abstractMojo);
 		
 		jarAppender.appendEntries(entryInfos, mergeFromJar.getPath());
 	}
-	
 
 }
