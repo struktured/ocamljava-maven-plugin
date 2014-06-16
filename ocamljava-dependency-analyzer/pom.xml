@@ -41,10 +41,6 @@
 			<artifactId>ocamlwrap</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>fr.x9c</groupId>
-			<artifactId>ocaml-lib-files</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>mandelbrot</groupId>
 			<artifactId>ocamljava-maven-common</artifactId>
 			<version>${project.version}</version>
