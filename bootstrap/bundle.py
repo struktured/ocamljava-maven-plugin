@@ -30,6 +30,25 @@ def create_fake_jar(base_name, to):
     command = " ".join(["jar", "cf", full_path, "README"])
     system(command)
 
+def create_bundled_jar(artifact, bundle_path):
+    artifact_with_version = artifact + "-" + VERSION
+    jar_to_create = join(getcwd(), artifact_with_version + "-bundle.jar")
+    print "Creating bundled jar: " + jar_to_create
+    path = bundle_path
+    path2 = ""
+    command = " ".join(["jar", "cvf", jar_to_create, 
+	    "-C", bundle_path, join(path2, artifact_with_version + ".jar"),
+	    "-C", bundle_path, join(path2, artifact_with_version + ".jar.asc"),
+	    "-C", bundle_path, join(path2, artifact_with_version + ".pom"),
+	    "-C", bundle_path, join(path2, artifact_with_version + ".pom.asc"),
+	    "-C", bundle_path, join(path2, artifact_with_version + "-sources.jar"),
+	    "-C", bundle_path, join(path2, artifact_with_version + "-sources.jar.asc"),
+	    "-C", bundle_path, join(path2, artifact_with_version + "-javadoc.jar"),
+	    "-C", bundle_path, join(path2, artifact_with_version + "-javadoc.jar.asc")])
+    system(command)
+
+
+
 def bundle(artifact):
     print "Starting bundle routing for " + artifact
     bundle_staging_folder = join(getcwd(), BUNDLE_STAGING_FOLDER)
@@ -50,9 +69,11 @@ def bundle(artifact):
     jar_prefix = artifact + "-" + VERSION + "-sources"
     create_fake_jar(jar_prefix, bundle_staging_folder)
     sign(join(bundle_staging_folder, jar_prefix + ".jar"))
-  
+
     jar_prefix = artifact + "-" + VERSION + "-javadoc"
     create_fake_jar(jar_prefix, bundle_staging_folder)
     sign(join(bundle_staging_folder, jar_prefix + ".jar"))
-    
+
+    create_bundled_jar(artifact, bundle_staging_folder)
+
 bundle(TARGET_ARTIFACT)
