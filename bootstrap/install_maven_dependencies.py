@@ -1,26 +1,34 @@
+#!/usr/bin/python
 from os import listdir, getcwd, system
 from os.path import isfile, join
-from subprocess import call
-import sys
+import ntpath
+
 VERSION = '2.0-early-access11'
 
-# TODO make this portable
-SEPARATOR = "/"
+FILE_NAME_BASE = "download-" + VERSION
+FILE_NAME_PHP = FILE_NAME_BASE + ".php"
+FILE_NAME_TGZ = FILE_NAME_BASE + ".tar.gz"
 
-file_name_base = "download-" + VERSION
-file_name_php = file_name_base + ".php"
-file_name_tgz = file_name_base + " .tar.gZ"
+COMMAND = " ".join(["wget", "-O", FILE_NAME_TGZ,
+	"http://ocamljava.x9c.fr/preview/" + FILE_NAME_PHP])
 
-system("wget".join(["http://ocamljava.x9c.fr/preview/" + file_name_php]))
-system("tar".join(["-xvf", file_name_tgz]))
+print "Getting ocamljava: " + COMMAND
+#system(COMMAND)
 
-MYPATH = getcwd() 
+COMMAND = " ".join(["tar", "-zxvf", FILE_NAME_TGZ])
 
-onlyfiles = [f for f in listdir(MYPATH) if isfile(join(MYPATH,f)) and (str(f)).split('.')[1] == "xml"]
+print "Extracting files: " + COMMAND
+system(COMMAND)
 
-for f in onlyfiles :
-	pomFile = str(f)
-	inferedJar = getcwd() + SEPARATOR + "ocamljava-" + VERSION + SEPARATOR + "lib" + SEPARATOR + pomFile
+MYPATH = join(getcwd(), "ocamljava-" + VERSION, "lib")
 
-	command_args = " ".join(["mvn", "install:install-file", "-Dfile=" + inferedJar, "-DpomFile=" + pomFile])
-	system(command_args)
+ONLY_FILES = [f for f in listdir(MYPATH) if
+		isfile(join(MYPATH, f)) and (str(f)).split('.')[1] == "jar"]
+
+for f in ONLY_FILES:
+    jarFile = join(getcwd(), "ocamljava-" + VERSION, "lib", str(f))
+    baseName = ntpath.basename(jarFile).split('.')[0]
+    pomFile = join(getcwd(), baseName + "-pom.xml")
+    command_args = " ".join(["mvn", "install:install-file",
+	    "-Dfile=" + jarFile, "-DpomFile=" + pomFile])
+    system(command_args)
