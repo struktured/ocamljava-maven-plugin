@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <body>
-    <menu name="Overview">
+    <menu name="Navigation">
       <item name="Introduction" href="index.html"/>
       <item name="Goals" href="plugin-info.html"/>
       <item name="Usage" href="usage.html"/>
       <item name="FAQ" href="faq.html"/>
-    </menu>
-   
-    <menu name="Examples">
-      <item name="Compiling / Packaging" href="examples/example-one.html"/>
-      <item name="Generating Wrapped Sources" href="examples/example-two.html"/>
+      <item name="Examples" href="examples.html"/>
     </menu>
   </body>
 </project>

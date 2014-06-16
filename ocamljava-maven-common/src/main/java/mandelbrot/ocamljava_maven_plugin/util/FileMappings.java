@@ -97,6 +97,6 @@ public class FileMappings {
 
 	public static String toPackagePath(final String prefixToTruncate,
 			final String path) {
-		return toPackagePath(new File(prefixToTruncate), path);
+		return toPackagePath(prefixToTruncate == null ? (File) null : new File(prefixToTruncate), path);
 	}
 }
