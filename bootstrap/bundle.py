@@ -25,8 +25,9 @@ def sign(file_name):
     system(command)
 
 def create_fake_jar(base_name, to):
-    print "Creating fake jar " + base_name
-    command = " ".join(["jar", "cf", join(to, base_name + ".jar"), "README"])
+    full_path = join(to, base_name + ".jar")
+    print "Creating fake jar: " + full_path
+    command = " ".join(["jar", "cf", full_path, "README"])
     system(command)
 
 def bundle(artifact):
