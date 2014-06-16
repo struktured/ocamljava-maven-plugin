@@ -22,28 +22,10 @@
         How do I install ocamljava itself?
       </question>
       <answer>
-        <p>For now this is awkward. Get the latest ocmaljava preview release from <a href="http://ocamljava.x9c.fr/preview/#download">here</a>. Extract the package in a workspace
-	directory. In the lib folder of that directory there are the essential jars which make up the ocamljava project. Run the following python script (included on github as
-	install_maven_dependencies.py) to auto install all these jars into your local m2 cache</p>.
-<source>
-from os import listdir, getcwd, system
-from os.path import isfile, join
-from subprocess import call
-import sys
-VERSION = '2.0-early-access11'
-
-MYPATH = getcwd() 
-
-onlyfiles = [f for f in listdir(MYPATH) if isfile(join(MYPATH,f)) and (str(f)).split('.')[1] == "jar"]
-
-for f in onlyfiles :
-        command_args = " ".join(["mvn", "install:install-file", "-Dfile=" + str(f), 
-                "-DgroupId=fr.x9c", "-DartifactId=" + str(f).split('.')[0],
-                "-Dversion=" + VERSION, "-Dpackaging=jar"])
-        system(command_args)
-</source>
-
-
+        <p>Until this ocamljava is properly moved into a maven central repository, you must run 
+        install_maven_dependencies.py from within the "bootstrap" folder of this project to 
+        auto install all these jars into your local m2 cache.
+        </p>.
       </answer>
     </faq>
   </part>
@@ -54,10 +36,10 @@ for f in onlyfiles :
 
     <faq id="how-install">
       <question>
-        How do I install Foo?
+        How do I install ocamljava-maven-plugin?
       </question>
       <answer>
-        <p>some markup goes here</p>
+        <p>Run "mvn clean install" from the project root directory.</p>
       </answer>
     </faq>
 
