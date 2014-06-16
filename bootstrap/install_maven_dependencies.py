@@ -13,7 +13,7 @@ COMMAND = " ".join(["wget", "-O", FILE_NAME_TGZ,
 	"http://ocamljava.x9c.fr/preview/" + FILE_NAME_PHP])
 
 print "Getting ocamljava: " + COMMAND
-#system(COMMAND)
+system(COMMAND)
 
 COMMAND = " ".join(["tar", "-zxvf", FILE_NAME_TGZ])
 
