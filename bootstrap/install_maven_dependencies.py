@@ -28,7 +28,7 @@ ONLY_FILES = [f for f in listdir(MYPATH) if
 for f in ONLY_FILES:
     jarFile = join(getcwd(), "ocamljava-" + VERSION, "lib", str(f))
     baseName = ntpath.basename(jarFile).split('.')[0]
-    pomFile = join(getcwd(), baseName + "-pom.xml")
+    pomFile = join(getcwd(), baseName + ".pom")
     command_args = " ".join(["mvn", "install:install-file",
 	    "-Dfile=" + jarFile, "-DpomFile=" + pomFile])
     system(command_args)
