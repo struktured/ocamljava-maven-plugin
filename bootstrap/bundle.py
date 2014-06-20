@@ -1,18 +1,21 @@
 #!/usr/bin/python
 from os import listdir, getcwd, system, getenv
 from os.path import isfile, join
-import ntpath
 import sys
 import os
 from shutil import copy, rmtree
 
-TARGET_ARTIFACT = sys.argv[1]
-
-BUNDLE_STAGING_FOLDER = TARGET_ARTIFACT + "-bundle"
-M2_REPO = join(getenv("HOME"), ".m2", "repository", "fr", "x9c")
 
 VERSION = '2.0-early-access11'
 
+M2_REPO = join(getenv("HOME"), ".m2", "repository", "fr", "x9c")
+
+def find_artifacts() :
+    return [str(f).split('.')[0] for f in listdir(getcwd()) if
+       isfile(join(getcwd(), f)) and len(str(f).split('.')) > 1 and
+       str(f).split('.')[1] == "pom"]
+
+TARGET_ARTIFACTS = sys.argv[1] if len(sys.argv) > 1 else find_artifacts()
 def ensure_dir(directory):
     if os.path.exists(directory):
         rmtree(directory)
@@ -24,8 +27,8 @@ def sign(file_name):
     command = " ".join(["gpg", "-ab", file_name])
     system(command)
 
-def create_fake_jar(base_name, to):
-    full_path = join(to, base_name + ".jar")
+def create_fake_jar(base_name, to_path):
+    full_path = join(to_path, base_name + ".jar")
     print "Creating fake jar: " + full_path
     command = " ".join(["jar", "cf", full_path, "README"])
     system(command)
@@ -49,7 +52,7 @@ def create_bundled_jar(artifact, bundle_path):
 
 def bundle(artifact):
     print "Starting bundle routing for " + artifact
-    bundle_staging_folder = join(getcwd(), BUNDLE_STAGING_FOLDER)
+    bundle_staging_folder = join(getcwd(), artifact + "-bundle")
     ensure_dir(bundle_staging_folder)
 
     dest_jar = artifact + "-" + VERSION + ".jar"
@@ -74,4 +77,5 @@ def bundle(artifact):
 
     create_bundled_jar(artifact, bundle_staging_folder)
 
-bundle(TARGET_ARTIFACT)
+for t in TARGET_ARTIFACTS:
+    bundle(t)
