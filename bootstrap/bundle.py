@@ -37,16 +37,15 @@ def create_bundled_jar(artifact, bundle_path):
     artifact_with_version = artifact + "-" + VERSION
     jar_to_create = join(getcwd(), artifact_with_version + "-bundle.jar")
     print "Creating bundled jar: " + jar_to_create
-    path2 = ""
     command = " ".join(["jar", "cvf", jar_to_create,
-        "-C", bundle_path, join(path2, artifact_with_version + ".jar"),
-	"-C", bundle_path, join(path2, artifact_with_version + ".jar.asc"),
-	"-C", bundle_path, join(path2, artifact_with_version + ".pom"),
-	"-C", bundle_path, join(path2, artifact_with_version + ".pom.asc"),
-	"-C", bundle_path, join(path2, artifact_with_version + "-sources.jar"),
-	"-C", bundle_path, join(path2, artifact_with_version + "-sources.jar.asc"),
-	"-C", bundle_path, join(path2, artifact_with_version + "-javadoc.jar"),
-	"-C", bundle_path, join(path2, artifact_with_version + "-javadoc.jar.asc")])
+        "-C", bundle_path, artifact_with_version + ".jar",
+	"-C", bundle_path, artifact_with_version + ".jar.asc",
+	"-C", bundle_path, artifact_with_version + ".pom",
+	"-C", bundle_path, artifact_with_version + ".pom.asc",
+	"-C", bundle_path, artifact_with_version + "-sources.jar",
+	"-C", bundle_path, artifact_with_version + "-sources.jar.asc",
+	"-C", bundle_path, artifact_with_version + "-javadoc.jar",
+	"-C", bundle_path, artifact_with_version + "-javadoc.jar.asc"])
     system(command)
 
 def bundle(artifact):
