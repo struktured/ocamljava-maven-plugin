@@ -37,7 +37,6 @@ def create_bundled_jar(artifact, bundle_path):
     artifact_with_version = artifact + "-" + VERSION
     jar_to_create = join(getcwd(), artifact_with_version + "-bundle.jar")
     print "Creating bundled jar: " + jar_to_create
-    path = bundle_path
     path2 = ""
     command = " ".join(["jar", "cvf", jar_to_create,
         "-C", bundle_path, join(path2, artifact_with_version + ".jar"),
