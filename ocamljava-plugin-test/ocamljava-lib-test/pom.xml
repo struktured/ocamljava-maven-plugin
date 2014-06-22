@@ -23,25 +23,6 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<artifactId>maven-remote-resources-plugin</artifactId>
-				<groupId>org.apache.maven.plugins</groupId>
-				<executions>
-					<execution>
-						<configuration>
-							<includes>
-								<include>**/*.cmi</include>
-							</includes>
-							<resourcesDirectory>${project.build.directory}/ocaml-bin</resourcesDirectory> 
-						</configuration>
-						<id>bundle-ocaml-interfaces</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>bundle</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<executions>
 					<execution>
 						<phase>compile</phase>
@@ -82,5 +63,5 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
-	
+
 </project>

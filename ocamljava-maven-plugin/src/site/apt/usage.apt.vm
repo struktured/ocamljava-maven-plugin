@@ -29,20 +29,44 @@
 Usage
 
   Some brief examples on how to use this plugin. If you want to use advanced
-  configurations you should have a look at the documentation for
-  {{{http://maven.apache.org/shared/maven-archiver/}Maven Archiver}}.
+  configurations you should have a look at the example projects in the github source code. See the {{{./examples.html}examples page}} for more information.
 
-  To handle archiving this version of Maven JAR Plugin uses
-  {{{http://maven.apache.org/shared/maven-archiver/index.html}Maven Archiver}} ${mavenArchiverVersion}.
+* How to compile ocaml sources and attach them to a jar file
 
-  <<Note:>> Originally, this plugin was meant to sign JARs as well. As of version 2.3, the corresponding goals are no
-  longer supported and users are advised to use the dedicated
-  {{{http://maven.apache.org/plugins/maven-jarsigner-plugin/}Maven Jarsigner Plugin}} instead.
+  By default ocaml sources should be placed in <<<src/main/ocaml>>>. Assuming you have ocaml sources
+  located in that folder, adding the following will compile and add these modules to your final artifact jar:
 
++-----------------+
+<project>
+  ...
+  <build>
+    <plugins>
+      ...
+      <plugin>
+        <groupId>mandelbrot</groupId>
+        <artifactId>ocamljava-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+           <id>ocaml-compile</id>
+            <phase>compile</phase>
+            <goals><goal>compile</goal></goals>
+          </execution>
+          <execution>
+            <id>ocaml-jar</id>
+            <phase>package</phase>
+            <goals><goal>jar</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+      ...
+    </plugins>
+  </build>
+  ...
+</project>
++-----------------+
 
-* How to build a JAR file
-
-  If the packaging of your project is set to 'jar', this plugin is executed
+ If the packaging of your project is set to 'jar', this plugin is executed
   whenever it passes the "package" phase. You can execute it
   using the command below:
 
