@@ -164,5 +164,12 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		return JavaPackageMode.DYNAMIC.equals(javaPackageMode);
 	}
 	
+	/***
+	 * Whether to enable extensions that allow ocaml modules to access plain java objects.
+	 * @parameter default-value="true"
+	 * 
+	 */
+	protected boolean javaExtensions;
+	
 
 }

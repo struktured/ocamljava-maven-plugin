@@ -160,26 +160,26 @@ public class ModuleDescriptor extends ModuleKey implements
 	}
 
 	@Override
-	public int compareTo(final ModuleDescriptor arg0) {
-		if (arg0 == null)
+	public int compareTo(final ModuleDescriptor other) {
+		if (other == null)
 			return -1;
 
 		int compareTo;
 
 		compareTo = ModuleType.dependencyCompareTo().compare(getModuleType(),
-				arg0.getModuleType());
+				other.getModuleType());
 
 		if (compareTo != 0)
 			return compareTo;
 
 		compareTo = Optional.fromNullable(getModuleName()).or("")
-				.compareTo(Optional.fromNullable(arg0.getModuleName()).or(""));
+				.compareTo(Optional.fromNullable(other.getModuleName()).or(""));
 
 		if (compareTo != 0)
 			return compareTo;
 
 		compareTo = getModuleFile().or(new File("")).compareTo(
-				arg0.getModuleFile().or(new File("")));
+				other.getModuleFile().or(new File("")));
 
 		if (compareTo != 0)
 			return compareTo;
@@ -188,7 +188,7 @@ public class ModuleDescriptor extends ModuleKey implements
 				.fromNullable(getJavaPackageName())
 				.or("")
 				.compareTo(
-						Optional.fromNullable(arg0.getJavaPackageName()).or(""));
+						Optional.fromNullable(other.getJavaPackageName()).or(""));
 
 		return compareTo;
 

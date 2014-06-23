@@ -227,6 +227,10 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		if (recordDebugInfo) {
 			builder.add(OcamlJavaConstants.RECORD_DEBUGGING_INFO_OPTION);
 		}
+		
+		if (javaExtensions) {
+			builder.add(OcamlJavaConstants.JAVA_EXTENSIONS_OPTION);
+		}
 
 		if (compact) {
 			builder.add(OcamlJavaConstants.COMPACT_OPTION);
