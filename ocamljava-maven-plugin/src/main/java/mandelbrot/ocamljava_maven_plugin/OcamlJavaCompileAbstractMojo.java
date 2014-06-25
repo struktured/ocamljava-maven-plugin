@@ -2,6 +2,7 @@ package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
@@ -19,6 +20,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.StringUtils;
+import org.ocamljava.runtime.kernel.AbstractNativeRunner;
+import org.ocamljava.runtime.kernel.FalseExit;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -83,7 +86,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			final Collection<String> implementations = ocamlSourceFiles
 					.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION);
 
-			final ImmutableSet<String> intersAndImpls = ImmutableSet.<String>builder()
+			final Set<String> intersAndImpls = ImmutableSet.<String>builder()
 					.addAll(moduleInterfaces)
 					.addAll(implementations).build();
 			
@@ -108,7 +111,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			for (final Entry<String, Collection<ModuleDescriptor>> entry : entrySet) {
 				compileSources(includeDirectoryBuilder.build(), entry.getValue());
 				includeDirectoryBuilder.addAll(Collections2.transform(entry.getValue(), new Function<ModuleDescriptor, String>() {
-					@Override public String apply (final ModuleDescriptor moduleDescriptor) {
+					@Override public String apply(final ModuleDescriptor moduleDescriptor) {
 						return moduleDescriptor.getModuleFile().get().getParent();
 					}
 				}));
@@ -127,7 +130,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	protected abstract File chooseOcamlSourcesDirectory();
 
 	private Collection<String> compileSources(final Collection<String> includeDirs,
-			final Collection<ModuleDescriptor> moduleDescriptors) throws MojoExecutionException {
+			final Collection<ModuleDescriptor> moduleDescriptors) throws MojoExecutionException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 
 		final Collection<String> sourceFiles = Collections2.transform(moduleDescriptors, ModuleDescriptor.toFileTransform());
 		final Multimap<String, String> byPathMapping = FileMappings
@@ -145,16 +148,45 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 						.build(),
 						toPackage(ocamlSourceDirectory, path), sourceFiles).toArray(new String[] {});
 				getLog().info("ocamljava compile args: " + ImmutableList.copyOf(sourceArgs));
-				ocamljavaMain.main(sourceArgs);
+				final ocamljavaMain main = ocamljavaMain.mainWithReturn(sourceArgs);
+				final Field declaredField = getExceptionField();
+				final boolean accessible = declaredField.isAccessible();
+				try {
+					declaredField.setAccessible(true);
+					final Throwable exception = (Throwable) declaredField.get(main);
+							
+					if (exception != null) {
+						if (exception instanceof FalseExit) {
+							final FalseExit f = (FalseExit) exception; 
+							switch (f.getExitCode()) {
+							case 0:
+								break;
+							default:
+							throw new MojoExecutionException("error compiling sources (exit code = " + 
+									f.getExitCode() + ", path = " + path + ")");
+						} 
+					} else throw new MojoExecutionException("error compiling sources (path = " + path + ")", exception);
+						 	
+				}
+
+				} finally {
+					declaredField.setAccessible(accessible);
+					main.clearException();
+				}
 			}
 		}
-		
+		 
 		return builder.build();
 	}
 
-	
+	// This seems to be only the way to access the exception protected field
+	// from the ocaml main object at this time.
+	private static Field getExceptionField() throws NoSuchFieldException {
+		return AbstractNativeRunner.class.getDeclaredField("exception");
+	}
 
-	private ImmutableSet<String> moveCompiledFiles(final Collection<String> ocamlSourceFiles,
+	
+	private Set<String> moveCompiledFiles(final Collection<String> ocamlSourceFiles,
 			final String outputDirectoryQualifier, final String toFilter, final Set<String> extensions) {
 
 		final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
