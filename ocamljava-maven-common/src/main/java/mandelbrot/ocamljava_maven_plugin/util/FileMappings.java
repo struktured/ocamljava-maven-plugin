@@ -99,4 +99,5 @@ public class FileMappings {
 			final String path) {
 		return toPackagePath(prefixToTruncate == null ? (File) null : new File(prefixToTruncate), path);
 	}
+	
 }

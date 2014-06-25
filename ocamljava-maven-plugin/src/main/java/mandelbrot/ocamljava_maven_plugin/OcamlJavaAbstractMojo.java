@@ -171,5 +171,4 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 */
 	protected boolean javaExtensions;
 	
-
 }

@@ -13,6 +13,7 @@ import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.dependency.data.ModuleDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileExtensions;
+import mandelbrot.ocamljava_maven_plugin.util.FileGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import ocaml.compilers.ocamljavaMain;
 
@@ -27,7 +28,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
@@ -299,42 +299,10 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		return outputDirectory.mkdirs();
 	}
 
-	public Multimap<String, String> gatherOcamlSourceFiles(final File root) {
-		final ImmutableMultimap.Builder<String, String> files = ImmutableMultimap
-				.builder();
-		if (root.isFile() && isOcamlSourceFile(root)) {
-			files.put(org.codehaus.plexus.util.FileUtils.getExtension(root
-					.getName()), root.getPath());
-			return files.build();
-		}
-
-		if (!root.isDirectory() || root.listFiles() == null)
-			return files.build();
-
-		for (final File file : root.listFiles()) {
-			if (file.isDirectory()) {
-				getLog().info("scanning directory: " + file);
-
-				files.putAll(gatherOcamlSourceFiles(file));
-			} else {
-				if (isOcamlSourceFile(file)) {
-					getLog().info("adding ocaml source file: " + file);
-					files.put(org.codehaus.plexus.util.FileUtils
-							.getExtension(file.getName()), file.getPath());
-				}
-			}
-		}
-		return files.build();
-	}
-
-	private boolean isOcamlSourceFile(final File file) {
-		final String extension = org.codehaus.plexus.util.FileUtils.getExtension(file.getPath());
-		if (extension == null)
-			return false;
-		return OcamlJavaConstants.OCAML_SOURCE_FILE_EXTENSIONS.contains(extension.toLowerCase());
+	protected Multimap<String, String> gatherOcamlSourceFiles(final File root) {
+		return new FileGatherer(this).gatherFiles(root, OcamlJavaConstants.OCAML_SOURCE_FILE_EXTENSIONS); 
 	}
 
 	protected abstract String chooseOcamlCompiledSourcesTarget();
-	
 	
 }
