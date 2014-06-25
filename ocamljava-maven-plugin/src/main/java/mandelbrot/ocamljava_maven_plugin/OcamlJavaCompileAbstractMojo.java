@@ -51,7 +51,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	protected boolean compact = false;
 		
 	public File chooseDependencyGraphTargetFullPath() {
-		return new File(chooseOcamlCompiledSourcesTarget()  + 
+		return new File(getOcamlCompiledSourcesTargetFullPath()  + 
 				File.separator + dependencyGraphTarget);
 	}
 
@@ -117,7 +117,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 				}));
 			}
 		
-			moveCompiledFiles(implementations, chooseOcamlCompiledSourcesTarget(),
+			moveCompiledFiles(implementations, getOcamlCompiledSourcesTargetFullPath(),
 					chooseOcamlSourcesDirectory().getPath(), 
 					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, 
 							OcamlJavaConstants.OBJECT_BINARY_EXTENSION, OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));

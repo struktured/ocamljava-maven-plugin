@@ -81,8 +81,10 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 
 	public String getOcamlCompiledSourcesTargetFullPath() {
 		return outputDirectory.getPath() + File.separator
-				+ ocamlCompiledSourcesTarget;
+				+ chooseOcamlCompiledSourcesTarget();
 	}
+
+	protected abstract String chooseOcamlCompiledSourcesTarget();
 
 	/***
 	 * The target test jar to depend on and possibly replace with ocaml compiled sources depending on

@@ -30,4 +30,9 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 		
 	}
 
+	@Override
+	protected String chooseOcamlCompiledSourcesTarget() {
+		return ocamlCompiledSourcesTarget;
+	}
+
 }

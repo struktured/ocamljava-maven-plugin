@@ -101,32 +101,34 @@ public class Analyzer {
 	public SortedSetMultimap<String, ModuleDescriptor> sortDependenciesByModuleName(
 			final Multimap<String, Optional<String>> sourcesByModuleDependencies,
 			final SortedSetMultimap<String, ModuleDescriptor> moduleToFilePath) {
-	
+
 		final Multimap<String, Optional<String>> modulesByModuleDependencies = Multimaps
-				.transformEntries(sourcesByModuleDependencies,
+				.transformEntries(
+						sourcesByModuleDependencies,
 						new Maps.EntryTransformer<String, Optional<String>, Optional<String>>() {
 
-				@Override
-				public Optional<String> transformEntry(final String key, final Optional<String> source) {
-								if (source.isPresent())
-								{
-									final Optional<String> moduleNameOfSource = moduleNameOfSource(source.get());
+							@Override
+							public Optional<String> transformEntry(
+									final String key,
+									final Optional<String> source) {
+								if (source.isPresent()) {
+									final Optional<String> moduleNameOfSource = moduleNameOfSource(source
+											.get());
 									return moduleNameOfSource;
 								} else {
 									return Optional.absent();
 								}
 							}
 						});
-		
-			final TreeMultimap<String, ModuleDescriptor> treeMultimap = 
-					TreeMultimap.create(createComparator(modulesByModuleDependencies),
-					moduleToFilePath.valueComparator()
-			);
-			
-			final boolean changed = treeMultimap.putAll(moduleToFilePath);
-			Preconditions.checkState(changed);
-			
-			return Multimaps.unmodifiableSortedSetMultimap(treeMultimap);
+
+		final TreeMultimap<String, ModuleDescriptor> treeMultimap = TreeMultimap
+				.create(createComparator(modulesByModuleDependencies),
+						moduleToFilePath.valueComparator());
+
+		final boolean changed = treeMultimap.putAll(moduleToFilePath);
+		Preconditions.checkState(changed || moduleToFilePath.isEmpty());
+
+		return Multimaps.unmodifiableSortedSetMultimap(treeMultimap);
 	}
 
 	private static final Comparator<String> createComparator(
