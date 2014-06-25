@@ -1,7 +1,21 @@
 package mandelbrot.ocamljava_maven_plugin;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
+
+import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
+import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
+import ocaml.tools.ocamldep.ocamljavaConstants;
+import ocaml.tools.ocamldep.ocamljavaMain;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.codehaus.plexus.util.StringUtils;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * <p>
@@ -25,9 +39,66 @@ import org.apache.maven.plugin.MojoFailureException;
  */
 public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 
+	
+	/***
+	 * Whether to sort the list of modules in dependency order.
+	 * @parameter default-value="true"
+	 */
+	protected boolean sort = true;
+		
+	/***
+	 * Only compile binaries for the java virtual machine (no *.cmo files).
+	 * @parameter default-value="true"
+	 */
+	protected boolean javaOnly = true;
+		
+	/***
+	 * Generate dependency information on all files.
+	 * @parameter default-value="true"
+	 */
+	protected boolean all = true;
+	
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		
+		final Collection<String> ocamlSourceFiles = gatherOcamlSourceFiles(chooseOcamlSourcesDirectory()).values();
+		
+		final Collection<String> includePaths = FileMappings.buildPathMap(ocamlSourceFiles).keySet();
+		
+		final ocamljavaMain main = 
+				ocamljavaMain.mainWithReturn(generateCommandLineArguments(includePaths, ocamlSourceFiles).toArray(new String[] {}));
+	
+		checkForErrors("ocamljava dependency resolution failed", main);
+	}
+
+	protected File chooseOcamlSourcesDirectory() {
+		return ocamlSourceDirectory;
+	}
+
+	private List<String> generateCommandLineArguments(
+			final Collection<String> includePaths,
+			final Collection<String> ocamlSourceFiles)
+			throws MojoExecutionException {
+
+		final ImmutableList.Builder<String> builder = ImmutableList
+				.<String> builder();
+
+		
+		if (javaOnly)
+			builder.add(OcamlJavaConstants.JAVA_ONLY_OPTION);
+		
+		if (sort)
+			builder.add(OcamlJavaConstants.SORT_OPTION);
+		
+		if (all)
+			builder.add((OcamlJavaConstants.ALL_OPTION));
+		
+		addIncludePaths(includePaths, builder);
+	
+		builder.addAll(ocamlSourceFiles);
+		
+		
+		return builder.build();
 	}
 
 	@Override

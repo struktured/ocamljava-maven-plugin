@@ -2,7 +2,6 @@ package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
@@ -13,7 +12,6 @@ import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.dependency.data.ModuleDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileExtensions;
-import mandelbrot.ocamljava_maven_plugin.util.FileGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import ocaml.compilers.ocamljavaMain;
 
@@ -21,8 +19,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.StringUtils;
-import org.ocamljava.runtime.kernel.AbstractNativeRunner;
-import org.ocamljava.runtime.kernel.FalseExit;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -149,40 +145,11 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 						toPackage(ocamlSourceDirectory, path), sourceFiles).toArray(new String[] {});
 				getLog().info("ocamljava compile args: " + ImmutableList.copyOf(sourceArgs));
 				final ocamljavaMain main = ocamljavaMain.mainWithReturn(sourceArgs);
-				final Field declaredField = getExceptionField();
-				final boolean accessible = declaredField.isAccessible();
-				try {
-					declaredField.setAccessible(true);
-					final Throwable exception = (Throwable) declaredField.get(main);
-							
-					if (exception != null) {
-						if (exception instanceof FalseExit) {
-							final FalseExit f = (FalseExit) exception; 
-							switch (f.getExitCode()) {
-							case 0:
-								break;
-							default:
-							throw new MojoExecutionException("error compiling sources (exit code = " + 
-									f.getExitCode() + ", path = " + path + ")");
-						} 
-					} else throw new MojoExecutionException("error compiling sources (path = " + path + ")", exception);
-						 	
-				}
-
-				} finally {
-					declaredField.setAccessible(accessible);
-					main.clearException();
-				}
+				checkForErrors("ocaml java compiler error for path: " + path, main);
 			}
 		}
 		 
 		return builder.build();
-	}
-
-	// This seems to be only the way to access the exception protected field
-	// from the ocaml main object at this time.
-	private static Field getExceptionField() throws NoSuchFieldException {
-		return AbstractNativeRunner.class.getDeclaredField("exception");
 	}
 
 	
@@ -273,13 +240,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 					.add(packageName);
 		}
 
-		for (final String includePath : includePaths) {
-			if (!StringUtils.isBlank(includePath)) {
-				builder.add(OcamlJavaConstants.INCLUDE_DIR_OPTION).add(
-						includePath);
-			}
-
-		}
+		addIncludePaths(includePaths, builder);
 
 		builder.add(OcamlJavaConstants.CLASSPATH_OPTION)
 				.add(Joiner.on(";").join(
@@ -292,15 +253,12 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		return builder.build();
 	}
 
+
 	private boolean ensureTargetDirectoryExists() {
 		if (outputDirectory.exists()) {
 			return true;
 		}
 		return outputDirectory.mkdirs();
-	}
-
-	protected Multimap<String, String> gatherOcamlSourceFiles(final File root) {
-		return new FileGatherer(this).gatherFiles(root, OcamlJavaConstants.OCAML_SOURCE_FILE_EXTENSIONS); 
 	}
 
 	protected abstract String chooseOcamlCompiledSourcesTarget();

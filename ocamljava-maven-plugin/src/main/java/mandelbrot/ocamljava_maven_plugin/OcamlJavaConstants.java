@@ -62,5 +62,8 @@ public class OcamlJavaConstants {
 	public static final String INCLUDE_DIR_OPTION = "-I";
 	public static final String COMPACT_OPTION = "-compact";
 	public static final String JAVA_EXTENSIONS_OPTION = "-java-extensions";
+	public static final String JAVA_ONLY_OPTION = "-java";
+	public static final String SORT_OPTION = "-sort";
+	public static final String ALL_OPTION = "-all";
 	
 }
