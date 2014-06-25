@@ -18,26 +18,26 @@ import org.ocamljava.runtime.kernel.FalseExit;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Multimap;
 
-
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 
-		
-	public static final String DEPENDENCIES_JSON = "dependencies.json";
+	public static final String DEPENDENCIES_FILE_NAME = "dependencies.txt";
 
 	/***
-	 * The name of the generated ocaml dependency graph file, to be place in the target directory
-	 * (usually one of <code>target/ocaml-bin</code> or </code>target/ocaml-tests</code>)
-	 * @parameter default-value="dependencies.json"
+	 * The name of the generated ocaml dependency graph file, to be place in the
+	 * target directory (usually one of <code>target/ocaml-bin</code> or
+	 * </code>target/ocaml-tests</code>)
+	 * 
+	 * @parameter default-value="dependencies.txt"
 	 * @required
 	 */
-	protected String dependencyGraphTarget = DEPENDENCIES_JSON;		
+	protected String dependencyGraphTarget = DEPENDENCIES_FILE_NAME;
 
 	/***
 	 * @parameter default-value="${project}"
 	 * @required
 	 * @readonly
 	 */
-	protected MavenProject project;		
+	protected MavenProject project;
 
 	/***
 	 * The plugin descriptor.
@@ -45,8 +45,8 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @required
 	 * @parameter default-value="${descriptor}"
 	 */
-	protected PluginDescriptor descriptor;	
-	
+	protected PluginDescriptor descriptor;
+
 	/***
 	 * Project's output directory, usually <code>target</code>.
 	 * 
@@ -55,16 +55,14 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 */
 	protected final File outputDirectory = new File("");
 
-		
 	/***
-	 * The target subfolder to hold all compiled ocaml sources. This value
-	 * is combined with the build output directory (usually <code>target</code>) to 
-	 * create an actual file path. 
+	 * The target subfolder to hold all compiled ocaml sources. This value is
+	 * combined with the build output directory (usually <code>target</code>) to
+	 * create an actual file path.
 	 * 
-	 * @parameter default-value="ocaml-bin"    
+	 * @parameter default-value="ocaml-bin"
 	 */
 	protected String ocamlCompiledSourcesTarget;
-
 
 	/***
 	 * Project's source directory.
@@ -74,17 +72,22 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	protected File ocamlSourceDirectory = new File("src/main/ocaml");
 
 	/***
-	 * The target jar to depend on and possibly replace with ocaml compiled sources depending on
-	 * the value of the <code>replaceMainArtifact</code> parameter. 
+	 * The target jar to depend on and possibly replace with ocaml compiled
+	 * sources depending on the value of the <code>replaceMainArtifact</code>
+	 * parameter.
+	 * 
 	 * @parameter default-value="${project.artifactId}-${project.version}.jar"
 	 * @required
 	 */
 	protected String targetJar;
 
 	/***
-	 * The target jar created by the ocamljava jar creation tool. If <code>replaceMainArtifact</code> is
-	 * set to <code>true</code>, then this jar will replace the contents of the <code>targetJar</code> parameter.
-	 * @parameter default-value="${project.artifactId}-${project.version}-ocaml.jar"
+	 * The target jar created by the ocamljava jar creation tool. If
+	 * <code>replaceMainArtifact</code> is set to <code>true</code>, then this
+	 * jar will replace the contents of the <code>targetJar</code> parameter.
+	 * 
+	 * @parameter 
+	 *            default-value="${project.artifactId}-${project.version}-ocaml.jar"
 	 * @required
 	 */
 	protected String targetOcamlJar;
@@ -97,51 +100,62 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	protected abstract String chooseOcamlCompiledSourcesTarget();
 
 	/***
-	 * The target test jar to depend on and possibly replace with ocaml compiled sources depending on
-	 * the value of the <code>replaceMainArtifact</code> parameter. 
-	 * @parameter default-value="${project.artifactId}-${project.version}-tests.jar"
+	 * The target test jar to depend on and possibly replace with ocaml compiled
+	 * sources depending on the value of the <code>replaceMainArtifact</code>
+	 * parameter.
+	 * 
+	 * @parameter 
+	 *            default-value="${project.artifactId}-${project.version}-tests.jar"
 	 * @required
 	 */
 	protected String targetTestJar;
 
 	/***
-	 * The target test jar created by the ocamljava jar creation tool. If <code>replaceMainArtifact</code> is
-	 * set to <code>true</code>, then this jar will replace the contents of the <code>targetTestJar</code> parameter.
-	 * @parameter default-value="${project.artifactId}-${project.version}-ocaml-tests.jar"
+	 * The target test jar created by the ocamljava jar creation tool. If
+	 * <code>replaceMainArtifact</code> is set to <code>true</code>, then this
+	 * jar will replace the contents of the <code>targetTestJar</code>
+	 * parameter.
+	 * 
+	 * @parameter 
+	 *            default-value="${project.artifactId}-${project.version}-ocaml-tests.jar"
 	 * @required
 	 */
 	protected String targetTestOcamlJar;
 
 	/***
 	 * The target subfolder to hold all compiled ocaml test sources. This value
-	 * is combined with the build output directory (usually <code>target</code>) to 
-	 * create an actual file path. 
+	 * is combined with the build output directory (usually <code>target</code>)
+	 * to create an actual file path.
 	 * 
 	 * @parameter default-value="ocaml-tests"
 	 * 
 	 */
 	protected String ocamlCompiledTestsTarget;
-	
+
 	/***
 	 * Project's source directory as specified in the POM.
 	 * 
-	 * @parameter default-value="src/test/ocaml" 
+	 * @parameter default-value="src/test/ocaml"
 	 */
 	protected final File ocamlTestDirectory = new File("src/test/ocaml");
-	
+
 	/***
 	 * Sets how java packages are determined for the code generated classes.
-	 * <p>By default, a java package will be inferred according to the folder structure of the modules.
-	 * For instance, <code>"src/main/ocaml/foo/bar/lib.ml"</code> will generate <code>package foo.bar</code> at the top of <code>LibWrapper.java</code>.
-	 * To fix the package name for all compiled module interfaces, set this value to <code>FIXED</code> and fill in the {@link #packageName} parameter
-	 * accordingly.</p>
-	 *
+	 * <p>
+	 * By default, a java package will be inferred according to the folder
+	 * structure of the modules. For instance,
+	 * <code>"src/main/ocaml/foo/bar/lib.ml"</code> will generate
+	 * <code>package foo.bar</code> at the top of <code>LibWrapper.java</code>.
+	 * To fix the package name for all compiled module interfaces, set this
+	 * value to <code>FIXED</code> and fill in the {@link #packageName}
+	 * parameter accordingly.
+	 * </p>
+	 * 
 	 * @parameter default-value="DYNAMIC"
 	 * 
-	 **/	
+	 **/
 	protected JavaPackageMode javaPackageMode = JavaPackageMode.DYNAMIC;
 
-	
 	public JavaPackageMode getJavaPackageMode() {
 		return javaPackageMode;
 	}
@@ -151,8 +165,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	}
 
 	public static enum JavaPackageMode {
-		FIXED,
-		DYNAMIC
+		FIXED, DYNAMIC
 	}
 
 	/***
@@ -160,13 +173,13 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * 
 	 * @parameter default-value=""
 	 * 
-	 **/	
+	 **/
 	protected String packageName;
-	
+
 	protected String toPackage(final File prefixToTruncate, final String path) {
-		
+
 		if (isDynamicPackageMode()) {
-		return FileMappings.toPackage(prefixToTruncate, path);
+			return FileMappings.toPackage(prefixToTruncate, path);
 		} else {
 			return packageName;
 		}
@@ -175,16 +188,19 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	public boolean isDynamicPackageMode() {
 		return JavaPackageMode.DYNAMIC.equals(javaPackageMode);
 	}
-	
+
 	/***
-	 * Whether to enable extensions that allow ocaml modules to access plain java objects.
+	 * Whether to enable extensions that allow ocaml modules to access plain
+	 * java objects.
+	 * 
 	 * @parameter default-value="true"
 	 * 
 	 */
 	protected boolean javaExtensions;
-		
+
 	protected Multimap<String, String> gatherOcamlSourceFiles(final File root) {
-		return new FileGatherer(this).gatherFiles(root, OcamlJavaConstants.OCAML_SOURCE_FILE_EXTENSIONS); 
+		return new FileGatherer(this).gatherFiles(root,
+				OcamlJavaConstants.OCAML_SOURCE_FILE_EXTENSIONS);
 	}
 
 	protected void addIncludePaths(final Collection<String> includePaths,
@@ -196,7 +212,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 			}
 		}
 	}
-	
+
 	protected void checkForErrors(final String message,
 			final AbstractNativeRunner main) throws MojoExecutionException {
 		final Field declaredField;
@@ -239,6 +255,11 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	// from the ocaml main object at this time.
 	private static Field getExceptionField() throws NoSuchFieldException {
 		return AbstractNativeRunner.class.getDeclaredField("exception");
+	}
+
+	public File chooseDependencyGraphTargetFullPath() {
+		return new File(getOcamlCompiledSourcesTargetFullPath()
+				+ File.separator + dependencyGraphTarget);
 	}
 
 }

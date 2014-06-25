@@ -45,11 +45,6 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	 * 
 	 */
 	protected boolean compact = false;
-		
-	public File chooseDependencyGraphTargetFullPath() {
-		return new File(getOcamlCompiledSourcesTargetFullPath()  + 
-				File.separator + dependencyGraphTarget);
-	}
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {

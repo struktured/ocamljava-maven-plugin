@@ -1,21 +1,22 @@
 package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.List;
 
-import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
-import ocaml.tools.ocamldep.ocamljavaConstants;
 import ocaml.tools.ocamldep.ocamljavaMain;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.codehaus.plexus.util.StringUtils;
+import org.ocamljava.runtime.annotations.parameters.Parameters;
+import org.ocamljava.runtime.parameters.NativeParameters;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * <p>
@@ -65,10 +66,51 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 		
 		final Collection<String> includePaths = FileMappings.buildPathMap(ocamlSourceFiles).keySet();
 		
+		final FileOutputStream outputStream;
+		try {
+			File chooseDependencyGraphTargetFullPath = chooseDependencyGraphTargetFullPath();
+			
+			final boolean madeDirs = chooseDependencyGraphTargetFullPath.getParentFile().mkdir();
+		
+			if (getLog().isDebugEnabled())
+				getLog().info("made dirs? " + madeDirs);
+			
+			outputStream = new FileOutputStream(chooseDependencyGraphTargetFullPath);
+		} catch (final FileNotFoundException e) {
+			throw new MojoExecutionException("file error", e);
+		}
+		final PrintStream printStream = new PrintStream(outputStream);
+		
 		final ocamljavaMain main = 
-				ocamljavaMain.mainWithReturn(generateCommandLineArguments(includePaths, ocamlSourceFiles).toArray(new String[] {}));
-	
+				mainWithReturn(generateCommandLineArguments(includePaths, ocamlSourceFiles).toArray(new String[] {}), printStream);
+		
+		printStream.close();
 		checkForErrors("ocamljava dependency resolution failed", main);
+		
+		
+	}
+
+	private static ocamljavaMain mainWithReturn(
+			java.lang.String[] paramArrayOfString, final PrintStream out) throws MojoExecutionException {
+		final ocamljavaMain ocamljavaMain;
+		try {
+			final Constructor<ocaml.tools.ocamldep.ocamljavaMain> declaredConstructor = ocamljavaMain.class.getDeclaredConstructor(
+					NativeParameters.class);
+			final boolean accessible = declaredConstructor.isAccessible();
+			if (!accessible)
+				declaredConstructor.setAccessible(true);
+			ocamljavaMain = declaredConstructor.newInstance(
+					Parameters.fromStream(ocamljavaMain.class
+							.getResourceAsStream("ocamljava.parameters"),
+							paramArrayOfString, System.in, out, System.err,
+							false, "ocamldep.jar", ocamljavaMain.class));
+			if (!accessible)
+				declaredConstructor.setAccessible(false);
+		} catch (final Exception e) {
+			throw new MojoExecutionException("error creating main instance", e);
+		}
+		ocamljavaMain.execute();
+		return ocamljavaMain;
 	}
 
 	protected File chooseOcamlSourcesDirectory() {
