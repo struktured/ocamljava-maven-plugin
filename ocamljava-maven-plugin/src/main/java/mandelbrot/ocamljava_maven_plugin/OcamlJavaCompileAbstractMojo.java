@@ -68,7 +68,10 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 			final Multimap<String, String> ocamlSourceFiles = gatherOcamlSourceFiles(chooseOcamlSourcesDirectory());
 
-			final DependencyGraph dependencyGraph = generateDependencyGraph();
+			
+			//TODO FIX ME!
+			final DependencyGraph dependencyGraph = null;
+			
 			final File file = chooseDependencyGraphTargetFullPath();
 			
 			final boolean madeDirs = file.getParentFile().mkdirs();

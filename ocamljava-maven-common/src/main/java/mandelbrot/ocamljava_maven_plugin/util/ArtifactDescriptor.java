@@ -2,7 +2,10 @@ package mandelbrot.ocamljava_maven_plugin.util;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.StringUtils;
+
+import com.google.common.base.Preconditions;
 
 /***
  * Encapsulates typical artifact patterns of the form <code>groupId:artifactId:version:[type]:[classifier]</code>,
@@ -19,6 +22,7 @@ public class ArtifactDescriptor {
 	 * @return the artifact descriptor, as a string.
 	 */
 	public static String toDescriptor(final Artifact artifact) {
+		Preconditions.checkNotNull(artifact);
 		final String artifactId = artifact.getArtifactId();
 		final String groupId = artifact.getGroupId();
 		final String type = artifact.getType();
@@ -36,4 +40,21 @@ public class ArtifactDescriptor {
 		final String artifactDescription = builder.toString();
 		return artifactDescription;
 	}
+
+
+	/**
+	 * Converts the given Maven project to a string of the form <code>groupId:artifactId</code>.
+	 * @param mavenProject the Maven project to encode.
+	 * @return the artifact descriptor, as a string.
+	 */
+	public static String toGoal(final MavenProject mavenProject, final String goal) {
+		Preconditions.checkNotNull(mavenProject);
+		
+		final String artifactId = mavenProject.getArtifactId();
+		final String groupId = mavenProject.getGroupId();
+		
+		final String artifactDescription = groupId + ARTIFACT_DESCRIPTOR_SEPARATOR + artifactId;
+		return artifactDescription;
+	}
+	
 }

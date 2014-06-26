@@ -285,9 +285,8 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		try {
 			inputStream = new FileInputStream(new File(
 					Collections2
-							.filter(filesByExtension
-									.get(OcamlJavaConstants.JSON_EXTENSION),
-									dependencyGraphFieExists())
+							.filter(filesByExtension.get(OcamlJavaConstants.JSON_EXTENSION),
+									dependencyGraphFileExists())
 							.iterator().next()));
 		} catch (final FileNotFoundException e) {
 			throw new MojoExecutionException(
@@ -300,46 +299,12 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		return dependencyGraph;
 	}
 
-	private Predicate<CharSequence> dependencyGraphFieExists() {
+	protected Predicate<CharSequence> dependencyGraphFileExists() {
 		return Predicates.contains(Pattern
 				.compile(dependencyGraphTarget
 						.replace(".", "\\.")));
 	}
-
-	protected DependencyGraph generateDependencyGraph() throws MojoExecutionException {
-		final Collection<String> ocamlSourceFiles = gatherOcamlSourceFiles(chooseOcamlSourcesDirectory()).values();
-		
-		final Collection<String> includePaths = FileMappings.buildPathMap(ocamlSourceFiles).keySet();
-		
-		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		final File chooseDependencyGraphTargetFullPath = chooseDependencyGraphTargetFullPath();
-			
-		final boolean madeDirs = chooseDependencyGraphTargetFullPath.getParentFile().mkdir();
-		
-		if (getLog().isDebugEnabled())
-			getLog().debug("made dirs? " + madeDirs);
-		
-		final PrintStream printStream = new PrintStream(outputStream);
 	
-		getLog().info("about to generate dependency graph");
-		final ocamljavaMain main = 
-				mainWithReturn("ocamldep.jar", generateCommandLineArguments(includePaths, ocamlSourceFiles).toArray(new String[] {}), printStream);
-			
-		getLog().info("finished to generat dependency graph");
-	
-		try {
-			final FileOutputStream fileOutputStream = new FileOutputStream(chooseDependencyGraphTargetFullPath);
-			final DependencyGraph dependencyGraph = DependencyGraph.fromOcamlDep(outputStream, chooseOcamlSourcesDirectory());
-			dependencyGraph.write(fileOutputStream, chooseOcamlSourcesDirectory());
-			fileOutputStream.close();
-			checkForErrors("ocamljava dependency resolution failed", main);
-			return dependencyGraph;
-		} catch (final Exception e) {
-			throw new MojoExecutionException("error writing dependency info" ,e);
-		} finally {
-			printStream.close();
-		}
-	}
 
 	protected static ocamljavaMain mainWithReturn(final String jarName,
 			java.lang.String[] paramArrayOfString, final PrintStream out) throws MojoExecutionException {
@@ -368,50 +333,5 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		return ocamlSourceDirectory;
 	}
 
-	private List<String> generateCommandLineArguments(
-			final Collection<String> includePaths,
-			final Collection<String> ocamlSourceFiles)
-			throws MojoExecutionException {
-
-		final ImmutableList.Builder<String> builder = ImmutableList
-				.<String> builder();
-
-		
-		if (javaOnly)
-			builder.add(OcamlJavaConstants.JAVA_ONLY_OPTION);
-		
-		if (sort)
-			builder.add(OcamlJavaConstants.SORT_OPTION);
-		
-		if (all)
-			builder.add((OcamlJavaConstants.ALL_OPTION));
-		
-		addIncludePaths(includePaths, builder);
-	
-		builder.addAll(ocamlSourceFiles);
-		
-		
-		return builder.build();
-	}
-	
-	/***
-	 * Whether to sort the list of modules in dependency order.
-	 * @parameter default-value="true"
-	 * @readonly
-	 */
-	protected boolean sort = true;
-		
-	/***
-	 * Only compile binaries for the java virtual machine (no *.cmo files).
-	 * @parameter default-value="true"
-	 */
-	protected boolean javaOnly = true;
-		
-	/***
-	 * Generate dependency information on all files.
-	 * @parameter default-value="true"
-	 * @readonly
-	 */
-	protected boolean all = true;
 	
 }
