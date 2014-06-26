@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import mandelbrot.dependency.analyzer.Analyzer;
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.dependency.data.ModuleDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
@@ -69,21 +68,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 			final Multimap<String, String> ocamlSourceFiles = gatherOcamlSourceFiles(chooseOcamlSourcesDirectory());
 
-			final Collection<String> moduleInterfaces = ocamlSourceFiles
-					.get(OcamlJavaConstants.INTERFACE_SOURCE_EXTENSION);
-
-			final Analyzer analyzer = new Analyzer(this);
-
-			final Collection<String> implementations = ocamlSourceFiles
-					.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION);
-
-			final Set<String> intersAndImpls = ImmutableSet.<String>builder()
-					.addAll(moduleInterfaces)
-					.addAll(implementations).build();
-			
-			final DependencyGraph dependencyGraph = 
-					analyzer.resolveModuleDependenciesByPackageName(intersAndImpls, chooseOcamlSourcesDirectory());
-
+			final DependencyGraph dependencyGraph = generateDependencyGraph();
 			final File file = chooseDependencyGraphTargetFullPath();
 			
 			final boolean madeDirs = file.getParentFile().mkdirs();
@@ -91,8 +76,6 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			if (getLog().isDebugEnabled()) {
 				getLog().debug("made directory \"" + file + "\"? " + madeDirs);
 			}
-			
-			dependencyGraph.write(file, chooseOcamlSourcesDirectory());
 			
 			getLog().info("ordered modules: " + dependencyGraph);
 			final Set<Entry<String, Collection<ModuleDescriptor>>> entrySet = dependencyGraph.getDependencies().entrySet();
@@ -108,7 +91,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 				}));
 			}
 		
-			moveCompiledFiles(implementations, getOcamlCompiledSourcesTargetFullPath(),
+			moveCompiledFiles(ocamlSourceFiles.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION), getOcamlCompiledSourcesTargetFullPath(),
 					chooseOcamlSourcesDirectory().getPath(), 
 					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, 
 							OcamlJavaConstants.OBJECT_BINARY_EXTENSION, OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));

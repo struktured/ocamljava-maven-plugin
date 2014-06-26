@@ -1,15 +1,12 @@
 package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import mandelbrot.dependency.analyzer.Analyzer;
 import mandelbrot.dependency.data.DependencyGraph;
@@ -28,7 +25,6 @@ import org.ocamljava.wrapper.ocamljavaMain;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
@@ -279,34 +275,6 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 			}
 		};
 		return comparator;
-	}
-
-	private DependencyGraph getDependendyGraph(
-			final Multimap<String, String> filesByExtension)
-			throws MojoExecutionException {
-		final FileInputStream inputStream;
-		try {
-			inputStream = new FileInputStream(new File(
-					Collections2
-							.filter(filesByExtension
-									.get(OcamlJavaConstants.JSON_EXTENSION),
-									dependencyGraphFieExists())
-							.iterator().next()));
-		} catch (final FileNotFoundException e) {
-			throw new MojoExecutionException(
-					"missing or corrupt dependency graph: "
-							+ dependencyGraphTarget + ", can't wrap!", e);
-		}
-
-		final DependencyGraph dependencyGraph = DependencyGraph
-				.read(inputStream);
-		return dependencyGraph;
-	}
-
-	private Predicate<CharSequence> dependencyGraphFieExists() {
-		return Predicates.contains(Pattern
-				.compile(dependencyGraphTarget
-						.replace(".", "\\.")));
 	}
 
 	private Optional<ocamljavaMain> wrapFiles(final Collection<String> includeDirs,
