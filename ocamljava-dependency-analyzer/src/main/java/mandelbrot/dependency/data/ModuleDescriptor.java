@@ -115,7 +115,12 @@ public class ModuleDescriptor extends ModuleKey implements
 
 		public Builder setModuleFile(final File moduleFile) {
 			this.moduleFile = moduleFile;
-			return this;
+			
+			if (isModuleKeySet())
+				return this;
+			else
+				return setModuleKey(ModuleKey.fromFile(moduleFile));
+			
 		}
 
 		public Builder setJavaPackageName(final String javaPackageName) {
@@ -209,6 +214,10 @@ public class ModuleDescriptor extends ModuleKey implements
 				return paramT1.compareTo(paramT2);
 			}
 		};
+	}
+
+	public static Builder builder() {
+		return new Builder();
 	}
 
 }

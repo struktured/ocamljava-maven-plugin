@@ -20,14 +20,14 @@ import com.google.common.collect.Multimap;
 
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 
-	public static final String DEPENDENCIES_FILE_NAME = "dependencies.txt";
+	public static final String DEPENDENCIES_FILE_NAME = "dependencies.json";
 
 	/***
 	 * The name of the generated ocaml dependency graph file, to be place in the
 	 * target directory (usually one of <code>target/ocaml-bin</code> or
 	 * </code>target/ocaml-tests</code>)
 	 * 
-	 * @parameter default-value="dependencies.txt"
+	 * @parameter default-value="dependencies.json"
 	 * @required
 	 */
 	protected String dependencyGraphTarget = DEPENDENCIES_FILE_NAME;

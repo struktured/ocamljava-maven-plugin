@@ -1,13 +1,14 @@
 package mandelbrot.ocamljava_maven_plugin;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.List;
 
+import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import ocaml.tools.ocamldep.ocamljavaMain;
 
@@ -66,25 +67,30 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 		
 		final Collection<String> includePaths = FileMappings.buildPathMap(ocamlSourceFiles).keySet();
 		
-		final FileOutputStream outputStream;
-		try {
-			File chooseDependencyGraphTargetFullPath = chooseDependencyGraphTargetFullPath();
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		final File chooseDependencyGraphTargetFullPath = chooseDependencyGraphTargetFullPath();
 			
-			final boolean madeDirs = chooseDependencyGraphTargetFullPath.getParentFile().mkdir();
+		final boolean madeDirs = chooseDependencyGraphTargetFullPath.getParentFile().mkdir();
 		
-			if (getLog().isDebugEnabled())
-				getLog().info("made dirs? " + madeDirs);
-			
-			outputStream = new FileOutputStream(chooseDependencyGraphTargetFullPath);
-		} catch (final FileNotFoundException e) {
-			throw new MojoExecutionException("file error", e);
-		}
+		if (getLog().isDebugEnabled())
+			getLog().debug("made dirs? " + madeDirs);
+		
 		final PrintStream printStream = new PrintStream(outputStream);
 		
 		final ocamljavaMain main = 
 				mainWithReturn(generateCommandLineArguments(includePaths, ocamlSourceFiles).toArray(new String[] {}), printStream);
-		
+		try {
+			final FileOutputStream fileOutputStream = new FileOutputStream(chooseDependencyGraphTargetFullPath);
+			DependencyGraph.fromOcamlDep(outputStream ,chooseOcamlSourcesDirectory()).write(fileOutputStream, 
+					chooseOcamlSourcesDirectory());
+			fileOutputStream.close();
+			
+		} catch (final Exception e) {
+			throw new MojoExecutionException("error writing dependency info" ,e);
+		}  
+
 		printStream.close();
+		
 		checkForErrors("ocamljava dependency resolution failed", main);
 		
 		

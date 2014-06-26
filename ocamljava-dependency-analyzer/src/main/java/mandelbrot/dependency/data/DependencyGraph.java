@@ -1,5 +1,6 @@
 package mandelbrot.dependency.data;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,8 +11,10 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Scanner;
 import java.util.Set;
 
+import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import mandelbrot.ocamljava_maven_plugin.util.StringTransforms;
 
 import org.codehaus.jackson.annotate.JsonCreator;
@@ -114,18 +117,18 @@ public class DependencyGraph {
 						Collections2.transform(entry.getValue(), new Function<ModuleDescriptor, ModuleDescriptor> () {
 
 					@Override
-					public ModuleDescriptor apply(final ModuleDescriptor paramF) {
+					public ModuleDescriptor apply(final ModuleDescriptor input) {
 						if (prefixToTruncate == null) {
-							return paramF;
+							return input;
 						}
 						
-						if (!paramF.getModuleFile().isPresent())
-							return paramF;
+						if (!input.getModuleFile().isPresent())
+							return input;
 						
 						final ModuleDescriptor.Builder builder = new ModuleDescriptor.Builder();
-						builder.copyOf(paramF).setModuleFile(
+						builder.copyOf(input).setModuleFile(
 								new File(StringTransforms.trim
-								(paramF.getModuleFile().get().getPath().replace(prefixToTruncate.getPath(), ""), File.separatorChar)));
+								(input.getModuleFile().get().getPath().replace(prefixToTruncate.getPath(), ""), File.separatorChar)));
 						return builder.build();
 					}
 					
@@ -160,5 +163,30 @@ public class DependencyGraph {
 			} catch (final IOException e) {}
 		}
 	}
+	
+	public static DependencyGraph fromOcamlDep(final ByteArrayOutputStream outputStream, final File prefixToTruncate) {
 
+		final Scanner scanner = new Scanner(new ByteArrayInputStream(
+				outputStream.toByteArray()));
+
+		try {
+			final ImmutableMultimap.Builder<String, ModuleDescriptor> builder = ImmutableMultimap
+					.builder();
+
+			while (scanner.hasNext()) {
+				final String moduleFile = scanner.next();
+				final String javaPackageName = FileMappings.toPackage(prefixToTruncate, moduleFile);
+				builder.put(
+						javaPackageName,
+						ModuleDescriptor.builder()
+								.setJavaPackageName(javaPackageName)
+								.setModuleFile(new File(moduleFile)).build());
+
+			}
+
+			return new DependencyGraph(builder.build().asMap());
+		} finally {
+			scanner.close();
+		}
+	}
 }

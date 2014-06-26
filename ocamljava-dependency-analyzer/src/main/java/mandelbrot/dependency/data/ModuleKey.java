@@ -11,6 +11,7 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeName;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -38,6 +39,10 @@ public class ModuleKey {
 		
 		public ModuleKey build() {
 			return new ModuleKey(moduleName, moduleType);
+		}
+		
+		protected boolean isModuleKeySet() {
+			return !(StringUtils.isBlank(moduleName) && moduleType == null);
 		}
 		
 	}
