@@ -59,11 +59,12 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 			final boolean forkAgain = false;
 			invokePlugin(fullyQualifiedGoal(), forkAgain);
 			
-			final File prefixToTruncate = new File(getOcamlCompiledSourcesTargetFullPath());
+			final File prefixToTruncate = chooseOcamlSourcesDirectory();
 			final DependencyGraph dependencyGraph = DependencyGraph.fromOcamlDep(rawDependencyTargetFullPath(), 
 					prefixToTruncate);
-			
-			dependencyGraph.write(chooseDependencyGraphTargetFullPath(), prefixToTruncate);
+		
+			getLog().info("output directory to truncate with: " + project.getFile().getParent());
+			dependencyGraph.write(chooseDependencyGraphTargetFullPath(), project.getFile().getParentFile());
 		} else {
 			getLog().info("running in process");
 			generateDependencyGraph();

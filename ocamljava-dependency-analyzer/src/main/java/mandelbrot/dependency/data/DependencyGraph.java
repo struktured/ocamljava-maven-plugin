@@ -126,9 +126,11 @@ public class DependencyGraph {
 							return input;
 						
 						final ModuleDescriptor.Builder builder = new ModuleDescriptor.Builder();
-						builder.copyOf(input).setModuleFile(
-								new File(StringTransforms.trim
-								(input.getModuleFile().get().getPath().replace(prefixToTruncate.getPath(), ""), File.separatorChar)));
+						
+						// TODO still refining what I ultimately want to set it as here.
+						builder.copyOf(input);//.setModuleFile(
+								//new File(StringTransforms.trim
+								//(input.getModuleFile().get().getPath().replace(prefixToTruncate.getPath(), ""), File.separatorChar)));
 						return builder.build();
 					}
 					
@@ -190,7 +192,11 @@ public class DependencyGraph {
 	}
 
 	public static DependencyGraph fromOcamlDep(final File file,
-			final File prefixtoTruncate) {
-		return fromOcamlDep(UncheckedInputStream.fromFile(file), prefixtoTruncate);
+			final File prefixToTruncate) {
+		return fromOcamlDep(UncheckedInputStream.fromFile(file), prefixToTruncate);
+	}
+
+	public static DependencyGraph read(final File file) {
+		return read(UncheckedInputStream.fromFile(file));
 	}
 }

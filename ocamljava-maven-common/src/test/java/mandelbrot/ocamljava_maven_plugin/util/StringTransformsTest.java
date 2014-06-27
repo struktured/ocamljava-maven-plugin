@@ -35,4 +35,14 @@ public class StringTransformsTest {
 		Assert.assertTrue(trimmed.isEmpty());
 		
 	}
+	
+	@Test
+	public void shouldTrimSingleSlash() {
+		final String input = "/hello/there/test.file";
+		
+		final String trimmed = StringTransforms.trim(input, "/");
+	
+		Assert.assertEquals("hello/there/test.file", trimmed);
+	}		
+	
 }

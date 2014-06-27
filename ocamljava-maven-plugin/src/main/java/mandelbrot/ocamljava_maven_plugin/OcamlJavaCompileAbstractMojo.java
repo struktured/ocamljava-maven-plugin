@@ -68,20 +68,24 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 			final Multimap<String, String> ocamlSourceFiles = gatherOcamlSourceFiles(chooseOcamlSourcesDirectory());
 
-			final File file = chooseDependencyGraphTargetFullPath();
-			getLog().info("full path for dependency target: " + file.getPath());
-			final boolean madeDirs = file.getParentFile().mkdirs();
+			final File dependencyGraphTarget = chooseDependencyGraphTargetFullPath();
+		
+			if (getLog().isInfoEnabled())
+				getLog().info("full path for dependency target: " + dependencyGraphTarget.getPath());
+			
+			final boolean madeDirs = dependencyGraphTarget.getParentFile().mkdirs();
 			
 			if (getLog().isDebugEnabled()) {
-				getLog().debug("made directory \"" + file + "\"? " + madeDirs);
+				getLog().debug("made directory \"" + dependencyGraphTarget + "\"? " + madeDirs);
 			}
 			
 			invokePlugin(OcamlJavaDependencyMojo.fullyQualifiedGoal(), true);
 			
-			final DependencyGraph dependencyGraph = DependencyGraph.fromOcamlDep(file, new File(getOcamlCompiledSourcesTargetFullPath()));
+			final DependencyGraph dependencyGraph = DependencyGraph.read(dependencyGraphTarget);
 			
-		
-			getLog().info("ordered modules: " + dependencyGraph);
+			if (getLog().isInfoEnabled())
+				getLog().info("ordered modules: " + dependencyGraph);
+			
 			final Set<Entry<String, Collection<ModuleDescriptor>>> entrySet = dependencyGraph.getDependencies().entrySet();
 			
 			final ImmutableSet.Builder<String> includeDirectoryBuilder = ImmutableSet.builder();

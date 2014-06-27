@@ -82,7 +82,7 @@ public class ModuleKey {
 		public static Optional<ModuleType> fromFile(final String source) {
 			final String extension = FileUtils.getExtension(source);
 			
-			for (final ModuleType moduleType :values()) {
+			for (final ModuleType moduleType : values()) {
 				if (moduleType.getExtension().equals(extension)) {
 					return Optional.of(moduleType);
 				}
@@ -141,11 +141,7 @@ public class ModuleKey {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	public static ModuleKey fromFile(final String sourceFilePath) {
-		return fromFile(new File(sourceFilePath));
-	}
-	
+
 	public static ModuleKey fromFile(final File sourceFile) {
 		return new ModuleKey.Builder().setModuleName(Analyzer.moduleNameOfSource(sourceFile.getPath()).get())
 				.setModuleType(ModuleType.fromFile(sourceFile).get())

@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 
 
 /***
- * Wraps an output stream and simply suppresses checked {@link IOException}s from the method signatures.
+ * Wraps an input stream and simply suppresses checked {@link IOException}s from the method signatures.
  * @author carm
  *
  */
