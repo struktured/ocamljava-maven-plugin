@@ -120,7 +120,6 @@ public class ModuleDescriptor extends ModuleKey implements
 				return this;
 			else
 				return setModuleKey(ModuleKey.fromFile(moduleFile));
-			
 		}
 
 		public Builder setJavaPackageName(final String javaPackageName) {

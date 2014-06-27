@@ -51,7 +51,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		if (!ensureTargetDirectoryExists()) {
 			getLog().error("Could not create target directory");
 			return;
-		}
+		} 
 
 		if (!ocamlSourceDirectory.exists()) {
 			getLog().error(
@@ -68,18 +68,19 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 			final Multimap<String, String> ocamlSourceFiles = gatherOcamlSourceFiles(chooseOcamlSourcesDirectory());
 
-			
-			//TODO FIX ME!
-			final DependencyGraph dependencyGraph = null;
-			
 			final File file = chooseDependencyGraphTargetFullPath();
-			
+			getLog().info("full path for dependency target: " + file.getPath());
 			final boolean madeDirs = file.getParentFile().mkdirs();
 			
 			if (getLog().isDebugEnabled()) {
 				getLog().debug("made directory \"" + file + "\"? " + madeDirs);
 			}
 			
+			invokePlugin(OcamlJavaDependencyMojo.fullyQualifiedGoal(), true);
+			
+			final DependencyGraph dependencyGraph = DependencyGraph.fromOcamlDep(file, new File(getOcamlCompiledSourcesTargetFullPath()));
+			
+		
 			getLog().info("ordered modules: " + dependencyGraph);
 			final Set<Entry<String, Collection<ModuleDescriptor>>> entrySet = dependencyGraph.getDependencies().entrySet();
 			

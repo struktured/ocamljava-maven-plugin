@@ -1,15 +1,13 @@
 package mandelbrot.ocamljava_maven_plugin;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.List;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import mandelbrot.dependency.data.DependencyGraph;
@@ -21,6 +19,12 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.codehaus.plexus.util.StringUtils;
 import org.ocamljava.runtime.annotations.parameters.Parameters;
 import org.ocamljava.runtime.kernel.AbstractNativeRunner;
@@ -37,6 +41,8 @@ import com.google.common.collect.Multimap;
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 
 	public static final String DEPENDENCIES_FILE_NAME = "dependencies.json";
+
+	public static final String FORK_PROPERTY_NAME = "ocamljava.maven.plugin.fork";
 
 	/***
 	 * The name of the generated ocaml dependency graph file, to be place in the
@@ -333,5 +339,32 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		return ocamlSourceDirectory;
 	}
 
-	
+	protected InvocationResult invokePlugin(final String goal, final boolean forkAgain) throws MojoExecutionException {
+
+		final Properties properties = new Properties();
+		properties.put(FORK_PROPERTY_NAME, Boolean.valueOf(forkAgain).toString());
+
+		final InvocationRequest defaultInvocationRequest = new DefaultInvocationRequest()
+				.setDebug(getLog().isDebugEnabled())
+				.setMavenOpts(System.getenv("MAVEN_OPTS"))
+				.setGoals(ImmutableList.of(goal)).setProperties(properties)
+				.setPomFile(project.getFile());
+
+		final Invoker invoker = new DefaultInvoker();
+		try {
+			final InvocationResult execution = invoker
+					.execute(defaultInvocationRequest);
+			switch (execution.getExitCode()) {
+			case 0:
+				return execution;
+			default:
+				throw new MojoExecutionException(
+						"process did not exit cleanly (exit code = "
+								+ execution.getExitCode());
+			}
+
+		} catch (final MavenInvocationException e) {
+			throw new MojoExecutionException("problem during fork operation", e);
+		}
+	}
 }
