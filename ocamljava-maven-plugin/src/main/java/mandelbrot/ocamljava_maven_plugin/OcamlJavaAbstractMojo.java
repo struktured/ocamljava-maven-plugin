@@ -1,26 +1,48 @@
 package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Properties;
+import java.util.regex.Pattern;
 
+import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.ocamljava_maven_plugin.util.FileGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
+import ocaml.tools.ocamldep.ocamljavaMain;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.codehaus.plexus.util.StringUtils;
+import org.ocamljava.runtime.annotations.parameters.Parameters;
 import org.ocamljava.runtime.kernel.AbstractNativeRunner;
 import org.ocamljava.runtime.kernel.FalseExit;
+import org.ocamljava.runtime.parameters.NativeParameters;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 
 	public static final String DEPENDENCIES_FILE_NAME = "dependencies.json";
+
+	public static final String FORK_PROPERTY_NAME = "ocamljava.maven.plugin.fork";
 
 	/***
 	 * The name of the generated ocaml dependency graph file, to be place in the
@@ -262,4 +284,87 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 				+ File.separator + dependencyGraphTarget);
 	}
 
+	protected DependencyGraph getDependendyGraph(
+			final Multimap<String, String> filesByExtension)
+			throws MojoExecutionException {
+		final FileInputStream inputStream;
+		try {
+			inputStream = new FileInputStream(new File(
+					Collections2
+							.filter(filesByExtension.get(OcamlJavaConstants.JSON_EXTENSION),
+									dependencyGraphFileExists())
+							.iterator().next()));
+		} catch (final FileNotFoundException e) {
+			throw new MojoExecutionException(
+					"missing or corrupt dependency graph: "
+							+ dependencyGraphTarget + ", can't wrap!", e);
+		}
+
+		final DependencyGraph dependencyGraph = DependencyGraph
+				.read(inputStream);
+		return dependencyGraph;
+	}
+
+	protected Predicate<CharSequence> dependencyGraphFileExists() {
+		return Predicates.contains(Pattern
+				.compile(dependencyGraphTarget
+						.replace(".", "\\.")));
+	}
+	
+
+	protected static ocamljavaMain mainWithReturn(final String jarName,
+			java.lang.String[] paramArrayOfString, final PrintStream out) throws MojoExecutionException {
+		final ocamljavaMain ocamljavaMain;
+		try {
+			final Constructor<ocaml.tools.ocamldep.ocamljavaMain> declaredConstructor = ocamljavaMain.class.getDeclaredConstructor(
+					NativeParameters.class);
+			final boolean accessible = declaredConstructor.isAccessible();
+			if (!accessible)
+				declaredConstructor.setAccessible(true);
+			ocamljavaMain = declaredConstructor.newInstance(
+					Parameters.fromStream(ocamljavaMain.class
+							.getResourceAsStream("ocamljava.parameters"),
+							paramArrayOfString, System.in, out, System.err,
+							false, jarName, ocamljavaMain.class));
+			if (!accessible)
+				declaredConstructor.setAccessible(false);
+		} catch (final Exception e) {
+			throw new MojoExecutionException("error creating main instance", e);
+		}
+		ocamljavaMain.execute();
+		return ocamljavaMain;
+	}
+
+	protected File chooseOcamlSourcesDirectory() {
+		return ocamlSourceDirectory;
+	}
+
+	protected InvocationResult invokePlugin(final String goal, final boolean forkAgain) throws MojoExecutionException {
+
+		final Properties properties = new Properties();
+		properties.put(FORK_PROPERTY_NAME, Boolean.valueOf(forkAgain).toString());
+
+		final InvocationRequest defaultInvocationRequest = new DefaultInvocationRequest()
+				.setDebug(getLog().isDebugEnabled())
+				.setMavenOpts(System.getenv("MAVEN_OPTS"))
+				.setGoals(ImmutableList.of(goal)).setProperties(properties)
+				.setPomFile(project.getFile());
+
+		final Invoker invoker = new DefaultInvoker();
+		try {
+			final InvocationResult execution = invoker
+					.execute(defaultInvocationRequest);
+			switch (execution.getExitCode()) {
+			case 0:
+				return execution;
+			default:
+				throw new MojoExecutionException(
+						"process did not exit cleanly (exit code = "
+								+ execution.getExitCode());
+			}
+
+		} catch (final MavenInvocationException e) {
+			throw new MojoExecutionException("problem during fork operation", e);
+		}
+	}
 }

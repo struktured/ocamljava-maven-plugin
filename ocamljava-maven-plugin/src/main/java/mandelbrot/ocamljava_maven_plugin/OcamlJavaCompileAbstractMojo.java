@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import mandelbrot.dependency.analyzer.Analyzer;
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.dependency.data.ModuleDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
@@ -52,7 +51,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		if (!ensureTargetDirectoryExists()) {
 			getLog().error("Could not create target directory");
 			return;
-		}
+		} 
 
 		if (!ocamlSourceDirectory.exists()) {
 			getLog().error(
@@ -69,32 +68,24 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 			final Multimap<String, String> ocamlSourceFiles = gatherOcamlSourceFiles(chooseOcamlSourcesDirectory());
 
-			final Collection<String> moduleInterfaces = ocamlSourceFiles
-					.get(OcamlJavaConstants.INTERFACE_SOURCE_EXTENSION);
-
-			final Analyzer analyzer = new Analyzer(this);
-
-			final Collection<String> implementations = ocamlSourceFiles
-					.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION);
-
-			final Set<String> intersAndImpls = ImmutableSet.<String>builder()
-					.addAll(moduleInterfaces)
-					.addAll(implementations).build();
+			final File dependencyGraphTarget = chooseDependencyGraphTargetFullPath();
+		
+			if (getLog().isInfoEnabled())
+				getLog().info("full path for dependency target: " + dependencyGraphTarget.getPath());
 			
-			final DependencyGraph dependencyGraph = 
-					analyzer.resolveModuleDependenciesByPackageName(intersAndImpls, chooseOcamlSourcesDirectory());
-
-			final File file = chooseDependencyGraphTargetFullPath();
-			
-			final boolean madeDirs = file.getParentFile().mkdirs();
+			final boolean madeDirs = dependencyGraphTarget.getParentFile().mkdirs();
 			
 			if (getLog().isDebugEnabled()) {
-				getLog().debug("made directory \"" + file + "\"? " + madeDirs);
+				getLog().debug("made directory \"" + dependencyGraphTarget + "\"? " + madeDirs);
 			}
 			
-			dependencyGraph.write(file, chooseOcamlSourcesDirectory());
+			invokePlugin(OcamlJavaDependencyMojo.fullyQualifiedGoal(), true);
 			
-			getLog().info("ordered modules: " + dependencyGraph);
+			final DependencyGraph dependencyGraph = DependencyGraph.read(dependencyGraphTarget);
+			
+			if (getLog().isInfoEnabled())
+				getLog().info("ordered modules: " + dependencyGraph);
+			
 			final Set<Entry<String, Collection<ModuleDescriptor>>> entrySet = dependencyGraph.getDependencies().entrySet();
 			
 			final ImmutableSet.Builder<String> includeDirectoryBuilder = ImmutableSet.builder();
@@ -108,7 +99,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 				}));
 			}
 		
-			moveCompiledFiles(implementations, getOcamlCompiledSourcesTargetFullPath(),
+			moveCompiledFiles(ocamlSourceFiles.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION), getOcamlCompiledSourcesTargetFullPath(),
 					chooseOcamlSourcesDirectory().getPath(), 
 					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, 
 							OcamlJavaConstants.OBJECT_BINARY_EXTENSION, OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));

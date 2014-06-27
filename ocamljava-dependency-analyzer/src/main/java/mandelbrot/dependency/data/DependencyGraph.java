@@ -1,6 +1,5 @@
 package mandelbrot.dependency.data;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 
+import mandelbrot.ocamljava_maven_plugin.io.UncheckedInputStream;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import mandelbrot.ocamljava_maven_plugin.util.StringTransforms;
 
@@ -126,9 +126,11 @@ public class DependencyGraph {
 							return input;
 						
 						final ModuleDescriptor.Builder builder = new ModuleDescriptor.Builder();
-						builder.copyOf(input).setModuleFile(
-								new File(StringTransforms.trim
-								(input.getModuleFile().get().getPath().replace(prefixToTruncate.getPath(), ""), File.separatorChar)));
+						
+						// TODO still refining what I ultimately want to set it as here.
+						builder.copyOf(input);//.setModuleFile(
+								//new File(StringTransforms.trim
+								//(input.getModuleFile().get().getPath().replace(prefixToTruncate.getPath(), ""), File.separatorChar)));
 						return builder.build();
 					}
 					
@@ -164,10 +166,9 @@ public class DependencyGraph {
 		}
 	}
 	
-	public static DependencyGraph fromOcamlDep(final ByteArrayOutputStream outputStream, final File prefixToTruncate) {
+	public static DependencyGraph fromOcamlDep(final InputStream inputStream, final File prefixToTruncate) {
 
-		final Scanner scanner = new Scanner(new ByteArrayInputStream(
-				outputStream.toByteArray()));
+		final Scanner scanner = new Scanner(inputStream);
 
 		try {
 			final ImmutableMultimap.Builder<String, ModuleDescriptor> builder = ImmutableMultimap
@@ -188,5 +189,14 @@ public class DependencyGraph {
 		} finally {
 			scanner.close();
 		}
+	}
+
+	public static DependencyGraph fromOcamlDep(final File file,
+			final File prefixToTruncate) {
+		return fromOcamlDep(UncheckedInputStream.fromFile(file), prefixToTruncate);
+	}
+
+	public static DependencyGraph read(final File file) {
+		return read(UncheckedInputStream.fromFile(file));
 	}
 }

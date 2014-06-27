@@ -7,6 +7,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -61,16 +62,19 @@ public class FileMappings {
 					return "";
 				
 				if (prefixToTruncate != null && prefixToTruncate.getPath() != null && prefixToTruncate.exists()) {
-
+					
+					Preconditions.checkState(path.contains(prefixToTruncate.getPath()),
+							"path \"" + path + "\" does not contain prefix \"" + prefixToTruncate.getPath() + "\""); 
+					
 					final int length = prefixToTruncate.getPath().length();
 					if (path.length() >= length)
 						path = path.substring(length);
 				}
-
+				
+				path = StringTransforms.trim(path, File.separatorChar);
+				
 				path = path.replace(File.separatorChar, PACKAGE_NAME_SEPARATOR);
 
-				path = StringTransforms.trim(path, PACKAGE_NAME_SEPARATOR);
-				
 				return path;
 
 			}
