@@ -15,7 +15,6 @@ import java.util.Set;
 
 import mandelbrot.ocamljava_maven_plugin.io.UncheckedInputStream;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
-import mandelbrot.ocamljava_maven_plugin.util.StringTransforms;
 
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;

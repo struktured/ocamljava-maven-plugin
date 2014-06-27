@@ -1,27 +1,10 @@
 package mandelbrot.dependency.analyzer;
 
 import java.io.File;
-import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import mandelbrot.dependency.data.DependencyGraph;
-import mandelbrot.dependency.data.ModuleDescriptor;
-
-import org.apache.maven.plugin.AbstractMojo;
 import org.codehaus.plexus.util.StringUtils;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.SortedSetMultimap;
-import com.google.common.collect.TreeMultimap;
 
 /**  
 * Given we know module X requires modules Y,Z, etc.,
@@ -31,13 +14,6 @@ import com.google.common.collect.TreeMultimap;
 * X < X is false and of course, X = X.
 */
 public class Analyzer {
-	private final AbstractMojo abstractMojo;
-	private final DependencyExtractor dependencyExtractor;
-	
-	public Analyzer(final AbstractMojo abstractMojo) {
-		this.abstractMojo = Preconditions.checkNotNull(abstractMojo);
-		this.dependencyExtractor = new DependencyExtractor(this.abstractMojo);
-	}
 
 	public static Optional<String> moduleNameOfSource(final String source) {
 		if (StringUtils.isBlank(source))
@@ -59,129 +35,4 @@ public class Analyzer {
 		return Optional.of(lowerCasedName);
 
 	}
-	public SortedSetMultimap<String, ModuleDescriptor> resolveModuleDependencies(
-			final Collection<String> sources) {
-		return resolveModuleDependencies(sources, Paths.get("").toFile());
-	}
-	
-	public SortedSetMultimap<String, ModuleDescriptor> resolveModuleDependencies(
-			final Collection<String> sources, final File prefixToTruncate) {
-		final Multimap<String, Optional<String>> sourcesByModuleDependencies = 
-				dependencyExtractor.groupSourcesByModuleDependencies(sources, prefixToTruncate);
-
-		return sortDependenciesByModuleName(sourcesByModuleDependencies, dependencyExtractor.getModuleToFilePath());
-
-	}
-
-	public DependencyGraph resolveModuleDependenciesByPackageName(
-			final Collection<String> sources, final File prefixToTruncate) {
-		final Multimap<String, Optional<String>> sourcesByModuleDependencies = 
-				dependencyExtractor.groupSourcesByModuleDependencies(sources, prefixToTruncate);
-
-		return sortDependenciesByPackageName(sourcesByModuleDependencies, dependencyExtractor.getModuleToFilePath());
-
-	}
-	
-	public DependencyGraph sortDependenciesByPackageName(
-			final Multimap<String, Optional<String>> sourcesByModuleDependencies,
-			final SortedSetMultimap<String, ModuleDescriptor> moduleToFilePath) {
-		final SortedSetMultimap<String,ModuleDescriptor> dependenciesByModuleName = 
-				sortDependenciesByModuleName(sourcesByModuleDependencies, moduleToFilePath);
-		
-		final Set<Entry<String, ModuleDescriptor>> entries = dependenciesByModuleName.entries();
-	
-		final ImmutableMultimap.Builder<String, ModuleDescriptor> builder = ImmutableMultimap.builder();
-		
-		for (final Entry<String, ModuleDescriptor> entry : entries) {
-			builder.put(entry.getValue().getJavaPackageName(), entry.getValue());
-		}
-		return new DependencyGraph(builder.build().asMap());
-	}
-
-	public SortedSetMultimap<String, ModuleDescriptor> sortDependenciesByModuleName(
-			final Multimap<String, Optional<String>> sourcesByModuleDependencies,
-			final SortedSetMultimap<String, ModuleDescriptor> moduleToFilePath) {
-
-		final Multimap<String, Optional<String>> modulesByModuleDependencies = Multimaps
-				.transformEntries(
-						sourcesByModuleDependencies,
-						new Maps.EntryTransformer<String, Optional<String>, Optional<String>>() {
-
-							@Override
-							public Optional<String> transformEntry(
-									final String key,
-									final Optional<String> source) {
-								if (source.isPresent()) {
-									final Optional<String> moduleNameOfSource = moduleNameOfSource(source
-											.get());
-									return moduleNameOfSource;
-								} else {
-									return Optional.absent();
-								}
-							}
-						});
-
-		final TreeMultimap<String, ModuleDescriptor> treeMultimap = TreeMultimap
-				.create(createComparator(modulesByModuleDependencies),
-						moduleToFilePath.valueComparator());
-
-		final boolean changed = treeMultimap.putAll(moduleToFilePath);
-		Preconditions.checkState(changed || moduleToFilePath.isEmpty());
-
-		return Multimaps.unmodifiableSortedSetMultimap(treeMultimap);
-	}
-
-	private static final Comparator<String> createComparator(
-			final Multimap<String, Optional<String>> dependencies) {
-
-		return new Comparator<String>() {
-
-			@Override
-			public int compare(final String module1, final String module2) {
-
-				if (Objects.equal(module1, module2))
-					return 0;
-
-				if (StringUtils.isBlank(module1)
-						&& !StringUtils.isBlank(module2))
-					return -1;
-
-				if (StringUtils.isBlank(module2)
-						&& !StringUtils.isBlank(module1))
-					return 1;
-
-				final Collection<Optional<String>> module1Dependencies = dependencies
-						.get(module1);
-				final Collection<Optional<String>> module2Dependencies = dependencies
-						.get(module2);
-
-				final boolean module1RequiresModule2 = module1Dependencies
-						.contains(Optional.of(module2));
-				final boolean module2RequiresModule1 = module2Dependencies
-						.contains(Optional.of(module1));
-
-				if (module2RequiresModule1 && module1RequiresModule2) {
-					throw new IllegalStateException("circular dependency: "
-							+ module1 + " and " + module2);
-				}
-
-				// The dependable is less than the dependent.
-				if (module2RequiresModule1)
-					return -1;
-				if (module1RequiresModule2)
-					return 1;
-
-				// Choose one with smallest number of dependencies
-				final int cmp = Long.compare(module1Dependencies.size(),
-						module2Dependencies.size());
-				if (cmp != 0)
-					return cmp;
-
-				// When all else fails use default alphanumeric comparison
-				return module1.compareTo(module2);
-
-			}
-		};
-	}
-
 }
