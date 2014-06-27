@@ -178,7 +178,8 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 						try {
 							if (compiledSrcFile.exists()) {
-								getLog().info(
+								if (getLog().isInfoEnabled())
+									getLog().info(
 										"moving src " + compiledSrcFile
 												+ " to output directory: "
 												+ qualifiedOutputDirectory);

@@ -35,19 +35,26 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaCompileAbstractM
 		
 		try {
 
+			final File root = new File(getOcamlCompiledSourcesTargetFullPath());
 			final Multimap<String, String> ocamlCompiledSourceFiles = new FilesByExtensionGatherer(
 					this, ImmutableSet.of(
 							OcamlJavaConstants.COMPILED_IMPL_EXTENSION,
 							OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION))
-					.gather(new File(getOcamlCompiledSourcesTargetFullPath()));
-		
+					.gather(root);
+
+			if (ocamlCompiledSourceFiles.isEmpty()) {
+				getLog().info("No sources to add to jar (scanned directory: " + root.getPath() + ")");
+				return;
+			}
+			
 			final String[] args = generateCommandLineArguments(ocamlCompiledSourceFiles.get(
 					OcamlJavaConstants.COMPILED_IMPL_EXTENSION)).toArray(new String[]{});
 
 			getLog().info("args: " + ImmutableList.copyOf(args));
 			
-			@SuppressWarnings("unused")
 			final ocamljavaMain mainWithReturn = ocamljavaMain.mainWithReturn(args);
+		
+			checkForErrors("ocaml java jar execution failed", mainWithReturn);
 			
 			if (attachCompiledModules) {
 				
