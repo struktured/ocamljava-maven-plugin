@@ -24,9 +24,10 @@ public class ClassPathGatherer
 	protected List<String> getClassPathRec(final MavenProject project, final boolean isTest)
 			throws DependencyResolutionRequiredException, MalformedURLException
 	{
-		final ImmutableList.Builder<String> builder = ImmutableList.<String>builder().addAll(
-				project.getRuntimeClasspathElements());
-		
+		final ImmutableList.Builder<String> builder = ImmutableList.<String>builder()
+				.addAll(project.getRuntimeClasspathElements())
+				.addAll(project.getSystemClasspathElements());
+				
 		if (isTest)
 			builder.addAll(project.getTestClasspathElements());
 		
@@ -42,7 +43,9 @@ public class ClassPathGatherer
 
 	public List<String> getClassPath(final MavenProject project, final boolean isTest) throws MojoExecutionException {
 		try {
-			return getClassPathRec(project, isTest);
+			return ImmutableList.<String>builder()
+					.addAll(getClassPathRec(project, isTest))
+					.build();
 		} catch (final MalformedURLException | DependencyResolutionRequiredException e) {
 			throw new MojoExecutionException("failed to get runtime url list", e);
 		}

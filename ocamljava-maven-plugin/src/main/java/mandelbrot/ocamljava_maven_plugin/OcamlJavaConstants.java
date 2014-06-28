@@ -31,7 +31,7 @@ public class OcamlJavaConstants {
 	public static final String ADD_TO_JAR_SOURCES_OPTION = "-o";
 	public static final String RECORD_DEBUGGING_INFO_OPTION = "-g";
 	public static final String ADDITIONAL_JAR_OPTION = "-additional-jar";
-	public static final String CLASSPATH_OPTION = "-classpath";
+	public static final String CLASSPATH_OPTION = "-cp";
 	
 	
 //	Usage: ocamlwrap.jar <options> <files>

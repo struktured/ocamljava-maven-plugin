@@ -215,6 +215,9 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		final ImmutableList.Builder<String> builder = ImmutableList
 				.<String> builder();
 
+		if (javaExtensions)
+			builder.add("javalib.cmja");
+		
 		if (recordDebugInfo) {
 			builder.add(OcamlJavaConstants.RECORD_DEBUGGING_INFO_OPTION);
 		}
@@ -235,7 +238,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		addIncludePaths(includePaths, builder);
 
 		builder.add(OcamlJavaConstants.CLASSPATH_OPTION)
-				.add(Joiner.on(CLASSPATH_SEPARATOR).join(
+		       .add(Joiner.on(CLASSPATH_SEPARATOR).join(
 						ImmutableSet
 								.builder()
 								.addAll(new ClassPathGatherer(this)
