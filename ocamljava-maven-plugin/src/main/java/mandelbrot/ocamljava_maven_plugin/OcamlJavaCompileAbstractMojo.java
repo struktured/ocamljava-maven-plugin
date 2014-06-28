@@ -29,6 +29,8 @@ import com.google.common.collect.Multimap;
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
 
+	private static final String CLASSPATH_SEPARATOR = ";";
+
 	/***
 	 * Record debugging information.
 	 * 
@@ -99,7 +101,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 				}));
 			}
 		
-			moveCompiledFiles(ocamlSourceFiles.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION), getOcamlCompiledSourcesTargetFullPath(),
+			moveCompiledFiles(ocamlSourceFiles.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION), chooseOcamlCompiledSourcesTarget(),
 					chooseOcamlSourcesDirectory().getPath(), 
 					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, 
 							OcamlJavaConstants.OBJECT_BINARY_EXTENSION, OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
@@ -129,9 +131,12 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 						.addAll(pathMappings)
 						.build(),
 						toPackage(ocamlSourceDirectory, path), sourceFiles).toArray(new String[] {});
-				getLog().info("ocamljava compile args: " + ImmutableList.copyOf(sourceArgs));
+				
+				if (getLog().isInfoEnabled())
+					getLog().info("ocamljava compile args: " + ImmutableList.copyOf(sourceArgs));
+				
 				final ocamljavaMain main = ocamljavaMain.mainWithReturn(sourceArgs);
-				checkForErrors("ocaml java compiler error for path: " + path, main);
+				checkForErrors("ocamljava compiler error while processing path: " + path, main);
 			}
 		}
 		 
@@ -230,7 +235,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		addIncludePaths(includePaths, builder);
 
 		builder.add(OcamlJavaConstants.CLASSPATH_OPTION)
-				.add(Joiner.on(";").join(
+				.add(Joiner.on(CLASSPATH_SEPARATOR).join(
 						ImmutableSet
 								.builder()
 								.addAll(new ClassPathGatherer(this)
