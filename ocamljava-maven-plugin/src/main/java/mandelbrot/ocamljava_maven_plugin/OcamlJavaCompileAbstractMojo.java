@@ -29,8 +29,6 @@ import com.google.common.collect.Multimap;
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
 
-	private static final String CLASSPATH_SEPARATOR = ";";
-
 	/***
 	 * Record debugging information.
 	 * 
@@ -237,12 +235,16 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 		addIncludePaths(includePaths, builder);
 
-		builder.add(OcamlJavaConstants.CLASSPATH_OPTION)
-		       .add(Joiner.on(CLASSPATH_SEPARATOR).join(
-						ImmutableSet
-								.builder()
-								.addAll(new ClassPathGatherer(this)
-										.getClassPath(project, false)).build()))
+	    final ImmutableSet<String> classPathElements = ImmutableSet.<String>builder()
+	    		 .addAll(new ClassPathGatherer(this).getClassPath(project, false)).build();;
+		
+	    for (final String classPath : classPathElements) {
+			builder
+				.add(OcamlJavaConstants.CLASSPATH_OPTION)
+				.add(classPath);
+		}
+	    
+		builder
 				.add(OcamlJavaConstants.COMPILE_SOURCES_OPTION)
 				.addAll(ocamlSourceFiles);
 		return builder.build();
