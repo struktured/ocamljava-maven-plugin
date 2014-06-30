@@ -1,11 +1,7 @@
 package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -15,8 +11,6 @@ import java.util.Set;
 import mandelbrot.dependency.analyzer.Analyzer;
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.dependency.data.ModuleDescriptor;
-import mandelbrot.ocamljava_maven_plugin.io.UncheckedInputStream;
-import mandelbrot.ocamljava_maven_plugin.io.UncheckedOutputStream;
 import mandelbrot.ocamljava_maven_plugin.util.ArtifactDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import mandelbrot.ocamljava_maven_plugin.util.JarExtractor;
@@ -31,6 +25,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.ocamljava.wrapper.ocamljavaMain;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -176,6 +171,7 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 					.mainWithReturn(getCommandLineArgs());
 			// Will never execute, because the above forks.
 			getLog().warn("process should have exited: " + result);
+			return;
 		}
 		
 		if (targetArtifacts == null || targetArtifacts.isEmpty()) {
@@ -353,7 +349,7 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 			final ImmutableList<String> argsAsList = ImmutableList.copyOf(commandLineArguments.get());
 			
 			if (getLog().isInfoEnabled())
-				getLog().info("command line arguments: " + argsAsList);
+				getLog().info("command line arguments: " + Joiner.on(" ").join(argsAsList));
 
 			final File commandLineArgumentsFile = getCommandLineArgumentsFile();
 		

@@ -397,8 +397,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 				return execution;
 			default:
 				throw new MojoExecutionException(
-						"process did not exit cleanly (exit code = "
-								+ execution.getExitCode());
+						"process did not exit cleanly (exit code = " + execution.getExitCode() + ")");
 			}
 
 		} catch (final MavenInvocationException e) {
