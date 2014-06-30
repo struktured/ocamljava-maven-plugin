@@ -339,6 +339,13 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		return ocamlSourceDirectory;
 	}
 
+	/***
+	 * <p>Invokes a goal on a separate process programmatically using the Maven invoker tool.</p>
+	 * @param goal the maven goal, such as <code>jar:package</code> or <code>mandebrlot:ocamljava-maven-plugin:compile</code>.
+	 * @param forkAgain sets a system property ({@value #FORK_PROPERTY_NAME}} as a hint to the invoking process on whether it should fork once more.   
+	 * @return the invocation result.
+	 * @throws MojoExecutionException if an invocation exception occurs, or the invoked process did not exit with a return value of 0.
+	 */
 	protected InvocationResult invokePlugin(final String goal, final boolean forkAgain) throws MojoExecutionException {
 
 		final Properties properties = new Properties();
