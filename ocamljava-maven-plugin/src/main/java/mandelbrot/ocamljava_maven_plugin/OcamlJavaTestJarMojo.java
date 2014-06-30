@@ -1,6 +1,6 @@
 package mandelbrot.ocamljava_maven_plugin;
 
-import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.COMPILED_IMPL_EXTENSION;
+import static mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants.COMPILED_IMPL_JAVA_EXTENSION;
 
 import java.io.File;
 
@@ -94,7 +94,7 @@ public class OcamlJavaTestJarMojo extends OcamlJavaJarAbstractMojo {
 
 	private boolean isOcamlCompiledSourceFile(final File file) {
 		final String extension = FileUtils.getExtension(file.getPath());
-		return COMPILED_IMPL_EXTENSION.equalsIgnoreCase(extension);
+		return COMPILED_IMPL_JAVA_EXTENSION.equalsIgnoreCase(extension);
 	}
 
 	public String getTargetJarFullPath(final String targetJar) {

@@ -18,14 +18,14 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
 			<plugin>
+				<configuration>
+					<verbose>true</verbose>
+					<targetArtifacts>
+						<targetArtifact>mandelbrot:ocamljava-lib-test:0.0.1-SNAPSHOT</targetArtifact>
+					</targetArtifacts>
+				</configuration>
 				<executions>
 					<execution>
-						<configuration>
-							<verbose>true</verbose>
-							<targetArtifacts>
-								<targetArtifact>mandelbrot:ocamljava-lib-test:0.0.1-SNAPSHOT</targetArtifact>
-							</targetArtifacts>
-						</configuration>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>wrap</goal>

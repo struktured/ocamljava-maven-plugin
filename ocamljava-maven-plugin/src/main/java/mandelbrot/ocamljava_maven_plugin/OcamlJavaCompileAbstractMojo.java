@@ -101,7 +101,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		
 			moveCompiledFiles(ocamlSourceFiles.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION), chooseOcamlCompiledSourcesTarget(),
 					chooseOcamlSourcesDirectory().getPath(), 
-					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, 
+					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_JAVA_EXTENSION, 
 							OcamlJavaConstants.OBJECT_BINARY_EXTENSION, OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
 
 		} catch (final Exception e) {

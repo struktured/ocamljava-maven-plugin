@@ -1,33 +1,38 @@
 package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
 import mandelbrot.dependency.analyzer.Analyzer;
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.dependency.data.ModuleDescriptor;
+import mandelbrot.ocamljava_maven_plugin.io.UncheckedInputStream;
+import mandelbrot.ocamljava_maven_plugin.io.UncheckedOutputStream;
 import mandelbrot.ocamljava_maven_plugin.util.ArtifactDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import mandelbrot.ocamljava_maven_plugin.util.JarExtractor;
+import mandelbrot.ocamljava_maven_plugin.util.StringTransforms;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.ocamljava.wrapper.ocamljavaMain;
-import org.omg.CORBA.OMGVMCID;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -56,6 +61,11 @@ import com.google.common.collect.Multimap;
  * @since 1.0
  */
 public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
+
+
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+	private static final String OCAMLJAVA_MAVEN_PLUGIN_COMMAND_LINE_ARGS = "ocamljava.maven.plugin.commandLineArgs";
 
 	/***
 	 * The working directory where the generated Java source files are created.
@@ -203,7 +213,7 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 					.addAll(filesByExtension
 							.get(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION))
 					.addAll(filesByExtension
-							.get(OcamlJavaConstants.COMPILED_IMPL_EXTENSION))
+							.get(OcamlJavaConstants.COMPILED_IMPL_JAVA_EXTENSION))
 					.build();
 
 			if (compiledFiles.isEmpty()) {
@@ -217,9 +227,36 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		}
 	}
 	
+	
+	private String[] getCommandLineArgs() throws MojoExecutionException {
+		
+		
+		try {
+			final List<String> arguments = OBJECT_MAPPER.readValue(getCommandLineArgumentsFile(), new TypeReference<List<String>>() {});
+			return arguments.toArray(new String[] {});
+		} catch (final IOException e) {
+			throw new MojoExecutionException("failed to get command line arguments for ocamlwrap invocation", e);
+		}
+	}
+
+	private File getCommandLineArgumentsFile() {
+		final File file = new File(getOcamlCompiledSourcesTargetFullPath() + File.separator + 
+				"commandLineArgs." + OcamlJavaConstants.JSON_EXTENSION);
+		file.getParentFile().mkdirs();
+		return file;
+	}
+
+	private boolean hasCommandLineArgs() {
+		final String property = System.getProperty(OCAMLJAVA_MAVEN_PLUGIN_COMMAND_LINE_ARGS);
+		if (StringUtils.isBlank(property))
+			return false;
+		
+		return Boolean.parseBoolean(property);
+	}
+
 	private void wrapInternal(
 			final DependencyGraph dependencyGraph,
-			final ImmutableSet<String> compiledFiles)
+			final Set<String> compiledFiles)
 			throws MojoExecutionException {
 		getLog().info("infer package names based on directory structure");
 
@@ -305,42 +342,44 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		return comparator;
 	}
 
-	private void wrapFiles(
-			final Collection<String> includeDirs,
+	private void wrapFiles(final Collection<String> includeDirs,
 			final Collection<String> cmiFiles, final String packageName)
 			throws MojoExecutionException {
 
-		
-		
 		final Optional<String[]> commandLineArguments = generateCommandLineArguments(
 				includeDirs, cmiFiles, packageName);
 
 		if (commandLineArguments.isPresent()) {
-			getLog().info(
-					"command line arguments: "
-							+ ImmutableList.copyOf(commandLineArguments.get()));
-
-
-			final String goal = "mandelbrot:ocamljava-maven-plugin:wrap";
+			final ImmutableList<String> argsAsList = ImmutableList.copyOf(commandLineArguments.get());
 			
+			if (getLog().isInfoEnabled())
+				getLog().info("command line arguments: " + argsAsList);
+
+			final File commandLineArgumentsFile = getCommandLineArgumentsFile();
+		
+			try {
+				OBJECT_MAPPER.writeValue(commandLineArgumentsFile, argsAsList);
+			} catch (final IOException e) {
+				throw new MojoExecutionException("exception seriliazing command line arguments: " + argsAsList, e);
+			}
+			
+			final String goal = fullyQualifiedGoal();
 			final boolean forkAgain = false;
 			final Properties properties = new Properties();
-			properties.put("ocamljava.maven.plugin.commandLineArgs", properties);
-		
+			properties
+					.put(OCAMLJAVA_MAVEN_PLUGIN_COMMAND_LINE_ARGS, Boolean.TRUE.toString());
+
 			invokePlugin(goal, forkAgain, properties);
-			
-	
-	} else
-		if (getLog().isInfoEnabled())
+
+		} else if (getLog().isInfoEnabled()) {
 			getLog().info(
 					"no compiled module interfaces to wrap for package \""
 							+ packageName + "\" in "
 							+ getOcamlCompiledSourcesTargetFullPath());
-		return;
+		}
 	}
 
-	private void moveFiles(
-			final Collection<String> cmiFiles) {
+	private void moveFiles(final Collection<String> cmiFiles) {
 
 		for (final String cmiFile : cmiFiles) {
 
@@ -356,17 +395,16 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 				this.generatedSourcesOutputDirectory + File.separator
 						+ packagePath;
 
-				final Path path = Paths.get("");
 
 				// TODO ..should I just scan for *.java instead, or some
 				// regex pattern specified in Maven project?
-				final File file = new File(path.toFile().getPath()
-						+ File.separator + packagePath, generatedSourceName);
+				final File file = new File(project.getBasedir().getPath()
+						+ File.separator + generatedSourceName);
 
 				if (!file.exists()) {
 					getLog().warn(
 							"expected file " + file
-									+ " but it does not exist! skiping...");
+									+ " but it does not exist! skipping...");
 					continue;
 				}
 
@@ -382,11 +420,11 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 	}
 
 	private String inferGeneratedSourceName(final String cmiFile) {
-		final String generatedSource = FileUtils.basename(new File(cmiFile)
-				.getName());
+		final String generatedSource = StringTransforms.trim(FileUtils.basename(new File(cmiFile)
+				.getName()), ".");
 
 		return Optional.fromNullable(this.classNamePrefix).or("")
-				+ generatedSource
+				+ StringUtils.capitalizeFirstLetter(generatedSource)
 				+ Optional.fromNullable(this.classNameSuffix).or("")
 				+ OcamlJavaConstants.JAVA_EXTENSION;
 	}
@@ -404,7 +442,8 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 							getOcamlCompiledSourcesTargetFullPath(),
 							ImmutableSet
 									.of(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION,
-											OcamlJavaConstants.COMPILED_IMPL_EXTENSION,
+											OcamlJavaConstants.COMPILED_IMPL_OCAML_EXTENSION,
+											OcamlJavaConstants.COMPILED_IMPL_JAVA_EXTENSION,
 											OcamlJavaConstants.JSON_EXTENSION));
 
 			for (final String compiledModule : compiledModules) {
