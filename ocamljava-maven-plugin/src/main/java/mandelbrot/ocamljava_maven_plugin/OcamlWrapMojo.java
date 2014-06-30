@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Properties;
 import java.util.Set;
 
 import mandelbrot.dependency.analyzer.Analyzer;
@@ -18,12 +19,15 @@ import mandelbrot.ocamljava_maven_plugin.util.JarExtractor;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.ocamljava.wrapper.ocamljavaMain;
+import org.omg.CORBA.OMGVMCID;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -52,8 +56,6 @@ import com.google.common.collect.Multimap;
  * @since 1.0
  */
 public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
-
-	private static final String JAVA_EXTENSION = ".java";
 
 	/***
 	 * The working directory where the generated Java source files are created.
@@ -155,108 +157,132 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 	 **/
 	protected boolean verbose;
 
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-
+		
+		if (hasCommandLineArgs()) {
+			final ocamljavaMain result = org.ocamljava.wrapper.ocamljavaMain
+					.mainWithReturn(getCommandLineArgs());
+			// Will never execute, because the above forks.
+			getLog().warn("process should have exited: " + result);
+		}
+		
 		if (targetArtifacts == null || targetArtifacts.isEmpty()) {
 			getLog().info("no artifacts to wrap");
 			return;
 		}
 
-		final Collection<String> artifactFiles = getArtifactFiles();
+		final Properties properties = System.getProperties();
+		final Object object = properties.get(FORK_PROPERTY_NAME);
 
-		final Multimap<String, String> filesByExtension = extractFilesFromArtifacts(artifactFiles);
+		if (Boolean.parseBoolean(Optional.fromNullable(object).or(Boolean.TRUE)
+				.toString())) {
+			getLog().info("forking process");
 
-		if (filesByExtension.isEmpty()) {
-			getLog().info(
-					"no relevant files found in " + getTargetJarFullPath());
-			return;
-		}
-
-		final DependencyGraph dependencyGraph = getDependendyGraph(filesByExtension);
-
-		getLog().info("dependencyGraph: " + dependencyGraph);
-
-		final ImmutableSet<String> compiledFiles = ImmutableSet
-				.<String> builder()
-				.addAll(filesByExtension
-						.get(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION))
-				.addAll(filesByExtension
-						.get(OcamlJavaConstants.COMPILED_IMPL_EXTENSION))
-				.build();
-
-		if (compiledFiles.isEmpty()) {
-			getLog().info(
-					"no wrappable files found in " + getTargetJarFullPath());
-			return;
-		}
-
-		if (JavaPackageMode.DYNAMIC.equals(getJavaPackageMode())) {
-			getLog().info("infer package names based on directory structure");
-
-			final Multimap<String, String> filesByPackageName = FileMappings
-					.buildPackageMap(new File(
-							getOcamlCompiledSourcesTargetFullPath()),
-							compiledFiles);
-
-			getLog().info("filesByPackageName: " + filesByPackageName);
-
-			// Important to use this ordering to iterate through the packages
-			final Set<String> packageNames = dependencyGraph.getDependencies().keySet();
+			final boolean forkAgain = false;
+			invokePlugin(fullyQualifiedGoal(), forkAgain);
 			
-			getLog().info("packageNames: " + packageNames);
-
-			final ImmutableSet.Builder<String> includeDirsBuilder = ImmutableSet.builder();
-			
-			for (final String packageName : packageNames) {
-				getLog().info("wrap invoked for package: " + packageName);
-				final Collection<String> filesInPackage = filesByPackageName
-						.get(packageName);
-				try {
-					
-					final Collection<String> filtered = Collections2.filter(
-							filesInPackage, new Predicate<String>() {
-								@Override
-								public boolean apply(final String value) {
-									return OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION
-											.equalsIgnoreCase(FileUtils.extension(value));
-								}
-							});
-					
-					final Comparator<? super String> comparator = createComparator(
-							dependencyGraph, packageName);
-					getLog().info("filtered files to wrap: " + filtered);
-					
-					final ImmutableSortedSet<String> sorted = ImmutableSortedSet.copyOf(comparator, filtered);
-					getLog().info("sorted files to wrap: " + sorted);
-					
-					wrapFiles(includeDirsBuilder.build(), sorted, packageName);
-					includeDirsBuilder.add(new File(filesInPackage.iterator().next()).getParent());
-				} catch (final Exception e) {
-					getLog().error("wrapping threw an exception", e);
-					throw new MojoExecutionException(
-							"wrapping threw an exception", e);
-				}
-			}
 		} else {
+			final Collection<String> artifactFiles = getArtifactFiles();
 
-			final Multimap<String, String> buildPathMap = FileMappings.buildPathMap(compiledFiles);
+			final Multimap<String, String> filesByExtension = extractFilesFromArtifacts(artifactFiles);
+
+			if (filesByExtension.isEmpty()) {
+				getLog().info(
+						"no relevant files found in " + getTargetJarFullPath());
+				return;
+			}
+
+			final DependencyGraph dependencyGraph = getDependendyGraph(filesByExtension);
+
+			getLog().info("dependencyGraph: " + dependencyGraph);
+
+			final ImmutableSet<String> compiledFiles = ImmutableSet
+					.<String> builder()
+					.addAll(filesByExtension
+							.get(OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION))
+					.addAll(filesByExtension
+							.get(OcamlJavaConstants.COMPILED_IMPL_EXTENSION))
+					.build();
+
+			if (compiledFiles.isEmpty()) {
+				getLog().info(
+						"no wrappable files found in " + getTargetJarFullPath());
+				return;
+			}
+
+			wrapInternal(dependencyGraph, compiledFiles);
 			
-			getLog().info("package name is fixed to \"" + packageName + "\"");
-			
-			// TODO ORDER THE FILES THEMSELVES AT THE MINIMUM! !!!!!!!
-			// TODO should I sort these includes as well? probably
-			
-			final Comparator<? super String> comparator = createComparator(dependencyGraph, packageName);
-			
-			wrapFiles(buildPathMap.keySet(), ImmutableSortedSet.copyOf(comparator, compiledFiles), packageName);
 		}
+	}
+	
+	private void wrapInternal(
+			final DependencyGraph dependencyGraph,
+			final ImmutableSet<String> compiledFiles)
+			throws MojoExecutionException {
+		getLog().info("infer package names based on directory structure");
+
+		final Multimap<String, String> filesByPackageName = FileMappings
+				.buildPackageMap(new File(
+						getOcamlCompiledSourcesTargetFullPath()), compiledFiles);
+
+		getLog().info("filesByPackageName: " + filesByPackageName);
+
+		// Important to use this ordering to iterate through the packages
+		final Set<String> packageNames = dependencyGraph.getDependencies()
+				.keySet();
+
+		getLog().info("packageNames: " + packageNames);
+
+		final ImmutableSet.Builder<String> includeDirsBuilder = ImmutableSet
+				.builder();
+
+		for (final String packageName : packageNames) {
+			getLog().info("wrap invoked for package: " + packageName);
+			final Collection<String> filesInPackage = filesByPackageName
+					.get(packageName);
+			try {
+
+				final Collection<String> cmiFiles = Collections2.filter(
+						filesInPackage, new Predicate<String>() {
+							@Override
+							public boolean apply(final String value) {
+								return OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION
+										.equalsIgnoreCase(FileUtils
+												.extension(value));
+							}
+						});
+
+				final Comparator<? super String> comparator = createComparator(
+						dependencyGraph, packageName);
+				getLog().info("filtered files to wrap: " + cmiFiles);
+
+				final ImmutableSortedSet<String> sorted = ImmutableSortedSet
+						.copyOf(comparator, cmiFiles);
+				getLog().info("sorted files to wrap: " + sorted);
+
+				wrapFiles(includeDirsBuilder.build(), sorted, packageName);
+				includeDirsBuilder.add(new File(filesInPackage.iterator()
+						.next()).getParent());
+				moveFiles(cmiFiles);
+			} catch (final Exception e) {
+				getLog().error("wrapping threw an exception", e);
+				throw new MojoExecutionException("wrapping threw an exception",
+						e);
+			}
+		}
+	}
+
+	public String fullyQualifiedGoal() {
+		return "mandelbrot:ocamljava-maven-plugin:wrap";
 	}
 
 	private Comparator<? super String> createComparator(
 			final DependencyGraph dependencyGraph, final String packageName) {
-		final Collection<ModuleDescriptor> moduleDescriptors = dependencyGraph.getDependencies().get(packageName);
-		
+		final Collection<ModuleDescriptor> moduleDescriptors = dependencyGraph
+				.getDependencies().get(packageName);
+
 		final Comparator<? super String> comparator = new Comparator<String>() {
 			@Override
 			public int compare(final String paramT1, final String paramT2) {
@@ -264,10 +290,12 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 					return 0;
 				}
 				for (final ModuleDescriptor moduleDescriptor : moduleDescriptors) {
-					if (Objects.equal(moduleDescriptor.getModuleName(), Analyzer.moduleNameOfSource(paramT1))) {
+					if (Objects.equal(moduleDescriptor.getModuleName(),
+							Analyzer.moduleNameOfSource(paramT1))) {
 						return -1;
 					}
-					if (Objects.equal(moduleDescriptor.getModuleName(), Analyzer.moduleNameOfSource(paramT2))) {
+					if (Objects.equal(moduleDescriptor.getModuleName(),
+							Analyzer.moduleNameOfSource(paramT2))) {
 						return 1;
 					}
 				}
@@ -277,10 +305,13 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		return comparator;
 	}
 
-	private Optional<ocamljavaMain> wrapFiles(final Collection<String> includeDirs,
+	private void wrapFiles(
+			final Collection<String> includeDirs,
 			final Collection<String> cmiFiles, final String packageName)
 			throws MojoExecutionException {
 
+		
+		
 		final Optional<String[]> commandLineArguments = generateCommandLineArguments(
 				includeDirs, cmiFiles, packageName);
 
@@ -289,55 +320,65 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 					"command line arguments: "
 							+ ImmutableList.copyOf(commandLineArguments.get()));
 
-			final ocamljavaMain result = org.ocamljava.wrapper.ocamljavaMain
-					.mainWithReturn(commandLineArguments.get());
-			getLog().info(
-					"result: " + Objects.toStringHelper(result).toString());
 
-			for (final String cmiFile : cmiFiles) {
-
-				try {
-
-					final String generatedSourceName = inferGeneratedSourceName(cmiFile);
-
-					final String packagePath = FileMappings.toPackagePath(
-							getOcamlCompiledSourcesTargetFullPath(), cmiFile);
-					final String target =
-					// eg.
-					// target/generate-sources/ocaml/com/mycomp/FooWrapper.java
-					this.generatedSourcesOutputDirectory + File.separator
-							+ packagePath;
-
-					final Path path = Paths.get("");
-
-					// TODO ..should I just scan for *.java instead, or some
-					// regex pattern specified in maven project?
-					final File file = new File(path.toFile().getPath()
-							+ File.separator + packagePath, generatedSourceName);
-
-					if (!file.exists()) {
-						getLog().warn(
-								"expected file " + file
-										+ " but it does not exist! skiping...");
-						continue;
-					}
-
-					final File targetDir = new File(target);
-					getLog().info("copying " + file + " to " + targetDir);
-
-					FileUtils.copyFileToDirectory(file, targetDir);
-				} catch (final IOException e) {
-					getLog().error("io exception", e);
-				}
-			}
-			return Optional.of(result);
-
-		} else
+			final String goal = "mandelbrot:ocamljava-maven-plugin:wrap";
+			
+			final boolean forkAgain = false;
+			final Properties properties = new Properties();
+			properties.put("ocamljava.maven.plugin.commandLineArgs", properties);
+		
+			invokePlugin(goal, forkAgain, properties);
+			
+	
+	} else
+		if (getLog().isInfoEnabled())
 			getLog().info(
 					"no compiled module interfaces to wrap for package \""
 							+ packageName + "\" in "
 							+ getOcamlCompiledSourcesTargetFullPath());
-		return Optional.absent();
+		return;
+	}
+
+	private void moveFiles(
+			final Collection<String> cmiFiles) {
+
+		for (final String cmiFile : cmiFiles) {
+
+			try {
+
+				final String generatedSourceName = inferGeneratedSourceName(cmiFile);
+
+				final String packagePath = FileMappings.toPackagePath(
+						getOcamlCompiledSourcesTargetFullPath(), cmiFile);
+				final String target =
+				// eg.
+				// target/generate-sources/ocaml/com/mycomp/FooWrapper.java
+				this.generatedSourcesOutputDirectory + File.separator
+						+ packagePath;
+
+				final Path path = Paths.get("");
+
+				// TODO ..should I just scan for *.java instead, or some
+				// regex pattern specified in Maven project?
+				final File file = new File(path.toFile().getPath()
+						+ File.separator + packagePath, generatedSourceName);
+
+				if (!file.exists()) {
+					getLog().warn(
+							"expected file " + file
+									+ " but it does not exist! skiping...");
+					continue;
+				}
+
+				final File targetDir = new File(target);
+				getLog().info("copying " + file + " to " + targetDir);
+
+				FileUtils.copyFileToDirectory(file, targetDir);
+			} catch (final IOException e) {
+				getLog().error("io exception", e);
+			}
+		}
+		return;
 	}
 
 	private String inferGeneratedSourceName(final String cmiFile) {
@@ -347,7 +388,7 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		return Optional.fromNullable(this.classNamePrefix).or("")
 				+ generatedSource
 				+ Optional.fromNullable(this.classNameSuffix).or("")
-				+ JAVA_EXTENSION;
+				+ OcamlJavaConstants.JAVA_EXTENSION;
 	}
 
 	private Multimap<String, String> extractFilesFromArtifacts(
@@ -367,7 +408,8 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 											OcamlJavaConstants.JSON_EXTENSION));
 
 			for (final String compiledModule : compiledModules) {
-				moduleFilesBuilder.put(FileUtils.getExtension(compiledModule), compiledModule);
+				moduleFilesBuilder.put(FileUtils.getExtension(compiledModule),
+						compiledModule);
 			}
 		}
 
@@ -451,7 +493,7 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 
 		if (!StringUtils.isBlank(packageName)) {
 			builder.add(OcamlJavaConstants.PACKAGE_OPTION);
-			builder.add(packageName);
+			builder.add(getJavaPackageMode().choosePackage(packageName, this.packageName));
 		}
 
 		if (stringMapping != null) {

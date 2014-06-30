@@ -65,5 +65,6 @@ public class OcamlJavaConstants {
 	public static final String JAVA_ONLY_OPTION = "-java";
 	public static final String SORT_OPTION = "-sort";
 	public static final String ALL_OPTION = "-all";
+	public static final String JAVA_EXTENSION = ".java";
 	
 }

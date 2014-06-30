@@ -187,7 +187,23 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	}
 
 	public static enum JavaPackageMode {
-		FIXED, DYNAMIC
+		FIXED {
+			@Override
+			public String choosePackage(final String dynamicName, final String staticName) {
+				return staticName;
+			}
+		}, DYNAMIC {
+			@Override
+			public String choosePackage(final String dynamicName, final String staticName) {
+				return dynamicName;
+			}
+		};
+
+		public static JavaPackageMode getDefaultValue() {
+			return DYNAMIC;
+		}
+
+		public abstract String choosePackage(String dynamicName, String staticName);
 	}
 
 	/***
@@ -339,6 +355,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		return ocamlSourceDirectory;
 	}
 
+
 	/***
 	 * <p>Invokes a goal on a separate process programmatically using the Maven invoker tool.</p>
 	 * @param goal the maven goal, such as <code>jar:package</code> or <code>mandebrlot:ocamljava-maven-plugin:compile</code>.
@@ -347,16 +364,30 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @throws MojoExecutionException if an invocation exception occurs, or the invoked process did not exit with a return value of 0.
 	 */
 	protected InvocationResult invokePlugin(final String goal, final boolean forkAgain) throws MojoExecutionException {
+		return invokePlugin(goal, forkAgain, null);
+	}
+	
+	/***
+	 * <p>Invokes a goal on a separate process programmatically using the Maven invoker tool.</p>
+	 * @param goal the maven goal, such as <code>jar:package</code> or <code>mandebrlot:ocamljava-maven-plugin:compile</code>.
+	 * @param forkAgain sets a system property ({@value #FORK_PROPERTY_NAME}} as a hint to the invoking process on whether it should fork once more.   
+	 * @param properties system properties to pass to the Maven command.
+	 * @return the invocation result.
+	 * @throws MojoExecutionException if an invocation exception occurs, or the invoked process did not exit with a return value of 0.
+	 */
+	protected InvocationResult invokePlugin(final String goal, final boolean forkAgain, Properties properties) throws MojoExecutionException {
 
-		final Properties properties = new Properties();
+		properties = properties == null ? new Properties() : (Properties)properties.clone();
+		
 		properties.put(FORK_PROPERTY_NAME, Boolean.valueOf(forkAgain).toString());
 
 		final InvocationRequest defaultInvocationRequest = new DefaultInvocationRequest()
 				.setDebug(getLog().isDebugEnabled())
 				.setMavenOpts(System.getenv("MAVEN_OPTS"))
-				.setGoals(ImmutableList.of(goal)).setProperties(properties)
+				.setGoals(ImmutableList.of(goal))
+				.setProperties(properties)
 				.setPomFile(project.getFile());
-
+				
 		final Invoker invoker = new DefaultInvoker();
 		try {
 			final InvocationResult execution = invoker
