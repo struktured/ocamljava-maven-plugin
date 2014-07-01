@@ -173,10 +173,10 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * parameter accordingly.
 	 * </p>
 	 * 
-	 * @parameter default-value="DYNAMIC"
+	 * @parameter default-value="FIXED"
 	 * 
 	 **/
-	protected JavaPackageMode javaPackageMode = JavaPackageMode.DYNAMIC;
+	protected JavaPackageMode javaPackageMode = JavaPackageMode.FIXED;
 
 	public JavaPackageMode getJavaPackageMode() {
 		return javaPackageMode;

@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 /**
@@ -277,15 +278,7 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 					.get(packageName);
 			try {
 
-				final Collection<String> cmiFiles = Collections2.filter(
-						filesInPackage, new Predicate<String>() {
-							@Override
-							public boolean apply(final String value) {
-								return OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION
-										.equalsIgnoreCase(FileUtils
-												.extension(value));
-							}
-						});
+				final Collection<String> cmiFiles = filterFiles(filesInPackage);
 
 				final Comparator<? super String> comparator = createComparator(
 						dependencyGraph, packageName);
@@ -295,16 +288,47 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 						.copyOf(comparator, cmiFiles);
 				getLog().info("sorted files to wrap: " + sorted);
 
-				wrapFiles(includeDirsBuilder.build(), sorted, packageName);
-				includeDirsBuilder.add(new File(filesInPackage.iterator()
+				if (isDynamicPackageMode()) {
+					wrapFiles(includeDirsBuilder.build(), sorted, packageName);
+					includeDirsBuilder.add(new File(filesInPackage.iterator()
 						.next()).getParent());
-				moveFiles(cmiFiles);
+					moveFiles(cmiFiles);
+				}
+				
 			} catch (final Exception e) {
 				getLog().error("wrapping threw an exception", e);
 				throw new MojoExecutionException("wrapping threw an exception",
 						e);
 			}
 		}
+		
+		if (!isDynamicPackageMode()) {
+			final Set<ModuleDescriptor> concat = 
+				ImmutableSet.copyOf(Iterables.concat(dependencyGraph.getDependencies().values()));
+		
+			final Comparator<? super String> comparator = createComparator(concat);
+
+			final ImmutableSortedSet<String> sorted = ImmutableSortedSet
+				.copyOf(comparator, filterFiles(filesByPackageName.values()));
+
+			wrapFiles(includeDirsBuilder.build(), sorted, packageName);;
+			moveFiles(sorted);
+		}
+	}
+
+
+	private static Collection<String> filterFiles(
+			final Collection<String> filesInPackage) {
+		final Collection<String> cmiFiles = Collections2.filter(
+				filesInPackage, new Predicate<String>() {
+					@Override
+					public boolean apply(final String value) {
+						return OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION
+								.equalsIgnoreCase(FileUtils
+										.extension(value));
+					}
+				});
+		return cmiFiles;
 	}
 
 	public String fullyQualifiedGoal() {
@@ -316,6 +340,13 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		final Collection<ModuleDescriptor> moduleDescriptors = dependencyGraph
 				.getDependencies().get(packageName);
 
+		final Comparator<? super String> comparator = createComparator(moduleDescriptors);
+		return comparator;
+	}
+
+
+	private Comparator<? super String> createComparator(
+			final Collection<ModuleDescriptor> moduleDescriptors) {
 		final Comparator<? super String> comparator = new Comparator<String>() {
 			@Override
 			public int compare(final String paramT1, final String paramT2) {
@@ -383,8 +414,8 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 
 				final String generatedSourceName = inferGeneratedSourceName(cmiFile);
 
-				final String packagePath = FileMappings.toPackagePath(
-						getOcamlCompiledSourcesTargetFullPath(), cmiFile);
+				final String packagePath = isDynamicPackageMode() ? FileMappings.toPackagePath(
+						getOcamlCompiledSourcesTargetFullPath(), cmiFile) : packageName;
 				final String target =
 				// eg.
 				// target/generate-sources/ocaml/com/mycomp/FooWrapper.java
