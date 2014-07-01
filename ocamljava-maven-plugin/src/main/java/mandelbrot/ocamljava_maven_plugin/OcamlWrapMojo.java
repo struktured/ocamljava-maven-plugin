@@ -419,8 +419,8 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 				final String target =
 				// eg.
 				// target/generate-sources/ocaml/com/mycomp/FooWrapper.java
-				this.generatedSourcesOutputDirectory + File.separator
-						+ packagePath;
+				this.generatedSourcesOutputDirectory 
+						+ (StringUtils.isNotBlank(packagePath) ? (File.separator + packagePath) : "");
 
 
 				// TODO ..should I just scan for *.java instead, or some

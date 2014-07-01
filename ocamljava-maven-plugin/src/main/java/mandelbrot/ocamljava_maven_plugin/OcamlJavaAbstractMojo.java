@@ -164,10 +164,10 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	/***
 	 * Sets how java packages are determined for the code generated classes.
 	 * <p>
-	 * By default, a java package will be inferred according to the folder
+	 * If set to <code>DYNAMIC</ocde>, a java package will be inferred according to the folder
 	 * structure of the modules. For instance,
 	 * <code>"src/main/ocaml/foo/bar/lib.ml"</code> will generate
-	 * <code>package foo.bar</code> at the top of <code>LibWrapper.java</code>.
+	 * <code>package foo.bar</code> at the top of <code>LibWrapper.java</code>.</p><p>
 	 * To fix the package name for all compiled module interfaces, set this
 	 * value to <code>FIXED</code> and fill in the {@link #packageName}
 	 * parameter accordingly.
