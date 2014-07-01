@@ -38,7 +38,7 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaCompileAbstractM
 			final File root = new File(getOcamlCompiledSourcesTargetFullPath());
 			final Multimap<String, String> ocamlCompiledSourceFiles = new FilesByExtensionGatherer(
 					this, ImmutableSet.of(
-							OcamlJavaConstants.COMPILED_IMPL_EXTENSION,
+							OcamlJavaConstants.COMPILED_IMPL_JAVA_EXTENSION,
 							OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION))
 					.gather(root);
 
@@ -48,7 +48,7 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaCompileAbstractM
 			}
 			
 			final String[] args = generateCommandLineArguments(ocamlCompiledSourceFiles.get(
-					OcamlJavaConstants.COMPILED_IMPL_EXTENSION)).toArray(new String[]{});
+					OcamlJavaConstants.COMPILED_IMPL_JAVA_EXTENSION)).toArray(new String[]{});
 
 			getLog().info("args: " + ImmutableList.copyOf(args));
 			
@@ -64,7 +64,8 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaCompileAbstractM
 				final Collection<String> all = ImmutableList.<String>builder()
 						.add(chooseDependencyGraphTargetFullPath().getPath())
 						.addAll(compiledModuleInterfaces)
-						.addAll(ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_IMPL_EXTENSION)).build();
+						.addAll(ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_IMPL_OCAML_EXTENSION))
+						.addAll(ocamlCompiledSourceFiles.get(OcamlJavaConstants.COMPILED_IMPL_JAVA_EXTENSION)).build();
 				
 				new JarAppender(this).addFiles(getTargetOcamlJarFullPath(), all, 
 						getOcamlCompiledSourcesTargetFullPath());
@@ -76,7 +77,6 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaCompileAbstractM
 				FileUtils.copyFile(new File(getTargetOcamlJarFullPath()), 
 						new File(getTargetJarFullPath()));
 			}
-			
 			
 			
 		} catch (final Exception e) {

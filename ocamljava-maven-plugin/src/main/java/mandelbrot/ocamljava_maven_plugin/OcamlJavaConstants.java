@@ -5,7 +5,7 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 
 /***
- * Various constants specific to the ocamljava compiler library.
+ * Various constants specific to the ocamljava library.
  * @author Carmelo Piccione
  *
  */
@@ -16,7 +16,8 @@ public class OcamlJavaConstants {
 
 	public static final String DOT = ".";
 
-	public static final String COMPILED_IMPL_EXTENSION = "cmj";
+	public static final String COMPILED_IMPL_JAVA_EXTENSION = "cmj";
+	public static final String COMPILED_IMPL_OCAML_EXTENSION = "cmo";
 	public static final String COMPILED_INTERFACE_EXTENSION = "cmi";
 	public static final String OBJECT_BINARY_EXTENSION = "jo";
 	public static final String JSON_EXTENSION = "json";
@@ -25,7 +26,7 @@ public class OcamlJavaConstants {
 			.of(IMPL_SOURCE_EXTENSION, INTERFACE_SOURCE_EXTENSION);
 	
 	public static final Set<String> OCAML_COMPILED_SOURCE_FILE_EXTENSIONS = ImmutableSet
-			.of(COMPILED_IMPL_EXTENSION, COMPILED_INTERFACE_EXTENSION, OBJECT_BINARY_EXTENSION);
+			.of(COMPILED_IMPL_JAVA_EXTENSION, COMPILED_INTERFACE_EXTENSION, OBJECT_BINARY_EXTENSION);
 	
 	public static final String COMPILE_SOURCES_OPTION = "-c";
 	public static final String ADD_TO_JAR_SOURCES_OPTION = "-o";
@@ -65,5 +66,6 @@ public class OcamlJavaConstants {
 	public static final String JAVA_ONLY_OPTION = "-java";
 	public static final String SORT_OPTION = "-sort";
 	public static final String ALL_OPTION = "-all";
+	public static final String JAVA_EXTENSION = ".java";
 	
 }

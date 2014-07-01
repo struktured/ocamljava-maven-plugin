@@ -20,7 +20,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -101,7 +100,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		
 			moveCompiledFiles(ocamlSourceFiles.get(OcamlJavaConstants.IMPL_SOURCE_EXTENSION), chooseOcamlCompiledSourcesTarget(),
 					chooseOcamlSourcesDirectory().getPath(), 
-					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_EXTENSION, 
+					ImmutableSet.of(OcamlJavaConstants.COMPILED_IMPL_JAVA_EXTENSION, 
 							OcamlJavaConstants.OBJECT_BINARY_EXTENSION, OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION));
 
 		} catch (final Exception e) {
