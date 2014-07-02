@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>world-cup-root</artifactId>
+		<groupId>soccer.simulator</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>world-cup-lib</artifactId>
+	<packaging>jar</packaging>
+	<name>World Cup Library Project</name>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>mandelbrot</groupId>
+				<artifactId>ocamljava-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>ocaml-compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>ocaml-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+		</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>fr.x9c</groupId>
+			<artifactId>ocamljava</artifactId>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+</project>

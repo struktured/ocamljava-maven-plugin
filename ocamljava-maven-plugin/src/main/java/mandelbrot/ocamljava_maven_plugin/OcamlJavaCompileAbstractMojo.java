@@ -20,6 +20,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -130,7 +131,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 						toPackage(ocamlSourceDirectory, path), sourceFiles).toArray(new String[] {});
 				
 				if (getLog().isInfoEnabled())
-					getLog().info("ocamljava compile args: " + ImmutableList.copyOf(sourceArgs));
+					getLog().info("ocamljava compile args: " + Joiner.on(" ").join(ImmutableList.copyOf(sourceArgs)));
 				
 				final ocamljavaMain main = ocamljavaMain.mainWithReturn(sourceArgs);
 				checkForErrors("ocamljava compiler error while processing path: " + path, main);
