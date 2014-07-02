@@ -27,7 +27,8 @@
 					<verbose>true</verbose>
 					<targetArtifacts>
 						<targetArtifact>soccer.simulator:world-cup-lib:0.0.1-SNAPSHOT</targetArtifact>
-					</targetArtifacts>
+					</targetArtifacts>	
+					<packageName>soccer.simulator</packageName>
 				</configuration>
 				<executions>
 					<execution>

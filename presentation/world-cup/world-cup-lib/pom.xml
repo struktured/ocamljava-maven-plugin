@@ -25,6 +25,7 @@
 			<plugin>
 				<groupId>mandelbrot</groupId>
 				<artifactId>ocamljava-maven-plugin</artifactId>
+				<configuration><packageName>soccer.simulator</packageName></configuration>
 				<executions>
 					<execution>
 						<id>ocaml-compile</id>

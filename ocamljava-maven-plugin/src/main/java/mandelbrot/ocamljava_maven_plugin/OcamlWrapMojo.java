@@ -67,6 +67,7 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 	 * The working directory where the generated Java source files are created.
 	 * 
 	 * @parameter 
+	 *           
 	 *            default-value="${project.build.directory}/generated-sources/ocaml"
 	 * @required
 	 */
@@ -340,6 +341,7 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 		final Collection<ModuleDescriptor> moduleDescriptors = dependencyGraph
 				.getDependencies().get(packageName);
 
+		getLog().info("module descriptor dependencies: " + moduleDescriptors);
 		final Comparator<? super String> comparator = createComparator(moduleDescriptors);
 		return comparator;
 	}
