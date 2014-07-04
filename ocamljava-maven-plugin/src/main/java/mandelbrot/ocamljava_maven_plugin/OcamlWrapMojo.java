@@ -355,9 +355,8 @@ public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 				if (Objects.equal(paramT1, paramT2)) {
 					return 0;
 				}
-				getLog().info("paramT1: " + paramT1 + ", paramT2: " + paramT2);
+				
 				for (final ModuleDescriptor moduleDescriptor : moduleDescriptors) {
-					getLog().info("moduleDescriptor: " + moduleDescriptor);
 					Optional<String> moduleNameOfSource = Analyzer.moduleNameOfSource(paramT1);
 					if (Objects.equal(moduleDescriptor.getModuleName(),
 							moduleNameOfSource.orNull())) {
