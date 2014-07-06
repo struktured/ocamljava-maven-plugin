@@ -30,12 +30,10 @@ import org.ocamljava.runtime.annotations.parameters.Parameters;
 import org.ocamljava.runtime.kernel.AbstractNativeRunner;
 import org.ocamljava.runtime.kernel.FalseExit;
 import org.ocamljava.runtime.parameters.NativeParameters;
-import org.sonatype.aether.RepositorySystemSession;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
@@ -43,7 +41,7 @@ import com.google.common.collect.Multimap;
 
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 
-	private static final String OFFLINE_MODE = "-o";
+	private static final String OFFLINE_MODE = " -o";
 
 	public static final String DEPENDENCIES_FILE_NAME = "dependencies.json";
 
