@@ -70,6 +70,11 @@
 		    	<artifactId>ocamljava-maven-plugin-base</artifactId>
 		    	<version>${project.version}</version>
 		</dependency>
+		<dependency>
+		    	<groupId>mandelbrot</groupId>
+		    	<artifactId>ocamljava-compiler-maven-plugin</artifactId>
+		    	<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

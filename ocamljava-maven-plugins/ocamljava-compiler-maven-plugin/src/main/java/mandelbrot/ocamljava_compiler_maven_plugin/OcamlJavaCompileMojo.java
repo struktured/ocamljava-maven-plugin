@@ -1,4 +1,4 @@
-package mandelbrot.ocamljava_maven_plugin;
+package mandelbrot.ocamljava_compiler_maven_plugin;
 
 import java.io.File;
 

@@ -1,7 +1,6 @@
 package mandelbrot.ocamljavaplugin_test;
 
 import junit.framework.Assert;
-import ocaml.compilers.ocamljavaMain;
 
 import org.junit.Test;
 

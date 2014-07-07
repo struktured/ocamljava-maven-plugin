@@ -1,4 +1,4 @@
-package mandelbrot.ocamljava_maven_plugin;
+package mandelbrot.ocamljava_compiler_maven_plugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,8 @@ import java.util.Set;
 
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.dependency.data.ModuleDescriptor;
+import mandelbrot.ocamljava_maven_plugin.OcamlJavaAbstractMojo;
+import mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants;
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileExtensions;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
