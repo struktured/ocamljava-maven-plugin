@@ -9,6 +9,8 @@
 
 	<properties>
 		<ocamljava.version>2.0-early-access11</ocamljava.version>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -25,6 +27,11 @@
 		<dependency>
 			<groupId>fr.x9c</groupId>
 			<artifactId>ocaml-lib-files</artifactId>
+			<version>${ocamljava.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>fr.x9c</groupId>
+			<artifactId>ocamldep</artifactId>
 			<version>${ocamljava.version}</version>
 		</dependency>
 		</dependencies>

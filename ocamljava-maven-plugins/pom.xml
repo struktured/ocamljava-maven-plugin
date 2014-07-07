@@ -62,18 +62,8 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-				<groupId>org.apache.maven.shared</groupId>
-				<artifactId>maven-invoker</artifactId>
-		</dependency>
-		<dependency>
-		    	<groupId>mandelbrot</groupId>
-		    	<artifactId>ocamljava-maven-plugin-base</artifactId>
-		    	<version>${project.version}</version>
-		</dependency>
-		<dependency>
-		    	<groupId>mandelbrot</groupId>
-		    	<artifactId>ocamljava-compiler-maven-plugin</artifactId>
-		    	<version>${project.version}</version>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-invoker</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
@@ -156,5 +146,15 @@
 
 		</plugins>
 	</reporting>
-
+	<modules>
+		<module>
+			ocamljava-maven-plugin-base
+		</module>
+		<module>
+			ocamljava-maven-plugin
+		</module>
+		<module>
+			ocamljava-compiler-maven-plugin
+		</module>
+	</modules>
 </project>
