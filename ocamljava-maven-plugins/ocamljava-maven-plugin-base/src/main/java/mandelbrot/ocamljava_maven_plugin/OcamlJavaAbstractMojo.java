@@ -32,6 +32,7 @@ import org.ocamljava.runtime.kernel.FalseExit;
 import org.ocamljava.runtime.parameters.NativeParameters;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
@@ -382,6 +383,8 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 */
 	protected InvocationResult invokePlugin(final String goal, final boolean forkAgain, Properties properties) throws MojoExecutionException {
 
+		Preconditions.checkNotNull(project, "no project defined- this plugin must be invoked on a maven project!");
+		
 		properties = properties == null ? new Properties() : (Properties)properties.clone();
 		
 		properties.put(FORK_PROPERTY_NAME, Boolean.valueOf(forkAgain).toString());
