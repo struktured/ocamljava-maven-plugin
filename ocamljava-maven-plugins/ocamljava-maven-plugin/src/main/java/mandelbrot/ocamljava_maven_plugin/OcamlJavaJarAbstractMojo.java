@@ -15,8 +15,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
-public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaCompileAbstractMojo {
-
+public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
+	
 	/***
 	 * Whether to replace the main artifact jar with ocaml enhanced version.
 	 * @parameter default-value="true"

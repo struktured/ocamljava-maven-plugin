@@ -67,5 +67,8 @@ public class OcamlJavaConstants {
 	public static final String SORT_OPTION = "-sort";
 	public static final String ALL_OPTION = "-all";
 	public static final String JAVA_EXTENSION = ".java";
+	public static String dependencyGoal() {
+		return "mandelbrot:ocamljava-maven-plugin:dep";
+	}
 	
 }

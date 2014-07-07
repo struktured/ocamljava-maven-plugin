@@ -161,7 +161,7 @@
 	</licenses>
 	<modules>
 		<module>ocamljava-maven-common</module>
-		<module>ocamljava-maven-plugin</module>
+		<module>ocamljava-maven-plugins</module>
 		<module>ocamljava-plugin-test</module>
 		<module>ocamljava-dependency-analyzer</module>
 	</modules>

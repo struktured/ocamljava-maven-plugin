@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>mandelbrot</groupId>
-		<artifactId>ocamljava-maven-plugin-root</artifactId>
+		<artifactId>ocamljava-maven-plugins</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>ocamljava-maven-plugin</artifactId>
@@ -64,6 +64,11 @@
 		<dependency>
 				<groupId>org.apache.maven.shared</groupId>
 				<artifactId>maven-invoker</artifactId>
+		</dependency>
+		<dependency>
+		    	<groupId>mandelbrot</groupId>
+		    	<artifactId>ocamljava-maven-plugin-base</artifactId>
+		    	<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
