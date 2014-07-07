@@ -7,7 +7,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>ocamljava-maven-plugin-base</artifactId>
-	<packaging>jar</packaging>
+	<packaging>maven-plugin</packaging>
 	<name>Ocaml Java Maven Plugin Base Library</name>
 	<url>https://github.com/struktured/ocamljava-maven-plugin</url>
 	<prerequisites>
