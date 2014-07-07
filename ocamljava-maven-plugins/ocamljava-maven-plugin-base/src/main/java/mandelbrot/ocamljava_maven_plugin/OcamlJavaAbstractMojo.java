@@ -18,6 +18,8 @@ import ocaml.tools.ocamldep.ocamljavaMain;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
@@ -42,6 +44,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
+@Mojo(name="ocamljava-abstract-mojo", inheritByDefault=true)
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 
 	private static final String OFFLINE_MODE = "-o";
@@ -56,8 +59,8 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * </code>target/ocaml-tests</code>)
 	 * 
 	 * @parameter default-value="dependencies.json"
-	 * @required
 	 */
+	@Parameter(defaultValue="dependencies.json")
 	protected String dependencyGraphTarget = DEPENDENCIES_FILE_NAME;
 
 	/***
@@ -65,6 +68,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @required
 	 * @readonly
 	 */
+	@Parameter(readonly=true, required=true, defaultValue="${project}")
 	protected MavenProject project;
 
 	/***
@@ -73,6 +77,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @required
 	 * @parameter default-value="${descriptor}"
 	 */
+	@Parameter(readonly=true, required=true, defaultValue="${descriptor}")	
 	protected PluginDescriptor descriptor;
 
 	/***
@@ -81,6 +86,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @parameter property="project.build.directory"
 	 * @required
 	 */
+	@Parameter(required=true, property="{project.build.directory}")
 	protected final File outputDirectory = new File("");
 
 	/***
@@ -90,6 +96,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * 
 	 * @parameter default-value="ocaml-bin"
 	 */
+	@Parameter(defaultValue="ocaml-bin")
 	protected String ocamlCompiledSourcesTarget;
 
 	/***
@@ -97,6 +104,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * 
 	 * @parameter default-value="src/main/ocaml"
 	 */
+	@Parameter(defaultValue="src/main/ocaml")
 	protected File ocamlSourceDirectory = new File("src/main/ocaml");
 
 	/***
@@ -107,6 +115,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @parameter default-value="${project.artifactId}-${project.version}.jar"
 	 * @required
 	 */
+	@Parameter(required=true, defaultValue="${project.artifactId}-${project.version}.jar")
 	protected String targetJar;
 
 	/***
@@ -118,6 +127,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 *            default-value="${project.artifactId}-${project.version}-ocaml.jar"
 	 * @required
 	 */
+	@Parameter(required=true, defaultValue="${project.artifactId}-${project.version}-ocaml.jar")
 	protected String targetOcamlJar;
 
 	public String getOcamlCompiledSourcesTargetFullPath() {
@@ -136,6 +146,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 *            default-value="${project.artifactId}-${project.version}-tests.jar"
 	 * @required
 	 */
+	@Parameter(required=true, defaultValue="${project.artifactId}-${project.version}-tests.jar")
 	protected String targetTestJar;
 
 	/***
@@ -148,6 +159,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 *            default-value="${project.artifactId}-${project.version}-ocaml-tests.jar"
 	 * @required
 	 */
+	@Parameter(required=true, defaultValue="${project.artifactId}-${project.version}-ocaml-tests.jar")
 	protected String targetTestOcamlJar;
 
 	/***
@@ -158,6 +170,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @parameter default-value="ocaml-tests"
 	 * 
 	 */
+	@Parameter(defaultValue="ocaml-tests")
 	protected String ocamlCompiledTestsTarget;
 
 	/***
@@ -165,6 +178,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * 
 	 * @parameter default-value="src/test/ocaml"
 	 */
+	@Parameter(defaultValue="src/test/java")
 	protected final File ocamlTestDirectory = new File("src/test/ocaml");
 
 	/***
@@ -182,6 +196,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @parameter default-value="FIXED"
 	 * 
 	 **/
+	@Parameter(defaultValue="FIXED")
 	protected JavaPackageMode javaPackageMode = JavaPackageMode.FIXED;
 
 	public JavaPackageMode getJavaPackageMode() {
@@ -218,6 +233,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @parameter default-value=""
 	 * 
 	 **/
+	@Parameter(defaultValue="")
 	protected String packageName;
 
 	protected String toPackage(final File prefixToTruncate, final String path) {
@@ -240,6 +256,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @parameter default-value="true"
 	 * 
 	 */
+	@Parameter(defaultValue="true")
 	protected boolean javaExtensions;
 
 	protected Multimap<String, String> gatherOcamlSourceFiles(final File root) {
