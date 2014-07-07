@@ -31,14 +31,19 @@ import org.ocamljava.runtime.kernel.AbstractNativeRunner;
 import org.ocamljava.runtime.kernel.FalseExit;
 import org.ocamljava.runtime.parameters.NativeParameters;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
+
+	private static final String OFFLINE_MODE = "-o";
 
 	public static final String DEPENDENCIES_FILE_NAME = "dependencies.json";
 
@@ -384,8 +389,9 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		final InvocationRequest defaultInvocationRequest = new DefaultInvocationRequest()
 				.setDebug(getLog().isDebugEnabled())
 				.setMavenOpts(System.getenv("MAVEN_OPTS"))
-				.setGoals(ImmutableList.of(goal))
+				.setGoals(ImmutableList.of(goal))				
 				.setProperties(properties)
+				.setOffline(isOffline())
 				.setPomFile(project.getFile());
 				
 		final Invoker invoker = new DefaultInvoker();
@@ -403,5 +409,13 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		} catch (final MavenInvocationException e) {
 			throw new MojoExecutionException("problem during fork operation", e);
 		}
+	}
+
+	protected boolean isOffline() {
+		final Optional<String> optional = Optional.fromNullable(System.getProperty("sun.java.command")); 
+		if (optional.isPresent()) {
+			return ImmutableSet.copyOf(Splitter.on(" ").split(optional.get())).contains(OFFLINE_MODE);
+		}
+		return false;
 	}
 }
