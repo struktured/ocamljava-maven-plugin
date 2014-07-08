@@ -44,7 +44,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
-//@Mojo(name="ocamljava-abstract-mojo", inheritByDefault=true)
+
 public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 
 	private static final String OFFLINE_MODE = "-o";

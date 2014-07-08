@@ -4,6 +4,9 @@ import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import mandelbrot.ocamljava_compiler_maven_plugin.OcamlJavaCompileAbstractMojo;
 
@@ -19,14 +22,10 @@ import mandelbrot.ocamljava_compiler_maven_plugin.OcamlJavaCompileAbstractMojo;
  * locations and class path. All parameters can be overridden. See the
  * configuration section of the documentation for more information.</p>
  * 
- * @requiresProject
- * @goal compile
- * @phase compile
- * @executionStrategy once-per-session
- * @requiresDependencyResolution runtime
- * @threadSafe *
  * @since 1.0
  */
+@Mojo(requiresProject=true, requiresDependencyResolution=ResolutionScope.RUNTIME, executionStrategy="once-per-session",
+threadSafe=true, defaultPhase=LifecyclePhase.COMPILE, name="compile")
 public class OcamlJavaCompileMojo extends OcamlJavaCompileAbstractMojo {
 	
 	@Override
