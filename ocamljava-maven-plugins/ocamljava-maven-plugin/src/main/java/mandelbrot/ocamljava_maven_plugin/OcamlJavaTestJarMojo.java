@@ -7,6 +7,8 @@ import java.io.File;
 import ocaml.compilers.ocamljavaMain;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.codehaus.plexus.util.FileUtils;
 
 import com.google.common.collect.ImmutableList;
@@ -17,14 +19,10 @@ import com.google.common.collect.ImmutableList;
  * <p><code>ocamljava -o some-target.jar foo.cmj bar.cmj ...</code></p>
  * from the command line but instead uses maven properties to infer the compiled source location and target jar name.
  * Both can be overridden. See the configuration section of the documentation for more information.</p>
- * @requiresProject 
- * @goal test-jar
- * @phase package
- * @threadSafe *
  * @since 1.0
  */
+@Mojo(name="test-jar", requiresProject=true, defaultPhase=LifecyclePhase.PACKAGE, threadSafe=true)
 public class OcamlJavaTestJarMojo extends OcamlJavaJarAbstractMojo {
-
 
 
 	@Override

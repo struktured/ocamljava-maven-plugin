@@ -19,6 +19,9 @@ import mandelbrot.ocamljava_maven_plugin.util.StringTransforms;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.codehaus.plexus.util.FileUtils;
@@ -49,13 +52,10 @@ import com.google.common.collect.Multimap;
  * module interface locations. All parameters can be overridden. See the
  * configuration section of the documentation for more information.</p>
  * 
- * @requiresProject
- * @requiresDependencyResolution
- * @goal wrap
- * @phase generate-sources
- * @threadSafe *
  * @since 1.0
  */
+@Mojo(name="wrap", defaultPhase=LifecyclePhase.GENERATE_SOURCES, threadSafe=true, requiresDependencyResolution=ResolutionScope.RUNTIME,
+requiresProject=true)
 public class OcamlWrapMojo extends OcamlJavaJarAbstractMojo {
 
 

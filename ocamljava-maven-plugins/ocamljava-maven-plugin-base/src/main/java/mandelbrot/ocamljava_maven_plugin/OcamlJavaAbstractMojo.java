@@ -18,7 +18,6 @@ import ocaml.tools.ocamldep.ocamljavaMain;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
-import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
@@ -57,25 +56,15 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * The name of the generated ocaml dependency graph file, to be place in the
 	 * target directory (usually one of <code>target/ocaml-bin</code> or
 	 * </code>target/ocaml-tests</code>)
-	 * 
-	 * @parameter default-value="dependencies.json"
-	 */
+	 */ 
 	@Parameter(defaultValue="dependencies.json")
 	protected String dependencyGraphTarget = DEPENDENCIES_FILE_NAME;
 
-	/***
-	 * @parameter default-value="${project}"
-	 * @required
-	 * @readonly
-	 */
 	@Parameter(readonly=true, required=true, defaultValue="${project}")
 	protected MavenProject project;
 
 	/***
 	 * The plugin descriptor.
-	 * 
-	 * @required
-	 * @parameter default-value="${descriptor}"
 	 */
 	@Parameter(readonly=true, required=true, defaultValue="${descriptor}")	
 	protected PluginDescriptor descriptor;
@@ -83,8 +72,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	/***
 	 * Project's output directory, usually <code>target</code>.
 	 * 
-	 * @parameter property="project.build.directory"
-	 * @required
 	 */
 	@Parameter(required=true, property="project.build.directory")
 	protected final File outputDirectory = new File("");
@@ -93,16 +80,12 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * The target subfolder to hold all compiled ocaml sources. This value is
 	 * combined with the build output directory (usually <code>target</code>) to
 	 * create an actual file path.
-	 * 
-	 * @parameter default-value="ocaml-bin"
 	 */
 	@Parameter(defaultValue="ocaml-bin")
 	protected String ocamlCompiledSourcesTarget;
 
 	/***
 	 * Project's source directory.
-	 * 
-	 * @parameter default-value="src/main/ocaml"
 	 */
 	@Parameter(defaultValue="src/main/ocaml")
 	protected File ocamlSourceDirectory = new File("src/main/ocaml");
@@ -112,8 +95,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * sources depending on the value of the <code>replaceMainArtifact</code>
 	 * parameter.
 	 * 
-	 * @parameter default-value="${project.artifactId}-${project.version}.jar"
-	 * @required
 	 */
 	@Parameter(required=true, defaultValue="${project.artifactId}-${project.version}.jar")
 	protected String targetJar;
@@ -123,9 +104,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * <code>replaceMainArtifact</code> is set to <code>true</code>, then this
 	 * jar will replace the contents of the <code>targetJar</code> parameter.
 	 * 
-	 * @parameter 
-	 *            default-value="${project.artifactId}-${project.version}-ocaml.jar"
-	 * @required
 	 */
 	@Parameter(required=true, defaultValue="${project.artifactId}-${project.version}-ocaml.jar")
 	protected String targetOcamlJar;
@@ -141,10 +119,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * The target test jar to depend on and possibly replace with ocaml compiled
 	 * sources depending on the value of the <code>replaceMainArtifact</code>
 	 * parameter.
-	 * 
-	 * @parameter 
-	 *            default-value="${project.artifactId}-${project.version}-tests.jar"
-	 * @required
 	 */
 	@Parameter(required=true, defaultValue="${project.artifactId}-${project.version}-tests.jar")
 	protected String targetTestJar;
@@ -154,10 +128,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * <code>replaceMainArtifact</code> is set to <code>true</code>, then this
 	 * jar will replace the contents of the <code>targetTestJar</code>
 	 * parameter.
-	 * 
-	 * @parameter 
-	 *            default-value="${project.artifactId}-${project.version}-ocaml-tests.jar"
-	 * @required
 	 */
 	@Parameter(required=true, defaultValue="${project.artifactId}-${project.version}-ocaml-tests.jar")
 	protected String targetTestOcamlJar;
@@ -167,16 +137,12 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * is combined with the build output directory (usually <code>target</code>)
 	 * to create an actual file path.
 	 * 
-	 * @parameter default-value="ocaml-tests"
-	 * 
 	 */
 	@Parameter(defaultValue="ocaml-tests")
 	protected String ocamlCompiledTestsTarget;
 
 	/***
 	 * Project's source directory as specified in the POM.
-	 * 
-	 * @parameter default-value="src/test/ocaml"
 	 */
 	@Parameter(defaultValue="src/test/java")
 	protected final File ocamlTestDirectory = new File("src/test/ocaml");
@@ -192,8 +158,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * value to <code>FIXED</code> and fill in the {@link #packageName}
 	 * parameter accordingly.
 	 * </p>
-	 * 
-	 * @parameter default-value="FIXED"
 	 * 
 	 **/
 	@Parameter(defaultValue="FIXED")
@@ -230,8 +194,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	/***
 	 * Sets the java package name for each source file.
 	 * 
-	 * @parameter default-value=""
-	 * 
 	 **/
 	@Parameter(defaultValue="")
 	protected String packageName;
@@ -252,8 +214,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	/***
 	 * Whether to enable extensions that allow ocaml modules to access plain
 	 * java objects.
-	 * 
-	 * @parameter default-value="true"
 	 * 
 	 */
 	@Parameter(defaultValue="true")

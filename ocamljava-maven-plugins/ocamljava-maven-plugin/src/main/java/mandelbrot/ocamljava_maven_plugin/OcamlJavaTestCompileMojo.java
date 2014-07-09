@@ -2,6 +2,10 @@ package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
 
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+
 import mandelbrot.ocamljava_compiler_maven_plugin.OcamlJavaCompileAbstractMojo;
 
 /**
@@ -16,14 +20,10 @@ import mandelbrot.ocamljava_compiler_maven_plugin.OcamlJavaCompileAbstractMojo;
  * locations and class path. All parameters can be overriden. See the
  * configuration section of the documentation for more information.</p>
  * 
- * @requiresProject
- * @goal testCompile
- * @phase test-compile
- * @executionStrategy once-per-session
- * @requiresDependencyResolution runtime
- * @threadSafe *
  * @since 1.0
  */
+@Mojo(name="testCompile", defaultPhase=LifecyclePhase.TEST_COMPILE,  threadSafe=true, requiresDependencyResolution=ResolutionScope.RUNTIME, 
+executionStrategy="once-per-session")
 public class OcamlJavaTestCompileMojo extends OcamlJavaCompileAbstractMojo {
 
 	@Override

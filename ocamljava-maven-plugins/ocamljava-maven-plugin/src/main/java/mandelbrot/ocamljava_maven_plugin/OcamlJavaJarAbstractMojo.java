@@ -10,6 +10,7 @@ import ocaml.compilers.ocamljavaMain;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -19,8 +20,8 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 	
 	/***
 	 * Whether to replace the main artifact jar with ocaml enhanced version.
-	 * @parameter default-value="true"
 	 */
+	@Parameter(defaultValue="true")
 	protected boolean replaceMainArtfact = true;
 	
 	protected abstract String chooseTargetJar();
@@ -99,8 +100,8 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 	/***
 	 * Determines whether to attach the compiled modules and module interfaces to the final packaged jar.
 	 * This is necessary for projects that will invoke the ocaml wrap goal and reference this artifact.
-	 * @parameter default-value="true"
 	 */
+	@Parameter(defaultValue="true")
 	protected boolean attachCompiledModules;
 	
 	private ImmutableList<String> generateCommandLineArguments(

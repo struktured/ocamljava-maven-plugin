@@ -14,6 +14,10 @@ import ocaml.tools.ocamldep.ocamljavaMain;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -30,14 +34,10 @@ import com.google.common.collect.ImmutableList;
  * locations and class path. All parameters can be overridden. See the
  * configuration section of the documentation for more information.</p>
  * 
- * @requiresProject
- * @goal dep
- * @phase process-sources
- * @executionStrategy once-per-session
- * @requiresDependencyResolution runtime
- * @threadSafe *
  * @since 1.0
  */
+@Mojo(requiresProject=true, defaultPhase=LifecyclePhase.PROCESS_SOURCES, name="dep", executionStrategy="once-per-session", 
+requiresDependencyResolution=ResolutionScope.RUNTIME, threadSafe=true)
 public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 
 	private static final String GOAL_NAME = "mandelbrot:ocamljava-maven-plugin:dep";
@@ -107,22 +107,20 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 	
 	/***
 	 * Whether to sort the list of modules in dependency order.
-	 * @parameter default-value="true"
-	 * @readonly
 	 */
+	@Parameter(readonly=true, defaultValue="true")
 	protected boolean sort = true;
 		
 	/***
 	 * Only compile binaries for the java virtual machine (no *.cmo files).
-	 * @parameter default-value="true"
 	 */
+	@Parameter(defaultValue="true")
 	protected boolean javaOnly = true;
 		
 	/***
 	 * Generate dependency information on all files.
-	 * @parameter default-value="true"
-	 * @readonly
 	 */
+	@Parameter(defaultValue="true", readonly=true)
 	protected boolean all = true;
 	 
 	protected void generateDependencyGraph()
