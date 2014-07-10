@@ -40,15 +40,7 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>fr.x9c</groupId>
-			<artifactId>ocamljava</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>fr.x9c</groupId>
-			<artifactId>ocamlwrap</artifactId>
-		</dependency>
+		</dependency>			
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
@@ -60,11 +52,6 @@
 		<dependency>
 			<groupId>mandelbrot</groupId>
 			<artifactId>ocamljava-maven-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>mandelbrot</groupId>
-			<artifactId>ocamljava-dependency-analyzer</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
