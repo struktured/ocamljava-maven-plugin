@@ -23,6 +23,7 @@ import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -50,6 +51,18 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
+
+		final Object object = System.getProperty(FORK_PROPERTY_NAME);
+		
+		if (Boolean.parseBoolean(Optional.fromNullable(object).or(Boolean.TRUE)
+				.toString())) {
+			getLog().info("forking process");
+
+			final boolean forkAgain = false;
+			invokePlugin(fullyQualifiedGoal(), forkAgain);
+			return;
+		} 
+		
 		if (!ensureTargetDirectoryExists()) {
 			getLog().error("Could not create target directory");
 			return;
@@ -80,8 +93,6 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			if (getLog().isDebugEnabled()) {
 				getLog().debug("made directory \"" + dependencyGraphTarget + "\"? " + madeDirs);
 			}
-			
-			//invokePlugin(OcamlJavaConstants.dependencyGoal(), true);
 			
 			final DependencyGraph dependencyGraph = DependencyGraph.read(dependencyGraphTarget);
 			
@@ -261,5 +272,6 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	}
 
 	protected abstract String chooseOcamlCompiledSourcesTarget();
-	
+
+	public abstract String fullyQualifiedGoal();
 }

@@ -34,4 +34,8 @@ public class OcamlJavaTestCompileMojo extends OcamlJavaCompileAbstractMojo {
 		return ocamlCompiledTestsTarget;
 	}
 	
+	@Override
+	public String fullyQualifiedGoal() {
+		return "mandelbrot:ocamljava-compiler-maven-plugin:testCompile";
+	}	
 }
