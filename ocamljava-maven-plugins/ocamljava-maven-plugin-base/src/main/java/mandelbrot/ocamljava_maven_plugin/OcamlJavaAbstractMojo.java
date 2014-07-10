@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.ocamljava_maven_plugin.util.FileGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
-import ocaml.tools.ocamldep.ocamljavaMain;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -311,20 +310,20 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	}
 	
 
-	protected static ocamljavaMain mainWithReturn(final String jarName,
-			java.lang.String[] paramArrayOfString, final PrintStream out) throws MojoExecutionException {
-		final ocamljavaMain ocamljavaMain;
+	protected static <T extends AbstractNativeRunner> T mainWithReturn(final String jarName,
+			java.lang.String[] paramArrayOfString, final PrintStream out, final Class<T> clazz) throws MojoExecutionException {
+		final T ocamljavaMain;
 		try {
-			final Constructor<ocaml.tools.ocamldep.ocamljavaMain> declaredConstructor = ocamljavaMain.class.getDeclaredConstructor(
+			final Constructor<T> declaredConstructor = clazz.getDeclaredConstructor(
 					NativeParameters.class);
 			final boolean accessible = declaredConstructor.isAccessible();
 			if (!accessible)
 				declaredConstructor.setAccessible(true);
 			ocamljavaMain = declaredConstructor.newInstance(
-					Parameters.fromStream(ocamljavaMain.class
+					Parameters.fromStream(clazz
 							.getResourceAsStream("ocamljava.parameters"),
 							paramArrayOfString, System.in, out, System.err,
-							false, jarName, ocamljavaMain.class));
+							false, jarName, clazz));
 			if (!accessible)
 				declaredConstructor.setAccessible(false);
 		} catch (final Exception e) {
