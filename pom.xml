@@ -51,6 +51,11 @@
 			</dependency>
 			<dependency>
 				<groupId>fr.x9c</groupId>
+				<artifactId>ocamljar</artifactId>
+				<version>${ocamljava.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.x9c</groupId>
 				<artifactId>ocamlwrap</artifactId>
 				<version>${ocamljava.version}</version>
 			</dependency>

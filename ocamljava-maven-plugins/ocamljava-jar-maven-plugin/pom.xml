@@ -37,7 +37,7 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.x9c</groupId>
-			<artifactId>ocamljava</artifactId>
+			<artifactId>ocamljar</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -65,6 +65,12 @@
 			<groupId>mandelbrot</groupId>
 			<artifactId>ocamljava-maven-plugin-base</artifactId>
 			<version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>mandelbrot</groupId>
+					<artifactId>ocamljava</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 	<build>

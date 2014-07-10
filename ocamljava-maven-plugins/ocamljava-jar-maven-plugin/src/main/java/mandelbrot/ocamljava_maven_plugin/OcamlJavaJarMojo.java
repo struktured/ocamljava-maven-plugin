@@ -36,7 +36,10 @@ public class OcamlJavaJarMojo extends OcamlJavaJarAbstractMojo {
 	protected String chooseOcamlCompiledSourcesTarget() {
 		return ocamlCompiledSourcesTarget;
 	}
-
-
+	
+	@Override
+	public String fullyQualifiedGoal() {
+			return "mandelbrot:ocamljava-jar-maven-plugin:jar"; 
+	}
 	
 }

@@ -15,9 +15,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import com.google.common.base.*;
 
 public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
-	
+
 	/***
 	 * Whether to replace the main artifact jar with ocaml enhanced version.
 	 */
@@ -29,6 +30,18 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
+
+		final Object object = System.getProperty(FORK_PROPERTY_NAME);
+		
+		if (Boolean.parseBoolean(Optional.fromNullable(object).or(Boolean.TRUE)
+				.toString())) {
+			getLog().info("forking process");
+
+			final boolean forkAgain = false;
+			invokePlugin(fullyQualifiedGoal(), forkAgain);
+			return;
+		} 
+		
 		if (!ensureTargetDirectoryExists()) {
 			getLog().error("Could not create target directory");
 			return;
@@ -85,8 +98,8 @@ public abstract class OcamlJavaJarAbstractMojo extends OcamlJavaAbstractMojo {
 		}
 	}
 
-
-	
+	// TODO make abstract
+	public abstract String fullyQualifiedGoal();
 
 	public String getTargetJarFullPath() {
 		return outputDirectory.getPath() + File.separator + chooseTargetJar();

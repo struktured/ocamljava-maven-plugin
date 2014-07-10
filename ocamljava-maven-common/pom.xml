@@ -36,14 +36,6 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>fr.x9c</groupId>
-			<artifactId>ocamlwrap</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>fr.x9c</groupId>
-			<artifactId>ocaml-lib-files</artifactId>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
