@@ -21,17 +21,7 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.x9c</groupId>
-			<artifactId>ocamlwrap</artifactId>
-			<version>${ocamljava.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>fr.x9c</groupId>
 			<artifactId>ocaml-lib-files</artifactId>
-			<version>${ocamljava.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>fr.x9c</groupId>
-			<artifactId>ocamldep</artifactId>
 			<version>${ocamljava.version}</version>
 		</dependency>
 		</dependencies>
@@ -50,13 +40,23 @@
 				</plugin>
 				<plugin>
 					<groupId>mandelbrot</groupId>
-					<artifactId>ocamljava-maven-plugin</artifactId>
-					<version>0.0.1-SNAPSHOT</version>
+					<artifactId>ocamljava-compiler-maven-plugin</artifactId>
+					<version>${project.version}</version>
 				</plugin>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-remote-resources-plugin</artifactId>
-					<version>1.5</version>
+					<groupId>mandelbrot</groupId>
+					<artifactId>ocamljava-dep-maven-plugin</artifactId>
+					<version>${project.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>mandelbrot</groupId>
+					<artifactId>ocamljava-jar-maven-plugin</artifactId>
+					<version>${project.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>mandelbrot</groupId>
+					<artifactId>ocamljava-wrap-maven-plugin</artifactId>
+					<version>${project.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

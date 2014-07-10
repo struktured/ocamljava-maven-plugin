@@ -39,7 +39,7 @@
 					</execution>
 				</executions>
 				<groupId>mandelbrot</groupId>
-				<artifactId>ocamljava-maven-plugin</artifactId>
+				<artifactId>ocamljava-wrap-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>

@@ -24,8 +24,23 @@
 			</plugin>
 			<plugin>
 				<groupId>mandelbrot</groupId>
-				<artifactId>ocamljava-maven-plugin</artifactId>
-				<configuration><packageName>soccer.simulator</packageName></configuration>
+				<artifactId>ocamljava-dep-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>ocaml-dep</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>dep</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>mandelbrot</groupId>
+				<artifactId>ocamljava-compiler-maven-plugin</artifactId>
+				<configuration>
+					<packageName>soccer.simulator</packageName>
+				</configuration>
 				<executions>
 					<execution>
 						<id>ocaml-compile</id>
@@ -34,6 +49,15 @@
 							<goal>compile</goal>
 						</goals>
 					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>mandelbrot</groupId>
+				<artifactId>ocamljava-jar-maven-plugin</artifactId>
+				<configuration>
+					<packageName>soccer.simulator</packageName>
+				</configuration>
+				<executions>
 					<execution>
 						<id>ocaml-jar</id>
 						<phase>package</phase>
@@ -42,7 +66,8 @@
 						</goals>
 					</execution>
 				</executions>
-		</plugin>
+			</plugin>
+
 		</plugins>
 	</build>
 	<dependencies>
