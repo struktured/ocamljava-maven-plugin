@@ -49,10 +49,6 @@
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>fr.x9c</groupId>
-			<artifactId>ocamldep</artifactId>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

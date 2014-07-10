@@ -6,8 +6,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 
-import mandelbrot.ocamljava_compiler_maven_plugin.OcamlJavaCompileAbstractMojo;
-
 /**
  * <p>
  * This is a goal which compiles OCaml test sources during the maven test
@@ -22,8 +20,8 @@ import mandelbrot.ocamljava_compiler_maven_plugin.OcamlJavaCompileAbstractMojo;
  * 
  * @since 1.0
  */
-@Mojo(name="testCompile", defaultPhase=LifecyclePhase.TEST_COMPILE,  threadSafe=true, requiresDependencyResolution=ResolutionScope.RUNTIME, 
-executionStrategy="once-per-session")
+@Mojo(requiresProject=true, threadSafe=true, requiresDependencyResolution = ResolutionScope.RUNTIME, 
+executionStrategy="once-per-session", defaultPhase=LifecyclePhase.TEST_COMPILE, name="testCompile")
 public class OcamlJavaTestCompileMojo extends OcamlJavaCompileAbstractMojo {
 
 	@Override
