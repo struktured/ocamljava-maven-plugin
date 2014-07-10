@@ -39,7 +39,7 @@ public class OcamlJavaJarMojo extends OcamlJavaJarAbstractMojo {
 	
 	@Override
 	public String fullyQualifiedGoal() {
-			return "mandelbrot:ocamljava-jar-maven-plugin:jar"; 
+		return "mandelbrot:ocamljava-jar-maven-plugin:jar"; 
 	}
 	
 }
