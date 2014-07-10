@@ -23,8 +23,23 @@
 				</plugin>
 				<plugin>
 					<groupId>mandelbrot</groupId>
-					<artifactId>ocamljava-maven-plugin</artifactId>
-					<version>0.0.1-SNAPSHOT</version>
+					<artifactId>ocamljava-compiler-maven-plugin</artifactId>
+					<version>${project.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>mandelbrot</groupId>
+					<artifactId>ocamljava-dep-maven-plugin</artifactId>
+					<version>${project.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>mandelbrot</groupId>
+					<artifactId>ocamljava-jar-maven-plugin</artifactId>
+					<version>${project.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>mandelbrot</groupId>
+					<artifactId>ocamljava-wrap-maven-plugin</artifactId>
+					<version>${project.version}</version>
 				</plugin>
 			<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
 				<plugin>
@@ -34,24 +49,6 @@
 					<configuration>
 						<lifecycleMappingMetadata>
 							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>mandelbrot</groupId>
-										<artifactId>
-											ocamljava-maven-plugin
-										</artifactId>
-										<versionRange>
-											[0.0.1-SNAPSHOT,)
-										</versionRange>
-										<goals>
-											<goal>wrap</goal>
-											<goal>compile</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>

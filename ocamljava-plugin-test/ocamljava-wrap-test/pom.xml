@@ -13,7 +13,6 @@
 	<name>OcamlJava Wrapping Test</name>
 	<build>
 		<plugins>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -38,7 +37,7 @@
 					</execution>
 				</executions>
 				<groupId>mandelbrot</groupId>
-				<artifactId>ocamljava-maven-plugin</artifactId>
+				<artifactId>ocamljava-wrap-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>

@@ -21,6 +21,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -66,11 +67,8 @@ public class OcamlWrapMojo extends OcamlJavaWrapAbstractMojo {
 	/***
 	 * The working directory where the generated Java source files are created.
 	 * 
-	 * @parameter 
-	 *           
-	 *            default-value="${project.build.directory}/generated-sources/ocaml"
-	 * @required
 	 */
+	@Parameter(required=true, defaultValue="${project.build.directory}/generated-sources/ocaml")
 	protected File generatedSourcesOutputDirectory;
 
 	/***
@@ -82,32 +80,30 @@ public class OcamlWrapMojo extends OcamlJavaWrapAbstractMojo {
 	 * 
 	 * <p>
 	 * NOTE: The artifacts must have been packaged as either a jar or zip file.
-	 * </p>
-	 * 
-	 * @parameter
-	 * @required
+	 * </p>	
 	 */
+	@Parameter(required=true)
 	protected Set<String> targetArtifacts = ImmutableSet.of();
 
 	/***
 	 * Prefix for names of generated classes. Default value is blank.
 	 * 
-	 * @parameter default-value=""
 	 */
+	@Parameter(defaultValue="")
 	protected String classNamePrefix = "";
 
 	/***
 	 * Suffix for names of generated classes.
 	 * 
-	 * @parameter default-value="Wrapper"
 	 */
+	@Parameter(defaultValue="Wrapper")
 	protected String classNameSuffix = "Wrapper";
 
 	/***
 	 * Arguments passed for library initialization. Defaults to empty.
 	 * 
-	 * @parameter default-value=""
 	 */
+	@Parameter(defaultValue="")
 	protected String libraryArgs = "";
 
 	public static enum LibraryInitMode {
@@ -122,22 +118,22 @@ public class OcamlWrapMojo extends OcamlJavaWrapAbstractMojo {
 	 * Library initialization mode. One of <code>EXPLICIT</code> or
 	 * <code>STATIC</code>.
 	 * 
-	 * @parameter default-value="EXPLICIT"
 	 */
+	@Parameter(defaultValue="EXPLICIT")
 	protected LibraryInitMode libraryInitMode = LibraryInitMode.EXPLICIT;
 
 	/***
 	 * Library package.
 	 * 
-	 * @parameter default-value=""
 	 */
+	@Parameter(defaultValue="")
 	protected String libaryPackage = "";
 
 	/***
 	 * Whether to disable warnings during the code generation process.
 	 * 
-	 * @parameter default-value="false"
 	 */
+	@Parameter(defaultValue="false")
 	protected boolean noWarnings;
 
 	public static enum StringMapping {
@@ -152,18 +148,16 @@ public class OcamlWrapMojo extends OcamlJavaWrapAbstractMojo {
 	 * <code>JAVA_STRING</code>, <code>OCAMLSTRING</code>, or
 	 * <code>BYTE-ARRAY</code>.
 	 * 
-	 * @parameter default-value="JAVA_STRING"
 	 */
+	@Parameter(defaultValue="JAVA_STRING")
 	protected StringMapping stringMapping = StringMapping.JAVA_STRING;
 
 	/***
 	 * Whether to enable verbose mode.
 	 * 
-	 * @parameter default-value="false"
-	 * 
 	 **/
+	@Parameter(defaultValue="false")
 	protected boolean verbose;
-
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -333,7 +327,7 @@ public class OcamlWrapMojo extends OcamlJavaWrapAbstractMojo {
 	}
 
 	public String fullyQualifiedGoal() {
-		return "mandelbrot:ocamljava-maven-plugin:wrap";
+		return OcamlJavaConstants.wrapGoal();
 	}
 
 	private Comparator<? super String> createComparator(
@@ -587,7 +581,6 @@ public class OcamlWrapMojo extends OcamlJavaWrapAbstractMojo {
 		return targetOcamlJar;
 	}
 
-	// TODO make this class abstract, override for test / regular mojos
 	@Override
 	protected File chooseOcamlSourcesDirectory() {
 		return ocamlSourceDirectory;

@@ -146,6 +146,57 @@
 										<ignore></ignore>
 									</action>
 								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>mandelbrot</groupId>
+										<artifactId>
+											ocamljava-compiler-maven-plugin
+										</artifactId>
+										<versionRange>
+											[0.0.1-SNAPSHOT,)
+										</versionRange>
+										<goals>
+											<goal>compile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>mandelbrot</groupId>
+										<artifactId>
+											ocamljava-dep-maven-plugin
+										</artifactId>
+										<versionRange>
+											[0.0.1-SNAPSHOT,)
+										</versionRange>
+										<goals>
+											<goal>dep</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>mandelbrot</groupId>
+										<artifactId>
+											ocamljava-wrap-maven-plugin
+										</artifactId>
+										<versionRange>
+											[0.0.1-SNAPSHOT,)
+										</versionRange>
+										<goals>
+											<goal>wrap</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>

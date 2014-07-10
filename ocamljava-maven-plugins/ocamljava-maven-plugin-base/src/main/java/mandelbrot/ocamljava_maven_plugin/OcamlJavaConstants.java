@@ -68,7 +68,11 @@ public class OcamlJavaConstants {
 	public static final String ALL_OPTION = "-all";
 	public static final String JAVA_EXTENSION = ".java";
 	public static String dependencyGoal() {
-		return "mandelbrot:ocamljava-maven-plugin:dep";
+		return "mandelbrot:ocamljava-dep-maven-plugin:dep";
+	}
+	
+	public static String wrapGoal() {
+		return "mandelbrot:ocamljava-wrap-maven-plugin:wrap";
 	}
 	
 }

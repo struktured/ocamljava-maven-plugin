@@ -81,7 +81,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 				getLog().debug("made directory \"" + dependencyGraphTarget + "\"? " + madeDirs);
 			}
 			
-			invokePlugin(OcamlJavaConstants.dependencyGoal(), true);
+			//invokePlugin(OcamlJavaConstants.dependencyGoal(), true);
 			
 			final DependencyGraph dependencyGraph = DependencyGraph.read(dependencyGraphTarget);
 			

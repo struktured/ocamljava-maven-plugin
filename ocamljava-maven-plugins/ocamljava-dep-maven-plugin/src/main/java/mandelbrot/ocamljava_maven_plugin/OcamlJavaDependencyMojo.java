@@ -40,7 +40,7 @@ import com.google.common.collect.ImmutableList;
 requiresDependencyResolution=ResolutionScope.RUNTIME, threadSafe=true)
 public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 
-	private static final String GOAL_NAME = "mandelbrot:ocamljava-maven-plugin:dep";
+	private static final String GOAL_NAME = OcamlJavaConstants.dependencyGoal();
 
 	public static String fullyQualifiedGoal() {
 		return GOAL_NAME;
@@ -133,7 +133,7 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 
 		final File dependencyGraphTargetFullPath = rawDependencyTargetFullPath();
 		
-		final boolean madeDirs = dependencyGraphTargetFullPath.getParentFile().mkdir();
+		final boolean madeDirs = dependencyGraphTargetFullPath.getParentFile().mkdirs();
 	
 		if (getLog().isDebugEnabled())
 			getLog().debug("made dirs? " + madeDirs);
