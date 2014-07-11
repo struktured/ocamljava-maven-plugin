@@ -3,14 +3,14 @@ from os import listdir, getcwd, system
 from os.path import isfile, join
 import ntpath
 
-VERSION = '2.0-early-access11'
+VERSION = '2.0-early-access12'
 
-FILE_NAME_BASE = "download-" + VERSION
+FILE_NAME_BASE = "ocamljava-" + VERSION
 FILE_NAME_PHP = FILE_NAME_BASE + ".php"
 FILE_NAME_TGZ = FILE_NAME_BASE + ".tar.gz"
 
-COMMAND = " ".join(["wget", "-O", FILE_NAME_TGZ,
-	"http://ocamljava.x9c.fr/preview/" + FILE_NAME_PHP])
+COMMAND = " ".join(["wget", "--user ocj-tmp --password ocpjui14 -O ", FILE_NAME_TGZ,
+	"http://ocamljava.x9c.fr/preview/tmp/" + FILE_NAME_TGZ])
 
 print "Getting ocamljava: " + COMMAND
 system(COMMAND)

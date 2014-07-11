@@ -14,7 +14,7 @@
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<ocamljava.version>2.0-early-access11</ocamljava.version>
+		<ocamljava.version>2.0-early-access12</ocamljava.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>

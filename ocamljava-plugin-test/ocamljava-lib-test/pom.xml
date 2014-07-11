@@ -74,6 +74,11 @@
 			<artifactId>guava</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>fr.x9c</groupId>
+			<artifactId>ocamlrun</artifactId>
+			<version>${ocamljava.version}</version>
+		</dependency>
 	</dependencies>
 
 </project>

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>mkcamlp4</artifactId>
 	<groupId>fr.x9c</groupId>
-	<version>2.0-early-access11</version>
+	<version>2.0-early-access12</version>
 	<packaging>jar</packaging>
 	<name>mkcamlp4</name>
 	<description>Camlp4 Support Libray</description>

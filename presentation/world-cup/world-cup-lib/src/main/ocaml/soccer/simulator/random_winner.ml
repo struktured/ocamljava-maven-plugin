@@ -3,6 +3,8 @@ open Package'java'util
 open Package'java'util'Random
 open World_cup
 
+let _ = Java.make "java.lang.String()" ()
+
 let random = Java.make "Random()" ()
 
 let random_choice first second = 
