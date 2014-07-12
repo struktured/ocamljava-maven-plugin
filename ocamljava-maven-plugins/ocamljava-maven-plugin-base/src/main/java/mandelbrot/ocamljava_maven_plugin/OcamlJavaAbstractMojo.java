@@ -397,4 +397,10 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		}
 		return false;
 	}
+	
+	protected static String fileAtPackage(final String fileName, final String packageName) {
+		if (StringUtils.isBlank(packageName))
+			return fileName;
+		return String.format("%s@%s", fileName, packageName);
+	}
 }
