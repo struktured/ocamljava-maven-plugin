@@ -20,11 +20,6 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ocaml-lib-files</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 	</dependencies>
 	
 	<licenses>
