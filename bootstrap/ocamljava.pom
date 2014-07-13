@@ -21,12 +21,11 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
+			<groupId>fr.x9c</groupId>
 			<artifactId>ocaml-lib-files</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
-	
 	<licenses>
 		<license>
 			<name>GNU Lesser General Public License (LGPL)</name>

@@ -23,15 +23,16 @@ def go(is_offline=False):
 		  "http://ocamljava.x9c.fr/preview/" + FILE_NAME_PHP])
 	  system(command)
 
-  command = " ".join(["tar", "-zxvf", FILE_NAME_TGZ])
-  print "Extracting files: " + command
-  system(command)
+          command = " ".join(["tar", "-zxvf", FILE_NAME_TGZ])
+          print "Extracting files: " + command
+          system(command)
   mypath = join(getcwd(), "ocamljava-" + VERSION, "lib")
 
   only_files = [f for f in listdir(mypath) if
 		  isfile(join(mypath, f)) and (str(f)).split('.')[1] == "jar"]
 
   for f in only_files:
+      print "Installing " + str(f)
       jarFile = join(getcwd(), "ocamljava-" + VERSION, "lib", str(f))
       baseName = ntpath.basename(jarFile).split('.')[0]
       pomFile = join(getcwd(), baseName + ".pom")

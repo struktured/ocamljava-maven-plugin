@@ -32,7 +32,7 @@ import com.google.common.collect.Multimap;
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
 
-	/***
+	/**
 	 * Record debugging information.
 	 * 
 	 * @parameter default-value="false"
@@ -40,7 +40,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	 */
 	protected boolean recordDebugInfo = false;
 		
-	/***
+	/**
 	 * Optimize code for size rather than speed.
 	 * 
 	 * @parameter default-value="false"
@@ -54,7 +54,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 		final Object object = System.getProperty(FORK_PROPERTY_NAME);
 		
-		if (Boolean.parseBoolean(Optional.fromNullable(object).or(Boolean.TRUE)
+		if (Boolean.parseBoolean(Optional.fromNullable(object).or(Boolean.FALSE)
 				.toString())) {
 			getLog().info("forking process");
 
