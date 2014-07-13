@@ -25,6 +25,11 @@
 			<artifactId>ocaml-lib-files</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ocamlrun</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 	
 	<licenses>
