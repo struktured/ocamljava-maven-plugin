@@ -1,0 +1,67 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>ocamlj</artifactId>
+	<groupId>fr.x9c</groupId>
+	<version>2.0-early-access12</version>
+	<packaging>jar</packaging>
+	<name>OcamlJ</name>
+	<description>Ocaml Java Core Library</description>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>fr.x9c</groupId>
+			<artifactId>ocaml-lib-files</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ocamlrun</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+	<licenses>
+		<license>
+			<name>GNU Lesser General Public License (LGPL)</name>
+			<url>http://www.gnu.org/licenses/lgpl.txt</url>
+		</license>
+		<license>
+			<name>The Q Public License Version (QPL-1.0)</name>
+			<url>http://opensource.org/licenses/QPL-1.0</url>
+		</license>
+	</licenses>
+
+	<url>http://ocamljava.x9c.fr/</url>
+	<scm>
+		<connection></connection>
+		<url>http://ocamljava.x9c.fr/preview</url>
+	</scm>
+	<developers>
+		<developer>
+			<name>Xavier Clerc</name>
+			<email>forum@x9c.fr</email>
+			<roles>
+				<role>Primary Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Carmelo Piccione</name>
+			<email>carmelo.piccione+ocamljava@gmail.com</email>
+			<roles>
+				<role>Maven Artifact Maintainer</role>
+			</roles>
+		</developer>
+	</developers>
+</project>
+
