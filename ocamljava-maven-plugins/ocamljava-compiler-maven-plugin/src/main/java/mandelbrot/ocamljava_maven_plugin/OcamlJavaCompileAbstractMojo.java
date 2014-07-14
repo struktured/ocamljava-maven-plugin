@@ -19,6 +19,7 @@ import ocaml.compilers.ocamljavaMain;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.base.Function;
@@ -35,22 +36,19 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	/**
 	 * Record debugging information.
 	 * 
-	 * @parameter default-value="false"
-	 * 
 	 */
+    @Parameter(defaultValue="false")
 	protected boolean recordDebugInfo = false;
 		
 	/**
 	 * Optimize code for size rather than speed.
-	 * 
-	 * @parameter default-value="false"
-	 * 
+	 *
 	 */
+    @Parameter(defaultValue="false")
 	protected boolean compact = false;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-
 
 		final Object object = System.getProperty(FORK_PROPERTY_NAME);
 		
@@ -159,7 +157,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			final String outputDirectoryQualifier, final String toFilter, final Set<String> extensions) {
 
 		final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-		
+	
 		for (final String extension : extensions)
 			builder.addAll(moveCompiledSourceFilesToTargetDirectory(ocamlSourceFiles,
 					extension, outputDirectoryQualifier, toFilter));

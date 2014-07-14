@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: fr.x9c:ocamljava:2.0-early-access11">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/fr/x9c/ocamljava/2.0-early-access11/ocamljava-2.0-early-access11.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/fr/x9c/ocamljava/2.0-early-access11/ocamljava-2.0-early-access11-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/fr/x9c/ocamljava/2.0-early-access11/ocamljava-2.0-early-access11-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
