@@ -36,7 +36,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>fr.x9c</groupId>
+			<groupId>org.ocamljava</groupId>
 			<artifactId>ocamljar</artifactId>
 		</dependency>
 		<dependency>

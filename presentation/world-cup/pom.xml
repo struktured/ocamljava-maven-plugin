@@ -8,19 +8,19 @@
 	<name>World Cup Root Test Project</name>
 
 	<properties>
-		<ocamljava.version>2.0-early-access11</ocamljava.version>
+		<ocamljava.version>2.0-early-access12</ocamljava.version>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
 		<dependency>
-			<groupId>fr.x9c</groupId>
+			<groupId>org.ocamljava</groupId>
 			<artifactId>ocamljava</artifactId>
 			<version>${ocamljava.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.x9c</groupId>
+			<groupId>org.ocamljava</groupId>
 			<artifactId>ocaml-lib-files</artifactId>
 			<version>${ocamljava.version}</version>
 		</dependency>

@@ -14,7 +14,7 @@
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<ocamljava.version>2.0-early-access12</ocamljava.version>
+		<ocamljava.version>2.0-alpha1</ocamljava.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -45,27 +45,27 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
-				<groupId>fr.x9c</groupId>
+				<groupId>org.ocamljava</groupId>
 				<artifactId>ocamljava</artifactId>
 				<version>${ocamljava.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>fr.x9c</groupId>
+				<groupId>org.ocamljava</groupId>
 				<artifactId>ocamljar</artifactId>
 				<version>${ocamljava.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>fr.x9c</groupId>
+				<groupId>org.ocamljava</groupId>
 				<artifactId>ocamlwrap</artifactId>
 				<version>${ocamljava.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>fr.x9c</groupId>
+				<groupId>org.ocamljava</groupId>
 				<artifactId>ocaml-lib-files</artifactId>
 				<version>${ocamljava.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>fr.x9c</groupId>
+				<groupId>org.ocamljava</groupId>
 				<artifactId>ocamlc</artifactId>
 				<version>${ocamljava.version}</version>
 			</dependency>
@@ -90,7 +90,7 @@
 				<version>1.9.13</version>
 			</dependency>
 			<dependency>
-				<groupId>fr.x9c</groupId>
+				<groupId>org.ocamljava</groupId>
 				<artifactId>ocamldep</artifactId>
 				<version>${ocamljava.version}</version>
 			</dependency>

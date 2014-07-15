@@ -63,7 +63,7 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>fr.x9c</groupId>
+			<groupId>org.ocamljava</groupId>
 			<artifactId>ocamlwrap</artifactId>
 		</dependency>
 	</dependencies>

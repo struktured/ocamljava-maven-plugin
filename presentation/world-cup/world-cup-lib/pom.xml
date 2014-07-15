@@ -72,7 +72,7 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>fr.x9c</groupId>
+			<groupId>org.ocamljava</groupId>
 			<artifactId>ocamljava</artifactId>
 			<scope>compile</scope>
 		</dependency>

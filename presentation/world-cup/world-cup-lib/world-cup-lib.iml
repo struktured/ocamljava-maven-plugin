@@ -8,8 +8,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: fr.x9c:ocamljava:2.0-early-access11" level="project" />
-    <orderEntry type="library" name="Maven: fr.x9c:ocaml-lib-files:2.0-early-access11" level="project" />
+    <orderEntry type="library" name="Maven: fr.x9c:ocamljava:2.0-early-access12" level="project" />
+    <orderEntry type="library" name="Maven: fr.x9c:ocaml-lib-files:2.0-early-access12" level="project" />
+    <orderEntry type="library" name="Maven: fr.x9c:ocamlrun:2.0-early-access12" level="project" />
   </component>
 </module>
 

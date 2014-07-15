@@ -2,6 +2,7 @@ package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
@@ -33,6 +34,8 @@ import com.google.common.collect.Multimap;
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
 
+	private static final Boolean FORK_BY_DEFAULT = Boolean.FALSE;
+
 	/**
 	 * Record debugging information.
 	 * 
@@ -48,23 +51,12 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	protected boolean compact = false;
 
 	@Override
-	public void execute() throws MojoExecutionException, MojoFailureException {
+	public final void execute() throws MojoExecutionException, MojoFailureException {
 
-		final Object object = System.getProperty(FORK_PROPERTY_NAME);
-		
-		if (Boolean.parseBoolean(Optional.fromNullable(object).or(Boolean.FALSE)
-				.toString())) {
-			getLog().info("forking process");
-
-			final boolean forkAgain = false;
-			invokePlugin(fullyQualifiedGoal(), forkAgain);
-			return;
-		} 
-		
 		if (!ensureTargetDirectoryExists()) {
 			getLog().error("Could not create target directory");
 			return;
-		} 
+		}
 
 		if (!ocamlSourceDirectory.exists()) {
 			getLog().error(
@@ -72,6 +64,21 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 							+ "\" is not valid.");
 			return;
 		}
+
+		final ClassLoader classLoader = new URLClassLoader(new ClassPathGatherer(this).getClassPathUrls(project, false),
+				Thread.currentThread().getContextClassLoader());
+		Thread.currentThread().setContextClassLoader(classLoader);
+				
+		final Object object = System.getProperty(FORK_PROPERTY_NAME);
+		
+		if (Boolean.parseBoolean(Optional.fromNullable(object).or(FORK_BY_DEFAULT)
+				.toString())) {
+			getLog().info("forking process");
+
+			final boolean forkAgain = false;
+			invokePlugin(fullyQualifiedGoal(), forkAgain);
+			return;
+		} 
 
 		getLog().info(
 				"ocaml source directory: "

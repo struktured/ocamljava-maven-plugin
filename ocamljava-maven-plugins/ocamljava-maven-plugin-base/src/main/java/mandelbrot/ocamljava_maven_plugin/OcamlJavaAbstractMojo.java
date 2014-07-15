@@ -62,7 +62,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	@Parameter(readonly=true, required=true, defaultValue="${project}")
 	protected MavenProject project;
 
-	/***
+	/***	
 	 * The plugin descriptor.
 	 */
 	@Parameter(readonly=true, required=true, defaultValue="${descriptor}")	
