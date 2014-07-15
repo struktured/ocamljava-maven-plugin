@@ -26,6 +26,7 @@ import org.codehaus.plexus.util.StringUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -143,7 +144,8 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 			if (!sourceFiles.isEmpty()) {
 				final String[] sourceArgs = generateCommandLineArguments(ImmutableSet.<String>builder()
-						.addAll(includeDirs)
+						.addAll(Collections2.filter(includeDirs, 
+								new Predicate<String>() { @Override public boolean apply(final String input) { return new File(input).exists(); }}))
 						.addAll(pathMappings)
 						.build(),
 						toPackage(ocamlSourceDirectory, path), sourceFiles).toArray(new String[] {});
@@ -197,6 +199,8 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 										+ compiledSrcFile.getParent().replace(
 												toFilter, ""));
 
+						qualifiedOutputDirectory.mkdirs();
+						
 						try {
 							if (compiledSrcFile.exists()) {
 								if (getLog().isInfoEnabled())
@@ -204,6 +208,8 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 										"moving src " + compiledSrcFile
 												+ " to output directory: "
 												+ qualifiedOutputDirectory);
+								
+								
 								FileUtils.copyFileToDirectory(compiledSrcFile,
 										qualifiedOutputDirectory, true);
 								FileUtils.deleteQuietly(compiledSrcFile);
