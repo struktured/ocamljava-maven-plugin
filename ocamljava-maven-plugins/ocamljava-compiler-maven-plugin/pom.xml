@@ -62,7 +62,7 @@
 			<artifactId>maven-invoker</artifactId>
 		</dependency>
 		<dependency>
-            <groupId>mandelbrot</groupId>
+			<groupId>mandelbrot</groupId>
 			<artifactId>ocamljava-maven-plugin-base</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -93,6 +93,7 @@
 				<version>3.3</version>
 			</plugin>
 		</plugins>
+
 	</build>
 	<description>This plugin provides maven integration for ocaml java for the compiler phase. See http://ocamljava.x9c.fr for details on that specific project. The important thing to know is it's a pure java solution to integrating ocaml code with the JVM, and this project provides the necessary maven integration.</description>
 	<scm>
