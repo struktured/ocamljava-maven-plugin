@@ -311,7 +311,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	
 
 	protected static <T extends AbstractNativeRunner> T mainWithReturn(final String jarName,
-			java.lang.String[] paramArrayOfString, final PrintStream out, final Class<T> clazz) throws MojoExecutionException {
+			final java.lang.String[] paramArrayOfString, final PrintStream out, final Class<T> clazz) throws MojoExecutionException {
 		final T ocamljavaMain;
 		try {
 			final Constructor<T> declaredConstructor = clazz.getDeclaredConstructor(

@@ -65,9 +65,9 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			return;
 		}
 
-		final ClassLoader classLoader = new URLClassLoader(new ClassPathGatherer(this).getClassPathUrls(project, false),
-				Thread.currentThread().getContextClassLoader());
-		Thread.currentThread().setContextClassLoader(classLoader);
+//		final ClassLoader classLoader = new URLClassLoader(new ClassPathGatherer(this).getClassPathUrls(project, false),
+//				Thread.currentThread().getContextClassLoader());
+//		Thread.currentThread().setContextClassLoader(classLoader);
 				
 		final Object object = System.getProperty(FORK_PROPERTY_NAME);
 		
