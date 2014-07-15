@@ -62,7 +62,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	@Parameter(readonly=true, required=true, defaultValue="${project}")
 	protected MavenProject project;
 
-	/***
+	/***	
 	 * The plugin descriptor.
 	 */
 	@Parameter(readonly=true, required=true, defaultValue="${descriptor}")	
@@ -396,5 +396,11 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 			return ImmutableSet.copyOf(Splitter.on(" ").split(optional.get())).contains(OFFLINE_MODE);
 		}
 		return false;
+	}
+	
+	protected static String fileAtPackage(final String fileName, final String packageName) {
+		if (StringUtils.isBlank(packageName))
+			return fileName;
+		return String.format("%s@%s", fileName, packageName);
 	}
 }

@@ -36,7 +36,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>fr.x9c</groupId>
+			<groupId>org.ocamljava</groupId>
 			<artifactId>ocamljava</artifactId>
 		</dependency>
 		<dependency>
@@ -62,7 +62,7 @@
 			<artifactId>maven-invoker</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>mandelbrot</groupId>
+            <groupId>mandelbrot</groupId>
 			<artifactId>ocamljava-maven-plugin-base</artifactId>
 			<version>${project.version}</version>
 		</dependency>

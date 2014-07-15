@@ -1,10 +1,10 @@
 package mandelbrot.ocamljava_maven_plugin;
 
-import java.io.File;
-
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+
+import java.io.File;
 
 /**
  * <p>
@@ -20,7 +20,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
  * 
  * @since 1.0
  */
-@Mojo(requiresProject=true, threadSafe=true, requiresDependencyResolution = ResolutionScope.RUNTIME, 
+@Mojo(requiresProject=true, threadSafe=true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME,
 executionStrategy="once-per-session", defaultPhase=LifecyclePhase.COMPILE, name="compile")
 public class OcamlJavaCompileMojo extends OcamlJavaCompileAbstractMojo {
 	
