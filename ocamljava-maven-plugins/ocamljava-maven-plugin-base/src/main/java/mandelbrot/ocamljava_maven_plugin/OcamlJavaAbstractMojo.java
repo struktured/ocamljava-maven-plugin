@@ -367,6 +367,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 
 		final InvocationRequest defaultInvocationRequest = new DefaultInvocationRequest()
 				.setDebug(getLog().isDebugEnabled())
+				.setShellEnvironmentInherited(true)
 				.setMavenOpts(System.getenv("MAVEN_OPTS"))
 				.setGoals(ImmutableList.of(goal))				
 				.setProperties(properties)

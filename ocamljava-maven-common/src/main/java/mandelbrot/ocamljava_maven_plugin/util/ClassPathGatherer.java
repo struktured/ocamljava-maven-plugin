@@ -35,9 +35,8 @@ public class ClassPathGatherer
 		final ImmutableSet.Builder<String> builder = ImmutableSet.<String>builder()
 				.addAll(project.getCompileClasspathElements())
 				.addAll(project.getRuntimeClasspathElements())
-				.addAll(project.getSystemClasspathElements())
-				.add("/home/carm/workspace/ocamljava-2.0-early-access12/lib");
-				
+				.addAll(project.getSystemClasspathElements());
+		
 		if (isTest)
 			builder.addAll(project.getTestClasspathElements());
 		
