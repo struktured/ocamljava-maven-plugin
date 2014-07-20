@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>ocamlbuildlight</artifactId>
+	<groupId>org.ocamljava</groupId>
+	<version>2.0-alpha1</version>
+	<packaging>jar</packaging>
+	<name>Ocaml Build Light</name>
+	<description>Ocaml Build Light</description>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+		
+	<licenses>
+		<license>
+			<name>GNU Lesser General Public License (LGPL)</name>
+			<url>http://www.gnu.org/licenses/lgpl.txt</url>
+		</license>
+		<license>
+			<name>The Q Public License Version (QPL-1.0)</name>
+			<url>http://opensource.org/licenses/QPL-1.0</url>
+		</license>
+	</licenses>
+
+	<url>http://ocamljava.x9c.fr/</url>
+	<scm>
+		<connection></connection>
+		<url>http://ocamljava.x9c.fr/preview</url>
+	</scm>
+	<developers>
+		<developer>
+			<name>Xavier Clerc</name>
+			<email>forum@x9c.fr</email>
+			<roles>
+				<role>Primary Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Carmelo Piccione</name>
+			<email>carmelo.piccione+ocamljava@gmail.com</email>
+			<roles>
+				<role>Maven Artifact Maintainer</role>
+			</roles>
+		</developer>
+	</developers>
+</project>
+
