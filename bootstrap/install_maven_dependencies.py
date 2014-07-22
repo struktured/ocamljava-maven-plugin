@@ -12,7 +12,7 @@ VERSIONS = [OCAMLJAVA_ACCESS11, OCAMLJAVA_PRIVATE_ACCESS12, OCAMLJAVA_ALPHA1]
 VERSION = OCAMLJAVA_ALPHA1
 
 def show_help(exit_code=0) :
-  print 'install_maven_dependencies.py -v <OCAML_VERSION> -o <IS_OFFLINE> '
+  print 'install_maven_dependencies.py -v <OCAML_VERSION> -o <IS_OFFLINE> -j <SPECIFIC_JAR>'
   print '\tknown versions are ' + str(VERSIONS)
   sys.exit(exit_code)
 
