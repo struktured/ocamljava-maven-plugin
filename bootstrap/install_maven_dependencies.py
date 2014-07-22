@@ -19,7 +19,7 @@ def show_help(exit_code=0) :
 USER="ocj-tmp"
 PASSWORD="ocpjui14"
 
-def go(is_offline=False, version=VERSION):
+def go(is_offline=False, version=VERSION, specific_jar=None):
     if is_offline:
         pass
     else:
@@ -35,12 +35,14 @@ def go(is_offline=False, version=VERSION):
 	    system(command)
     mypath = join(getcwd(), "ocamljava-" + version, "lib")
 
-    jar_files = [f for f in listdir(mypath) if
-		  isfile(join(mypath, f)) and (str(f)).split('.')[1] == "jar"]
+    if specific_jar == None :
+        jar_files = [f for f in listdir(mypath) if isfile(join(mypath, f)) and (str(f)).split('.')[1] == "jar"]
+    else :
+	jar_files = [specific_jar]
 
     for jar_file in jar_files:
       print "Installing " + str(jar_file)
-      abs_jar_file = join(getcwd(), "ocamljava-" + version, "lib", str(jar_file))
+      abs_jar_file = specific_jar if specific_jar != None else join(getcwd(), "ocamljava-" + version, "lib", str(jar_file))
       base_name = ntpath.basename(abs_jar_file).split('.')[0]
       pom_file = join(getcwd(), base_name + ".pom")
       command_args = " ".join(["mvn", "install:install-file",
@@ -52,8 +54,9 @@ def go(is_offline=False, version=VERSION):
 def main(argv):
     offline = False
     version = VERSION
+    specific_jar = None
     try:
-	    opts, args = getopt.getopt(argv,"hov:",)
+	    opts, args = getopt.getopt(argv,"hov:j:",)
     except getopt.GetoptError:
 	    show_help(2)
     for opt, arg in opts:
@@ -65,7 +68,9 @@ def main(argv):
        if opt in ("-v", "--version"):
 	       version = str(arg)
 	       pass
-    go(is_offline=offline, version=version)
+       if opt in ("-j", "--jar"):
+	       specific_jar = str(arg)
+    go(is_offline=offline, version=version, specific_jar=specific_jar)
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
