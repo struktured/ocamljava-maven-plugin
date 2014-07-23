@@ -36,10 +36,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.ocamljava</groupId>
-			<artifactId>ocamljava</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>

@@ -71,11 +71,6 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<dependency>
-			<groupId>org.ocamljava</groupId>
-			<artifactId>ocamljava</artifactId>
-			<scope>compile</scope>
-		</dependency>
 	</dependencies>
 
 </project>

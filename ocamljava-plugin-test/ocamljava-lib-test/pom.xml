@@ -74,6 +74,10 @@
 			<artifactId>guava</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.ocamljava</groupId>
+			<artifactId>ocamldep</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>

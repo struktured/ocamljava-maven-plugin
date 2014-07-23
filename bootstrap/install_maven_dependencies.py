@@ -4,11 +4,9 @@ from os.path import isfile, join
 import ntpath
 import sys, getopt
 
-OCAMLJAVA_PRIVATE_ACCESS12 = '2.0-early-access12'
-OCAMLJAVA_ACCESS11 = '2.0-early-access11'
 OCAMLJAVA_ALPHA1 = '2.0-alpha1'
 
-VERSIONS = [OCAMLJAVA_ACCESS11, OCAMLJAVA_PRIVATE_ACCESS12, OCAMLJAVA_ALPHA1]
+VERSIONS = [OCAMLJAVA_ALPHA1]
 VERSION = OCAMLJAVA_ALPHA1
 
 def show_help(exit_code=0) :
@@ -25,8 +23,8 @@ def go(is_offline=False, version=VERSION, specific_jar=None):
     else:
             file_name_base = "ocamljava-" + version
             file_name_tgz = file_name_base + ".tar.gz"
-	    url_root = "http://ocamljava.x9c.fr/preview/tmp/" if version == OCAMLJAVA_PRIVATE_ACCESS12 else "http://www.ocamljava.org/downloads/" if version == OCAMLJAVA_ALPHA1 else "http://ocamljava.x9c.fr/preview/"
-	    url_file = file_name_tgz if version == OCAMLJAVA_PRIVATE_ACCESS12 else "download-" + version + ("-bin" if VERSION == OCAMLJAVA_ALPHA1 else "") + ".php"  
+	    url_root = "http://www.ocamljava.org/downloads/" 
+	    url_file = "download-" + version + ("-bin" if VERSION == OCAMLJAVA_ALPHA1 else "") + ".php"  
 	    url = url_root + url_file
 	    command = " ".join(["wget", "--user", USER, "--password", PASSWORD, "-O", file_name_tgz, url])
 	    system(command)

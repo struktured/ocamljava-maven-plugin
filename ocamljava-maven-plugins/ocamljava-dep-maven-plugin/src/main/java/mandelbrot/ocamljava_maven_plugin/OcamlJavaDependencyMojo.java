@@ -3,12 +3,17 @@ package mandelbrot.ocamljava_maven_plugin;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.ocamljava_maven_plugin.io.UncheckedOutputStream;
+import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import ocaml.tools.ocamldep.ocamljavaMain;
 
@@ -51,10 +56,17 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 		
 		final Properties properties = System.getProperties();
 		
+		final URL[] classPathUrls = new ClassPathGatherer(this).getClassPathUrls(project, false);
+
+		Thread.currentThread().setContextClassLoader(new 
+				URLClassLoader(classPathUrls, Thread.currentThread().getContextClassLoader()));
+
+		final Path path = Paths.get("").toAbsolutePath();
+		
 		final Object object = properties.get(FORK_PROPERTY_NAME);
 		
 		if (Boolean.parseBoolean(Optional.fromNullable(object).or(Boolean.TRUE).toString())) {
-			getLog().info("forking process");	
+			getLog().info("[ocamldep] forking process");	
 		
 			final boolean forkAgain = false;
 			invokePlugin(fullyQualifiedGoal(), forkAgain);
@@ -66,7 +78,7 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 			getLog().info("output directory to truncate with: " + project.getFile().getParent());
 			dependencyGraph.write(chooseDependencyGraphTargetFullPath(), project.getFile().getParentFile());
 		} else {
-			getLog().info("running in process");
+			getLog().info("[ocamldep] running in process");
 			generateDependencyGraph();
 		}
 	}
@@ -140,11 +152,14 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 
 		final UncheckedOutputStream<FileOutputStream> fileOutputStream = UncheckedOutputStream.fromFile(dependencyGraphTargetFullPath);
 
+		
 		final PrintStream printStream = new PrintStream(fileOutputStream);
 
-		getLog().info("about to generate dependency graph");
+		final List<String> commandLineArguments = generateCommandLineArguments(includePaths, ocamlSourceFiles);
+		
+		getLog().info("about to generate dependency graph: " + commandLineArguments);
 		final ocamljavaMain main = mainWithReturn("ocamldep.jar",
-				generateCommandLineArguments(includePaths, ocamlSourceFiles)
+				commandLineArguments
 						.toArray(new String[] {}), printStream, ocamljavaMain.class);
 		
 		// This will never be invoked in practice because the process exits,
