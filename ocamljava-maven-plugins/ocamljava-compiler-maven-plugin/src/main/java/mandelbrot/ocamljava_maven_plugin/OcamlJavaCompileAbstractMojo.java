@@ -2,7 +2,6 @@ package mandelbrot.ocamljava_maven_plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
@@ -10,8 +9,6 @@ import java.util.Set;
 
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.dependency.data.ModuleDescriptor;
-import mandelbrot.ocamljava_maven_plugin.OcamlJavaAbstractMojo;
-import mandelbrot.ocamljava_maven_plugin.OcamlJavaConstants;
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileExtensions;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
@@ -145,7 +142,8 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			if (!sourceFiles.isEmpty()) {
 				final String[] sourceArgs = generateCommandLineArguments(ImmutableSet.<String>builder()
 						.addAll(Collections2.filter(includeDirs, 
-								new Predicate<String>() { @Override public boolean apply(final String input) { return new File(input).exists(); }}))
+								new Predicate<String>() { 
+							@Override public boolean apply(final String input) { return new File(input).exists(); }}))
 						.addAll(pathMappings)
 						.build(),
 						toPackage(ocamlSourceDirectory, path), sourceFiles).toArray(new String[] {});

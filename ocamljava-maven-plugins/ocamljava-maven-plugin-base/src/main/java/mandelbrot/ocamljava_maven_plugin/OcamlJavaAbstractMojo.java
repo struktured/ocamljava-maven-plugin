@@ -13,6 +13,43 @@ import java.util.regex.Pattern;
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.ocamljava_maven_plugin.util.FileGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
+import ocaml.compilers.Ccomp;
+import ocaml.compilers.Clflags;
+import ocaml.compilers.Compenv;
+import ocaml.compilers.Config;
+import ocaml.compilers.Lexer;
+import ocaml.compilers.Location;
+import ocaml.compilers.Longident;
+import ocaml.compilers.Misc;
+import ocaml.compilers.Parse;
+import ocaml.compilers.Parser;
+import ocaml.compilers.Pparse;
+import ocaml.compilers.Syntaxerr;
+import ocaml.compilers.Terminfo;
+import ocaml.compilers.Warnings;
+import ocaml.compilers.ocamljavaMain;
+import ocaml.stdlib.Arg;
+import ocaml.stdlib.Array;
+import ocaml.stdlib.Buffer;
+import ocaml.stdlib.CamlinternalLazy;
+import ocaml.stdlib.Char;
+import ocaml.stdlib.Digest;
+import ocaml.stdlib.Filename;
+import ocaml.stdlib.Format;
+import ocaml.stdlib.Hashtbl;
+import ocaml.stdlib.Int32;
+import ocaml.stdlib.Int64;
+import ocaml.stdlib.Lexing;
+import ocaml.stdlib.List;
+import ocaml.stdlib.Marshal;
+import ocaml.stdlib.Nativeint;
+import ocaml.stdlib.Obj;
+import ocaml.stdlib.Parsing;
+import ocaml.stdlib.Pervasives;
+import ocaml.stdlib.Printf;
+import ocaml.stdlib.Random;
+import ocaml.stdlib.Set;
+import ocaml.stdlib.Sys;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -21,6 +58,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationOutputHandler;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
@@ -31,6 +69,7 @@ import org.ocamljava.runtime.kernel.AbstractNativeRunner;
 import org.ocamljava.runtime.kernel.FalseExit;
 import org.ocamljava.runtime.parameters.NativeParameters;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -56,7 +95,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * target directory (usually one of <code>target/ocaml-bin</code> or
 	 * </code>target/ocaml-tests</code>)
 	 */ 
-	@Parameter(defaultValue="dependencies.json")
+	@Parameter(defaultValue=DEPENDENCIES_FILE_NAME)
 	protected String dependencyGraphTarget = DEPENDENCIES_FILE_NAME;
 
 	@Parameter(readonly=true, required=true, defaultValue="${project}")
@@ -166,7 +205,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		return javaPackageMode;
 	}
 
-	public void setJavaPackageMode(JavaPackageMode javaPackageMode) {
+	public void setJavaPackageMode(final JavaPackageMode javaPackageMode) {
 		this.javaPackageMode = javaPackageMode;
 	}
 
@@ -311,15 +350,15 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	
 
 	protected static <T extends AbstractNativeRunner> T mainWithReturn(final String jarName,
-			final java.lang.String[] paramArrayOfString, final PrintStream out, final Class<T> clazz) throws MojoExecutionException {
-		final T ocamljavaMain;
+			final java.lang.String[] paramArrayOfString, final PrintStream out, final Class<T> clazz, final Function<T, T> beforeExecute) throws MojoExecutionException {
+		final T abstractNativeRunner;
 		try {
 			final Constructor<T> declaredConstructor = clazz.getDeclaredConstructor(
 					NativeParameters.class);
 			final boolean accessible = declaredConstructor.isAccessible();
 			if (!accessible)
 				declaredConstructor.setAccessible(true);
-			ocamljavaMain = declaredConstructor.newInstance(
+			abstractNativeRunner = declaredConstructor.newInstance(
 					Parameters.fromStream(clazz
 							.getResourceAsStream("ocamljava.parameters"),
 							paramArrayOfString, System.in, out, System.err,
@@ -329,8 +368,11 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 		} catch (final Exception e) {
 			throw new MojoExecutionException("error creating main instance", e);
 		}
-		ocamljavaMain.execute();
-		return ocamljavaMain;
+		    
+		if (beforeExecute != null)
+			beforeExecute.apply(abstractNativeRunner);
+		abstractNativeRunner.execute();
+		return abstractNativeRunner;
 	}
 
 	protected File chooseOcamlSourcesDirectory() {
@@ -346,7 +388,15 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @throws MojoExecutionException if an invocation exception occurs, or the invoked process did not exit with a return value of 0.
 	 */
 	protected InvocationResult invokePlugin(final String goal, final boolean forkAgain) throws MojoExecutionException {
-		return invokePlugin(goal, forkAgain, null);
+		return invokePlugin(goal, forkAgain, null, null);
+	}
+	
+	protected InvocationResult invokePlugin(final String goal, final boolean forkAgain, final Properties properties) throws MojoExecutionException {
+		return invokePlugin(goal, forkAgain, properties, null);
+	}
+	
+	protected InvocationResult invokePlugin(final String goal, final boolean forkAgain, final InvocationOutputHandler outputHandler) throws MojoExecutionException {
+		return invokePlugin(goal, forkAgain, null, outputHandler);
 	}
 	
 	/***
@@ -354,10 +404,12 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	 * @param goal the maven goal, such as <code>jar:package</code> or <code>mandebrlot:ocamljava-maven-plugin:compile</code>.
 	 * @param forkAgain sets a system property ({@value #FORK_PROPERTY_NAME}} as a hint to the invoking process on whether it should fork once more.   
 	 * @param properties system properties to pass to the Maven command.
+	 * @param outputHandler 
 	 * @return the invocation result.
 	 * @throws MojoExecutionException if an invocation exception occurs, or the invoked process did not exit with a return value of 0.
 	 */
-	protected InvocationResult invokePlugin(final String goal, final boolean forkAgain, Properties properties) throws MojoExecutionException {
+	protected InvocationResult invokePlugin(final String goal, final boolean forkAgain, Properties properties, final InvocationOutputHandler 
+			outputHandler) throws MojoExecutionException {
 
 		Preconditions.checkNotNull(project, "no project defined- this plugin must be invoked on a maven project!");
 		
@@ -372,6 +424,7 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 				.setGoals(ImmutableList.of(goal))				
 				.setProperties(properties)
 				.setOffline(isOffline())
+				.setOutputHandler(outputHandler)
 				.setPomFile(project.getFile());
 				
 		final Invoker invoker = new DefaultInvoker();
