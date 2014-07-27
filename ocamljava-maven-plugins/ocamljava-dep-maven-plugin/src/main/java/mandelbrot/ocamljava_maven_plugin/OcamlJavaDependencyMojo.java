@@ -132,6 +132,10 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 				
 				@Override
 				public void consumeLine(final String line) {
+					
+					if (StringUtils.isBlank(line))
+						return;
+					
 					if (line.startsWith("["))
 						return;
 					
@@ -139,7 +143,7 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 						return;
 					}
 					
-					fileOutputStream.write((line+  System.getProperty("line.separator")).getBytes());
+					fileOutputStream.write((line + System.getProperty("line.separator")).getBytes());
 				}
 			};
 			
