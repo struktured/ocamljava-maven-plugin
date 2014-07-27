@@ -3,8 +3,6 @@ package mandelbrot.ocamljava_maven_plugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.PrintStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Properties;
@@ -13,43 +11,6 @@ import java.util.regex.Pattern;
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.ocamljava_maven_plugin.util.FileGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
-import ocaml.compilers.Ccomp;
-import ocaml.compilers.Clflags;
-import ocaml.compilers.Compenv;
-import ocaml.compilers.Config;
-import ocaml.compilers.Lexer;
-import ocaml.compilers.Location;
-import ocaml.compilers.Longident;
-import ocaml.compilers.Misc;
-import ocaml.compilers.Parse;
-import ocaml.compilers.Parser;
-import ocaml.compilers.Pparse;
-import ocaml.compilers.Syntaxerr;
-import ocaml.compilers.Terminfo;
-import ocaml.compilers.Warnings;
-import ocaml.compilers.ocamljavaMain;
-import ocaml.stdlib.Arg;
-import ocaml.stdlib.Array;
-import ocaml.stdlib.Buffer;
-import ocaml.stdlib.CamlinternalLazy;
-import ocaml.stdlib.Char;
-import ocaml.stdlib.Digest;
-import ocaml.stdlib.Filename;
-import ocaml.stdlib.Format;
-import ocaml.stdlib.Hashtbl;
-import ocaml.stdlib.Int32;
-import ocaml.stdlib.Int64;
-import ocaml.stdlib.Lexing;
-import ocaml.stdlib.List;
-import ocaml.stdlib.Marshal;
-import ocaml.stdlib.Nativeint;
-import ocaml.stdlib.Obj;
-import ocaml.stdlib.Parsing;
-import ocaml.stdlib.Pervasives;
-import ocaml.stdlib.Printf;
-import ocaml.stdlib.Random;
-import ocaml.stdlib.Set;
-import ocaml.stdlib.Sys;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -64,12 +25,9 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.codehaus.plexus.util.StringUtils;
-import org.ocamljava.runtime.annotations.parameters.Parameters;
 import org.ocamljava.runtime.kernel.AbstractNativeRunner;
 import org.ocamljava.runtime.kernel.FalseExit;
-import org.ocamljava.runtime.parameters.NativeParameters;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -348,32 +306,6 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 						.replace(".", "\\.")));
 	}
 	
-
-	protected static <T extends AbstractNativeRunner> T mainWithReturn(final String jarName,
-			final java.lang.String[] paramArrayOfString, final PrintStream out, final Class<T> clazz, final Function<T, T> beforeExecute) throws MojoExecutionException {
-		final T abstractNativeRunner;
-		try {
-			final Constructor<T> declaredConstructor = clazz.getDeclaredConstructor(
-					NativeParameters.class);
-			final boolean accessible = declaredConstructor.isAccessible();
-			if (!accessible)
-				declaredConstructor.setAccessible(true);
-			abstractNativeRunner = declaredConstructor.newInstance(
-					Parameters.fromStream(clazz
-							.getResourceAsStream("ocamljava.parameters"),
-							paramArrayOfString, System.in, out, System.err,
-							false, jarName, clazz));
-			if (!accessible)
-				declaredConstructor.setAccessible(false);
-		} catch (final Exception e) {
-			throw new MojoExecutionException("error creating main instance", e);
-		}
-		    
-		if (beforeExecute != null)
-			beforeExecute.apply(abstractNativeRunner);
-		abstractNativeRunner.execute();
-		return abstractNativeRunner;
-	}
 
 	protected File chooseOcamlSourcesDirectory() {
 		return ocamlSourceDirectory;

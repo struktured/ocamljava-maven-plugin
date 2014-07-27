@@ -1,12 +1,7 @@
 package mandelbrot.ocamljava_maven_plugin;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.PrintStream;
-import java.io.StringWriter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
@@ -14,44 +9,7 @@ import java.util.Properties;
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.ocamljava_maven_plugin.io.UncheckedOutputStream;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
-import ocaml.compilers.Ccomp;
-import ocaml.compilers.Clflags;
-import ocaml.compilers.Compenv;
-import ocaml.compilers.Config;
-import ocaml.compilers.Lexer;
-import ocaml.compilers.Location;
-import ocaml.compilers.Longident;
-import ocaml.compilers.Misc;
-import ocaml.compilers.Parse;
-import ocaml.compilers.Parser;
-import ocaml.compilers.Pparse;
-import ocaml.compilers.Syntaxerr;
-import ocaml.compilers.Terminfo;
-import ocaml.compilers.Warnings;
-import ocaml.stdlib.Arg;
-import ocaml.stdlib.Array;
-import ocaml.stdlib.Buffer;
-import ocaml.stdlib.CamlinternalLazy;
-import ocaml.stdlib.Char;
-import ocaml.stdlib.Digest;
-import ocaml.stdlib.Filename;
-import ocaml.stdlib.Format;
-import ocaml.stdlib.Hashtbl;
-import ocaml.stdlib.Int32;
-import ocaml.stdlib.Int64;
-import ocaml.stdlib.Lexing;
-import ocaml.stdlib.Marshal;
-import ocaml.stdlib.Nativeint;
-import ocaml.stdlib.Obj;
-import ocaml.stdlib.Parsing;
-import ocaml.stdlib.Pervasives;
-import ocaml.stdlib.Printf;
-import ocaml.stdlib.Random;
-import ocaml.stdlib.Set;
-import ocaml.stdlib.Sys;
-import ocaml.tools.ocamldep.Ocamldep;
 import ocaml.tools.ocamldep.ocamljavaMain;
-import ocaml.tools.ocamldoc.Depend;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -60,15 +18,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.shared.invoker.InvocationOutputHandler;
-import org.codehaus.plexus.component.configurator.converters.basic.ByteConverter;
-import org.codehaus.plexus.util.StringOutputStream;
 import org.codehaus.plexus.util.StringUtils;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-
-import fr.x9c.barista.ByteBuffer;
 
 /**
  * <p>
@@ -98,15 +51,6 @@ public class OcamlJavaDependencyMojo extends OcamlJavaAbstractMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
 		final Properties properties = System.getProperties();
-
-		// final URL[] classPathUrls = new
-		// ClassPathGatherer(this).getClassPathUrls(project, false);
-		//
-		// Thread.currentThread().setContextClassLoader(new
-		// URLClassLoader(classPathUrls,
-		// Thread.currentThread().getContextClassLoader()));
-		//
-		// final Path path = Paths.get("").toAbsolutePath();
 
 		final Object object = properties.get(FORK_PROPERTY_NAME);
 
