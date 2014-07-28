@@ -78,6 +78,16 @@
 			<groupId>org.ocamljava</groupId>
 			<artifactId>ocamldep</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.ocamljava</groupId>
+			<artifactId>ocamljava</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.ocamljava</groupId>
+			<artifactId>ocamlrun</artifactId>
+			<version>${ocamljava.version}</version>
+		</dependency>
+
 	</dependencies>
 
 </project>

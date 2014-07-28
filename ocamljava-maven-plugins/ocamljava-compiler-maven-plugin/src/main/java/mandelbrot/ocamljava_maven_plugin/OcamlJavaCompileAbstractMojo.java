@@ -9,12 +9,14 @@ import java.util.Set;
 
 import mandelbrot.dependency.data.DependencyGraph;
 import mandelbrot.dependency.data.ModuleDescriptor;
+import mandelbrot.ocamljava_maven_plugin.util.ArtifactDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileExtensions;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import ocaml.compilers.ocamljavaMain;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -63,10 +65,19 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			return;
 		}
 
-//		final ClassLoader classLoader = new URLClassLoader(new ClassPathGatherer(this).getClassPathUrls(project, false),
-//				Thread.currentThread().getContextClassLoader());
-//		Thread.currentThread().setContextClassLoader(classLoader);
-				
+		getLog().info("artifact map: " + project.getPluginArtifactMap());
+		
+		
+		new OcamlRuntimeContainer.Builder()
+			.setMojo(this)
+			.setRunningArtifact(project.getArtifactMap().get(
+					"org.ocamljava:ocamljava"))
+			.setOcamlRuntime(
+					project.getArtifactMap().get(
+							"org.ocamljava:ocamlrun"))
+			.setStagingFolder(outputDirectory)
+			.build();
+								
 		final Object object = System.getProperty(FORK_PROPERTY_NAME);
 		
 		if (Boolean.parseBoolean(Optional.fromNullable(object).or(FORK_BY_DEFAULT)
