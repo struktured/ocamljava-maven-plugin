@@ -12,6 +12,7 @@ import mandelbrot.dependency.data.ModuleDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.ArtifactDescriptor;
 import mandelbrot.ocamljava_maven_plugin.util.ClassPathGatherer;
 import mandelbrot.ocamljava_maven_plugin.util.FileExtensions;
+import mandelbrot.ocamljava_maven_plugin.util.FilePredicates;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 import ocaml.compilers.ocamljavaMain;
 
@@ -135,15 +136,16 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 
 		final Set<String> pathMappings = byPathMapping.keySet();
 		final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+		final Predicate<String> predicate = new Predicate<String>() { 
+							@Override public boolean apply(final String input) { return new File(input).exists(); }};
+	        final Collection<String> filteredIncludeDirs = Collections2.filter(includeDirs, predicate);
+     		final Collection<String> filteredPathMappings = Collections2.filter(pathMappings, predicate);
 
-		for (final String path : pathMappings) {
-
-			if (!sourceFiles.isEmpty()) {
+		for (final String path : filteredPathMappings) {
+		   			if (!sourceFiles.isEmpty()) {
 				final String[] sourceArgs = generateCommandLineArguments(ImmutableSet.<String>builder()
-						.addAll(Collections2.filter(includeDirs, 
-								new Predicate<String>() { 
-							@Override public boolean apply(final String input) { return new File(input).exists(); }}))
-						.addAll(pathMappings)
+						.addAll(filteredIncludeDirs)
+						.addAll(filteredPathMappings)
 						.build(),
 						toPackage(ocamlSourceDirectory, path), sourceFiles).toArray(new String[] {});
 				
@@ -259,7 +261,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 	    final ImmutableSet<String> classPathElements = ImmutableSet.<String>builder()
 	    		 .addAll(new ClassPathGatherer(this).getClassPath(project, false)).build();;
 		
-	    for (final String classPath : classPathElements) {
+	    for (final String classPath : Collections2.filter(classPathElements, FilePredicates.exists())) {
 			builder
 				.add(OcamlJavaConstants.CLASSPATH_OPTION)
 				.add(classPath);
