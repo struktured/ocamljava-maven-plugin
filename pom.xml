@@ -15,6 +15,8 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<ocamljava.version>2.0-alpha1</ocamljava.version>
+		<ocamljava.bin.path>/usr/local/bin/</ocamljava.bin.path>
+		<ocamljava.lib.path>/usr/local/lib/ocaml</ocamljava.lib.path>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -48,16 +50,22 @@
 				<groupId>org.ocamljava</groupId>
 				<artifactId>ocamljava</artifactId>
 				<version>${ocamljava.version}</version>
+				<scope>system</scope>
+				<systemPath>${ocamljava.bin.path}/ocamljava.jar</systemPath>
 			</dependency>
 			<dependency>
 				<groupId>org.ocamljava</groupId>
 				<artifactId>ocamljar</artifactId>
 				<version>${ocamljava.version}</version>
+				<scope>system</scope>
+				<systemPath>${ocamljava.bin.path}/ocamljar.jar</systemPath>
 			</dependency>
 			<dependency>
 				<groupId>org.ocamljava</groupId>
 				<artifactId>ocamlwrap</artifactId>
 				<version>${ocamljava.version}</version>
+				<scope>system</scope>
+				<systemPath>${ocamljava.bin.path}/ocamlwrap.jar</systemPath>
 			</dependency>
 			<dependency>
 				<groupId>org.ocamljava</groupId>
@@ -68,6 +76,15 @@
 				<groupId>org.ocamljava</groupId>
 				<artifactId>ocamlc</artifactId>
 				<version>${ocamljava.version}</version>
+				<scope>system</scope>
+				<systemPath>${ocamljava.bin.path}/ocamlc.jar</systemPath>
+			</dependency>
+			<dependency>
+				<groupId>org.ocamljava</groupId>
+				<artifactId>ocamlrun</artifactId>
+				<version>${ocamljava.version}</version>
+				<scope>system</scope>
+				<systemPath>${ocamljava.lib.path}/ocamlrun.jar</systemPath>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>

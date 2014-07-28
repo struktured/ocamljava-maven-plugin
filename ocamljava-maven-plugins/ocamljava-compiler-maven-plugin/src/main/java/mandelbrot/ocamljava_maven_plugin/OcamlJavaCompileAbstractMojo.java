@@ -66,16 +66,6 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		}
 
 		
-		new OcamlRuntimeContainer.Builder()
-			.setMojo(this)
-			.setRunningArtifact(project.getArtifactMap().get(
-					"org.ocamljava:ocamljava"))
-			.setOcamlRuntime(
-					project.getArtifactMap().get(
-							"org.ocamljava:ocamlrun"))
-			.setStagingFolder(outputDirectory)
-			.build();
-								
 		final Object object = System.getProperty(FORK_PROPERTY_NAME);
 		
 		if (Boolean.parseBoolean(Optional.fromNullable(object).or(FORK_BY_DEFAULT)
