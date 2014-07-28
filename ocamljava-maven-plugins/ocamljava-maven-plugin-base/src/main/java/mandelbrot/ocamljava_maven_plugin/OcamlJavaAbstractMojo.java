@@ -223,10 +223,14 @@ public abstract class OcamlJavaAbstractMojo extends AbstractMojo {
 	protected void addIncludePaths(final Collection<String> includePaths,
 			final ImmutableCollection.Builder<String> builder) {
 		for (final String includePath : includePaths) {
-			if (!StringUtils.isBlank(includePath)) {
-				builder.add(OcamlJavaConstants.INCLUDE_DIR_OPTION).add(
-						includePath);
-			}
+			
+			if (StringUtils.isBlank(includePath)) 
+				continue;
+			
+			if (!new File(includePath).exists())
+				continue;
+			
+			builder.add(OcamlJavaConstants.INCLUDE_DIR_OPTION).add(includePath);		
 		}
 	}
 
