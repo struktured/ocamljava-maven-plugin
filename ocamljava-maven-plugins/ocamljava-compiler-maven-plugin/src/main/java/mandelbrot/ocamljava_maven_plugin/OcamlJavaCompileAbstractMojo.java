@@ -65,8 +65,6 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 			return;
 		}
 
-		getLog().info("artifact map: " + project.getPluginArtifactMap());
-		
 		
 		new OcamlRuntimeContainer.Builder()
 			.setMojo(this)
