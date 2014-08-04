@@ -74,5 +74,9 @@ public class OcamlJavaConstants {
 	public static String wrapGoal() {
 		return "mandelbrot:ocamljava-wrap-maven-plugin:wrap";
 	}
+
+	public static String camlp4Goal() {
+		return "mandelbrot:ocamljava-camlp4-maven-plugin:camlp4";
+	}
 	
 }
