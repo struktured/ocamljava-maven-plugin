@@ -52,24 +52,16 @@ import com.google.common.collect.Multimap;
  * 
  * @since 1.0
  */
-@Mojo(name = "build", defaultPhase = LifecyclePhase.NONE, 
+@Mojo(name = "cmja", defaultPhase = LifecyclePhase.PACKAGE, 
 	threadSafe = true, requiresDependencyResolution = ResolutionScope.RUNTIME, requiresProject = true)
-public class OcamlBuildMojo extends OcamlBuildAbstractMojo {
+public class OcamlBuildCmjaMojo extends OcamlBuildAbstractMojo {
 
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	private static final String OCAMLJAVA_MAVEN_PLUGIN_COMMAND_LINE_ARGS = "ocamljava.maven.plugin.commandLineArgs";
 
 	/***
-	 * The working directory where the generated Java source files are created.
-	 * 
-	 */
-	@Parameter(required = true, defaultValue = "${project.build.directory}/generated-sources/ocaml")
-	protected File generatedSourcesOutputDirectory;
-
-	/***
 	 * <p>
-	 * The artifacts to scan for ocaml compiled interfaces and then perform code
 	 * generation on. Expressed with
 	 * groupId:artifactId:version[:type[:classifier]] format.
 	 * </p>
@@ -125,46 +117,9 @@ public class OcamlBuildMojo extends OcamlBuildAbstractMojo {
 	@Parameter(defaultValue = "")
 	protected String libaryPackage = "";
 
-	/***
-	 * Whether to disable warnings during the code generation process.
-	 * 
-	 */
-	@Parameter(defaultValue = "false")
-	protected boolean noWarnings;
-
-	public static enum StringMapping {
-		JAVA_STRING, OCAMLSTRING, BYTE_ARRAY;
-		public String toCommandLineValue() {
-			return name().toLowerCase().replace("_", "-");
-		}
-	}
-
-	/***
-	 * Determines the string mapping for the OCaml string type. One of
-	 * <code>JAVA_STRING</code>, <code>OCAMLSTRING</code>, or
-	 * <code>BYTE-ARRAY</code>.
-	 * 
-	 */
-	@Parameter(defaultValue = "JAVA_STRING")
-	protected StringMapping stringMapping = StringMapping.JAVA_STRING;
-
-	/***
-	 * Whether to enable verbose mode.
-	 * 
-	 **/
-	@Parameter(defaultValue = "false")
-	protected boolean verbose;
-
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
-//		if (hasCommandLineArgs()) {
-//			final ocamljavaMain result = org.ocamljava.wrapper.ocamljavaMain
-//					.mainWithReturn(getCommandLineArgs());
-//			// Will never execute, because the above forks.
-//			getLog().warn("process should have exited: " + result);
-//			return;
-//		}
 
 		if (targetArtifacts == null || targetArtifacts.isEmpty()) {
 			getLog().info("no artifacts to wrap");
@@ -301,46 +256,6 @@ public class OcamlBuildMojo extends OcamlBuildAbstractMojo {
 	}
 
 	
-	private void moveFiles(final Collection<String> cmiFiles) {
-
-		for (final String cmiFile : cmiFiles) {
-
-			try {
-
-				final String generatedSourceName = inferGeneratedSourceName(cmiFile);
-
-				final String packagePath = isDynamicPackageMode() ? FileMappings
-						.toPackagePath(getOcamlCompiledSourcesTargetFullPath(),
-								cmiFile) : packageName;
-				final String target =
-				// eg.
-				// target/generate-sources/ocaml/com/mycomp/FooWrapper.java
-				this.generatedSourcesOutputDirectory
-						+ (StringUtils.isNotBlank(packagePath) ? (File.separator + packagePath)
-								: "");
-
-				// TODO ..should I just scan for *.java instead, or some
-				// regex pattern specified in Maven project?
-				final File file = new File(project.getBasedir().getPath()
-						+ File.separator + generatedSourceName);
-
-				if (!file.exists()) {
-					getLog().warn(
-							"expected file " + file
-									+ " but it does not exist! skipping...");
-					continue;
-				}
-
-				final File targetDir = new File(target);
-				getLog().info("copying " + file + " to " + targetDir);
-
-				FileUtils.copyFileToDirectory(file, targetDir);
-			} catch (final IOException e) {
-				getLog().error("io exception", e);
-			}
-		}
-		return;
-	}
 
 	private String inferGeneratedSourceName(final String cmiFile) {
 		final String generatedSource = StringTransforms.trim(
@@ -415,19 +330,11 @@ public class OcamlBuildMojo extends OcamlBuildAbstractMojo {
 
 		final ImmutableList.Builder<String> builder = ImmutableList.builder();
 
-		if (noWarnings)
-			builder.add(OcamlJavaConstants.NO_WARNINGS_OPTION);
-
-		if (verbose)
-			builder.add(OcamlJavaConstants.VERBOSE_OPTION);
-
-		for (final String includePath : includePaths) {
-			if (!StringUtils.isBlank(includePath)) {
-				builder.add(OcamlJavaConstants.INCLUDE_DIR_OPTION).add(
-						includePath);
-			}
+		if (!includePaths.isEmpty()) {
+			builder.add(OcamlJavaConstants.INCLUDE_DIRS_OPTION);
+			builder.add(Joiner.on(OcamlJavaConstants.INCLUDE_DIR_SEPARATOR).join(includePaths));
 		}
-
+		
 		if (!StringUtils.isBlank(classNamePrefix)) {
 			builder.add(OcamlJavaConstants.CLASS_NAME_PREFIX_OPTION);
 			builder.add(classNamePrefix);
@@ -453,27 +360,8 @@ public class OcamlBuildMojo extends OcamlBuildAbstractMojo {
 			builder.add(libaryPackage);
 		}
 
-		if (!StringUtils.isBlank(packageName) && !isDynamicPackageMode()) {
-			builder.add(OcamlJavaConstants.PACKAGE_OPTION);
-			builder.add(this.packageName);
-		}
 
-		if (stringMapping != null) {
-			builder.add(OcamlJavaConstants.STRING_MAPPING_OPTION);
-			builder.add(stringMapping.toCommandLineValue());
-		}
-
-//		if (isDynamicPackageMode()) {
-//			builder.addAll(Collections2.transform(files,
-//					new Function<String, String>() {
-//						@Override
-//						public String apply(final String file) {
-//							return fileAtPackage(file, packageNames.get(file));
-//						}
-//					}));
-//		} else {
-			builder.addAll(files);
-//		}
+		builder.addAll(files);
 		return Optional.of(builder.build().toArray(new String[] {}));
 	}
 
