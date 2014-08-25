@@ -35,6 +35,8 @@ import com.google.common.collect.Multimap;
 public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo {
 
 
+	private static final String JAVALIB_CMJA = "javalib.cmja";
+
 	private static final Boolean FORK_BY_DEFAULT = Boolean.FALSE;
 
 	/**
@@ -138,8 +140,8 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
 		final Predicate<String> predicate = new Predicate<String>() { 
 							@Override public boolean apply(final String input) { return new File(input).exists(); }};
-	        final Collection<String> filteredIncludeDirs = Collections2.filter(includeDirs, predicate);
-     		final Collection<String> filteredPathMappings = Collections2.filter(pathMappings, predicate);
+	    final Collection<String> filteredIncludeDirs = Collections2.filter(includeDirs, predicate);
+	    final Collection<String> filteredPathMappings = Collections2.filter(pathMappings, predicate);
 
 		for (final String path : filteredPathMappings) {
 		   			if (!sourceFiles.isEmpty()) {
@@ -237,7 +239,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 				.<String> builder();
 
 		if (javaExtensions)
-			builder.add("javalib.cmja");
+			builder.add(JAVALIB_CMJA);
 		
 		if (recordDebugInfo) {
 			builder.add(OcamlJavaConstants.RECORD_DEBUGGING_INFO_OPTION);
@@ -281,6 +283,7 @@ public abstract class OcamlJavaCompileAbstractMojo extends OcamlJavaAbstractMojo
 		return outputDirectory.mkdirs();
 	}
 
+	@Override
 	protected abstract String chooseOcamlCompiledSourcesTarget();
 
 	public abstract String fullyQualifiedGoal();

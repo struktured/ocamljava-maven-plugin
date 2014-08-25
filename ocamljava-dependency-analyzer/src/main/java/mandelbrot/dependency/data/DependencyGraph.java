@@ -17,6 +17,7 @@ import mandelbrot.ocamljava_maven_plugin.io.UncheckedInputStream;
 import mandelbrot.ocamljava_maven_plugin.util.FileMappings;
 
 import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonTypeName;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -26,6 +27,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SortedSetMultimap;
 
 
@@ -38,6 +40,16 @@ public class DependencyGraph {
 	
 	@JsonProperty(DEPENDENCIES_PROPERTY)
 	private final Map<String, Collection<ModuleDescriptor>> dependencies;
+	
+	@JsonIgnore
+	public Collection<ModuleDescriptor> getModuleDescriptors() {
+		final ImmutableSet.Builder<ModuleDescriptor> builder = ImmutableSet.builder();
+		final Collection<Collection<ModuleDescriptor>> values = dependencies.values();	
+		for (final Collection<ModuleDescriptor> collection : values) {
+			builder.addAll(collection);
+		}
+		return builder.build();
+	}
 	
 	public Map<String, Collection<ModuleDescriptor>> getDependencies() {
 		return dependencies;
