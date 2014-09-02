@@ -41,20 +41,42 @@ import com.google.common.collect.Multimap;
 
 /**
  * <p>
- * This is a goal which executes ocamlbuild jobs. It is the same as executing something like
+ * This is a goal which executes <code>ocamlbuild</code> for <code>cmja</code>
+ * targets. It is the same as executing something like
  * </p>
  * <p>
  * <code>ocamlbuild foobar.cmja</code>
  * </p>
  * from the command line but instead uses maven parameters to infer the compiled
- * module interface locations. All parameters can be overridden. See the
- * configuration section of the documentation for more information.</p>
+ * module interface locations. It is similar to the traditional maven jar plugin
+ * but more powerful in that can compile sources if necessary.
+ * <p>
+ * All parameters can be overridden. See the configuration section of the
+ * documentation for more information.
+ * </p>
+ * </p>
  * 
  * @since 1.0
  */
-@Mojo(name = "cmja", defaultPhase = LifecyclePhase.PACKAGE, 
-	threadSafe = true, requiresDependencyResolution = ResolutionScope.RUNTIME, requiresProject = true)
+@Mojo(name = "cmja", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.RUNTIME, requiresProject = true)
 public class OcamlBuildCmjaMojo extends OcamlBuildAbstractMojo {
+
+	/***
+	 * The target cmja artifact to build. The resulting file will be something
+	 * like target/ocaml/my_project.cmja
+	 */
+	@Parameter(defaultValue = "${project.name}")
+	private String cmjaTarget;
+
+	public String getCmjaTarget() {
+		return StringUtils.isEmpty(cmjaTarget) ? null : StringUtils
+				.uncapitalise(cmjaTarget);
+	}
+
+	public String getCmjaTargetFullPath() {
+		return getOcamlCompiledSourcesTargetFullPath() + File.separator
+				+ getCmjaTarget();
+	}
 
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -120,7 +142,6 @@ public class OcamlBuildCmjaMojo extends OcamlBuildAbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
-
 		if (targetArtifacts == null || targetArtifacts.isEmpty()) {
 			getLog().info("no artifacts to wrap");
 			return;
@@ -161,11 +182,12 @@ public class OcamlBuildCmjaMojo extends OcamlBuildAbstractMojo {
 
 			if (compiledFiles.isEmpty()) {
 				getLog().info(
-						"no wrappable files found in " + getTargetJarFullPath());
+						"no buildable files found in " + getTargetJarFullPath());
 				return;
 			}
 
-			runOcamlBuild(FileMappings.buildPathMap(artifactFiles).values(), dependencyGraph.getModuleDescriptors());
+			runOcamlBuild(FileMappings.buildPathMap(artifactFiles).values(),
+					dependencyGraph.getModuleDescriptors());
 
 		}
 	}
@@ -203,22 +225,6 @@ public class OcamlBuildCmjaMojo extends OcamlBuildAbstractMojo {
 	}
 
 
-
-
-
-	private static Collection<String> filterFiles(
-			final Collection<String> filesInPackage) {
-		final Collection<String> cmiFiles = Collections2.filter(filesInPackage,
-				new Predicate<String>() {
-					@Override
-					public boolean apply(final String value) {
-						return OcamlJavaConstants.COMPILED_INTERFACE_EXTENSION
-								.equalsIgnoreCase(FileUtils.extension(value));
-					}
-				});
-		return cmiFiles;
-	}
-
 	public String fullyQualifiedGoal() {
 		return OcamlJavaConstants.wrapGoal();
 	}
@@ -253,19 +259,8 @@ public class OcamlBuildCmjaMojo extends OcamlBuildAbstractMojo {
 			}
 		};
 		return comparator;
-	}
+		}
 
-	
-
-	private String inferGeneratedSourceName(final String cmiFile) {
-		final String generatedSource = StringTransforms.trim(
-				FileUtils.basename(new File(cmiFile).getName()), ".");
-
-		return Optional.fromNullable(this.classNamePrefix).or("")
-				+ StringUtils.capitalizeFirstLetter(generatedSource)
-				+ Optional.fromNullable(this.classNameSuffix).or("")
-				+ OcamlJavaConstants.JAVA_EXTENSION;
-	}
 
 	private Multimap<String, String> extractFilesFromArtifacts(
 			final Collection<String> artifactFiles) {
@@ -325,16 +320,15 @@ public class OcamlBuildCmjaMojo extends OcamlBuildAbstractMojo {
 	private Optional<String[]> generateCommandLineArguments(
 			final Collection<String> includePaths,
 			final Collection<String> files) {
-		if (files == null || files.isEmpty())
-			return Optional.absent();
 
 		final ImmutableList.Builder<String> builder = ImmutableList.builder();
 
 		if (!includePaths.isEmpty()) {
 			builder.add(OcamlJavaConstants.INCLUDE_DIRS_OPTION);
-			builder.add(Joiner.on(OcamlJavaConstants.INCLUDE_DIR_SEPARATOR).join(includePaths));
+			builder.add(Joiner.on(OcamlJavaConstants.INCLUDE_DIR_SEPARATOR)
+					.join(includePaths));
 		}
-		
+
 		if (!StringUtils.isBlank(classNamePrefix)) {
 			builder.add(OcamlJavaConstants.CLASS_NAME_PREFIX_OPTION);
 			builder.add(classNamePrefix);
@@ -360,8 +354,8 @@ public class OcamlBuildCmjaMojo extends OcamlBuildAbstractMojo {
 			builder.add(libaryPackage);
 		}
 
+		builder.add(getCmjaTargetFullPath());
 
-		builder.addAll(files);
 		return Optional.of(builder.build().toArray(new String[] {}));
 	}
 
@@ -385,39 +379,53 @@ public class OcamlBuildCmjaMojo extends OcamlBuildAbstractMojo {
 		return ocamlCompiledSourcesTarget;
 	}
 
-	private Collection<String> runOcamlBuild(final Collection<String> includeDirs,
-			final Collection<ModuleDescriptor> moduleDescriptors) throws MojoExecutionException {
+	private Collection<String> runOcamlBuild(
+			final Collection<String> includeDirs,
+			final Collection<ModuleDescriptor> moduleDescriptors)
+			throws MojoExecutionException {
 
-		final Collection<String> sourceFiles = Collections2.transform(moduleDescriptors, ModuleDescriptor.toFileTransform());
+		final Collection<String> sourceFiles = Collections2.transform(
+				moduleDescriptors, ModuleDescriptor.toFileTransform());
 		final Multimap<String, String> byPathMapping = FileMappings
 				.buildPathMap(sourceFiles);
 
 		final Set<String> pathMappings = byPathMapping.keySet();
 		final ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-		final Predicate<String> predicate = new Predicate<String>() { 
-							@Override public boolean apply(final String input) { return new File(input).exists(); }};
-	    final Collection<String> filteredIncludeDirs = Collections2.filter(includeDirs, predicate);
-	    final Collection<String> filteredPathMappings = Collections2.filter(pathMappings, predicate);
+		final Predicate<String> predicate = new Predicate<String>() {
+			@Override
+			public boolean apply(final String input) {
+				return new File(input).exists();
+			}
+		};
+		final Collection<String> filteredIncludeDirs = Collections2.filter(
+				includeDirs, predicate);
+		final Collection<String> filteredPathMappings = Collections2.filter(
+				pathMappings, predicate);
 
 		for (final String path : filteredPathMappings) {
-		   			if (!sourceFiles.isEmpty()) {
-				final ImmutableSet<String> allIncludes = ImmutableSet.<String>builder()
-								.addAll(filteredIncludeDirs)
-								.addAll(filteredPathMappings)
-								.build();
-				final String[] sourceArgs = generateCommandLineArguments(allIncludes,
-						 sourceFiles).or(new String[] {});
+			if (!sourceFiles.isEmpty()) {
+				final ImmutableSet<String> allIncludes = ImmutableSet
+						.<String> builder().addAll(filteredIncludeDirs)
+						.addAll(filteredPathMappings).build();
+				final String[] sourceArgs = generateCommandLineArguments(
+						allIncludes, sourceFiles).or(new String[] {});
 				if (sourceArgs.length == 0)
 					continue;
-				
+
 				if (getLog().isInfoEnabled())
-					getLog().info("ocamljava compile args: " + Joiner.on(" ").join(ImmutableList.copyOf(sourceArgs)));
-				
-				final ocamljavaMain main = ocamljavaMain.mainWithReturn(sourceArgs);
-				checkForErrors("ocamljava compiler error while processing path: " + path, main);
+					getLog().info(
+							"ocamljava compile args: "
+									+ Joiner.on(" ").join(
+											ImmutableList.copyOf(sourceArgs)));
+
+				final ocamljavaMain main = ocamljavaMain
+						.mainWithReturn(sourceArgs);
+				checkForErrors(
+						"ocamljava compiler error while processing path: "
+								+ path, main);
 			}
 		}
-		 
+
 		return builder.build();
 	}
 

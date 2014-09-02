@@ -10,6 +10,7 @@
 	<packaging>maven-plugin</packaging>
 	<name>Ocaml Java Ocaml Build Maven Plugin</name>
 	<url>https://github.com/struktured/ocamljava-maven-plugin</url>
+	
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>
