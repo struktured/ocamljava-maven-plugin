@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<component-set>
+	<components>
+		<component>
+			<role>org.apache.maven.lifecycle.mapping.LifecycleMapping</role>
+			<!-- The POM packaging for this type of project is 'cmja' -->
+			<role-hint>cmja</role-hint>
+			<implementation>
+				org.apache.maven.lifecycle.mapping.DefaultLifecycleMapping
+			</implementation>
+			<configuration>
+				<lifecycles>
+					<lifecycle>
+						<id>default</id>
+						<phases>
+							<!-- Generate the plugin descriptor marking this artifact
+			 as a plugin for the weathermaker application. -->
+	      <generate-resources>
+		      mandelbrot:ocamljava-ocamlbuild-maven-plugin:\
+		      ${project.version}:generate-descriptor
+	      </generate-resources>
+	      <process-resources>
+		      org.apache.maven.plugins:maven-resources-plugin:resources
+	      </process-resources>
+	      <compile>
+		      org.mandelbrot.plugins:ocamljava-ocamlbuild-maven-plugin:compile
+	      </compile>
+	      <process-test-resources>
+		      org.apache.maven.plugins:maven-resources-plugin:testResources
+	      </process-test-resources>
+	      <test-compile>
+		      org.apache.maven.plugins:ocamljava-ocamlbuild-maven-plugin:testCompile
+	      </test-compile>
+	      <test>
+		      org.apache.maven.plugins:maven-surefire-plugin:test
+	      </test>
+	      <package>
+		      org.apache.maven.plugins:ocamljava-ocamlbuild-maven-plugin:jar
+	      </package>
+	      <install>
+		      org.apache.maven.plugins:maven-install-plugin:install
+	      </install>
+	      <deploy>
+		      org.apache.maven.plugins:maven-deploy-plugin:deploy
+	      </deploy>
+      </phases>
+	  </lifecycle>
+  </lifecycles>
+</configuration>
+</component>
+</components>
+</component-set>
+
