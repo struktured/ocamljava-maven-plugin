@@ -3,11 +3,12 @@ from os import listdir, getcwd, system
 from os.path import isfile, join
 import ntpath
 import sys, getopt
+URL_PREFIX="http://www.ocamljava.org/files/distrib/"
+URL_SUFFIX= "-bin.tar.gz"
+OCAMLJAVA_ALPHA3 = '2.0-alpha3'
 
-OCAMLJAVA_ALPHA1 = '2.0-alpha1'
-
-VERSIONS = [OCAMLJAVA_ALPHA1]
-VERSION = OCAMLJAVA_ALPHA1
+VERSIONS = [OCAMLJAVA_ALPHA3]
+VERSION = OCAMLJAVA_ALPHA3
 
 def show_help(exit_code=0) :
   print 'install_maven_dependencies.py -v <OCAML_VERSION> -o <IS_OFFLINE> -j <SPECIFIC_JAR>'
@@ -23,8 +24,8 @@ def go(is_offline=False, version=VERSION, specific_jar=None):
     else:
             file_name_base = "ocamljava-" + version
             file_name_tgz = file_name_base + ".tar.gz"
-	    url_root = "http://www.ocamljava.org/downloads/" 
-	    url_file = "download-" + version + ("-bin" if VERSION == OCAMLJAVA_ALPHA1 else "") + ".php"  
+	    url_root = "http://www.ocamljava.org/files/distrib/" 
+	    url_file = "ocamljava-" + version + "-bin" + ".tar.gz"  
 	    url = url_root + url_file
 	    command = " ".join(["wget", "--user", USER, "--password", PASSWORD, "-O", file_name_tgz, url])
 	    system(command)
