@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from os import listdir, getcwd, system
-from os.path import isfile, join
+from os.path import isfile,join,dirname,realpath
 import ntpath
 import sys, getopt
 URL_PREFIX="http://www.ocamljava.org/files/distrib/"
@@ -9,6 +9,9 @@ OCAMLJAVA_ALPHA3 = '2.0-alpha3'
 
 VERSIONS = [OCAMLJAVA_ALPHA3]
 VERSION = OCAMLJAVA_ALPHA3
+
+def get_script_dir() :
+    return dirname(realpath(sys.argv[0]))
 
 def show_help(exit_code=0) :
   print 'install_maven_dependencies.py -v <OCAML_VERSION> -o <IS_OFFLINE> -j <SPECIFIC_JAR>'
@@ -43,7 +46,7 @@ def go(is_offline=False, version=VERSION, specific_jar=None):
       print "Installing " + str(jar_file)
       abs_jar_file = specific_jar if specific_jar != None else join(getcwd(), "ocamljava-" + version, "lib", str(jar_file))
       base_name = ntpath.basename(abs_jar_file).split('.')[0]
-      pom_file = join(getcwd(), base_name + ".pom")
+      pom_file = join(get_script_dir(), base_name + ".pom")
       command_args = " ".join(["mvn", "install:install-file",
 	      "-Dfile=" + abs_jar_file, "-DpomFile=" + pom_file])
       print command_args
